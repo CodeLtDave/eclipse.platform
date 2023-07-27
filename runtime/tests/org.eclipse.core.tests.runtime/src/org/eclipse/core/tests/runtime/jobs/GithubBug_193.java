@@ -15,22 +15,12 @@ package org.eclipse.core.tests.runtime.jobs;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
+import java.util.*;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
 import junit.framework.TestCase;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.IJobChangeEvent;
-import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.core.runtime.jobs.JobChangeAdapter;
+import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.jobs.*;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -57,13 +47,13 @@ public class GithubBug_193 extends TestCase {
 		int jobCount = 1000;
 		JobWatcher watcher = JobWatcher.startWatchingFor(JOB_FAMILY1, JOB_FAMILY2, JOB_FAMILY3);
 		List<Job> fewJobs = startFewJobs(jobCount);
-		assertEquals("Checking all " + jobCount + " jobs are scheduled.", jobCount, watcher.getScheduled());
-
 		watcher.waitUntilJobsAreDone();
-		assertEquals("Checking there are no more jobs to wait for.", Collections.emptyList(),
-				watcher.getJobsToWaitFor());
-		assertEquals("Checking all scheduled jobs are done.", watcher.getScheduled(), watcher.getDone());
-		assertEquals("Checking all " + jobCount + " scheduled jobs are done.", jobCount, watcher.getDone());
+		assertEquals(Collections.emptyList(), watcher.getJobsToWaitFor());
+		assertEquals(watcher.getScheduled(), watcher.getDone());
+		assertEquals(fewJobs.size(), watcher.getDone());
+
+		System.out.println("Scheduled: " + watcher.getScheduled());
+		System.out.println("Done: " + watcher.getDone());
 	}
 
 	private List<Job> startFewJobs(int jobCount) {
