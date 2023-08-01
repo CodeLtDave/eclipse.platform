@@ -1892,33 +1892,61 @@ public class IJobManagerTest extends AbstractJobManagerTest {
 	}
 
 	public void testSleep() {
-		TestJob job = new TestJob("ParentJob", 1000000, 10);
-		//sleeping a job that isn't scheduled should have no effect
+		final TestBarrier2 barrier = new TestBarrier2(TestBarrier2.STATUS_WAIT_FOR_START);
+
+		TestJob job = new TestJob("ParentJob", 1000000, 10) {
+			@Override
+			public IStatus run(IProgressMonitor monitor) {
+				barrier.waitForStatus(TestBarrier2.STATUS_WAIT_FOR_DONE);
+				return super.run(monitor);
+			}
+		};
+
+		IJobChangeListener monitor = new JobChangeAdapter() {
+			@Override
+			public void running(IJobChangeEvent event) {
+				if (event.getJob().equals(job)) {
+					barrier.setStatus(TestBarrier2.STATUS_RUNNING);
+				}
+			}
+
+			@Override
+			public void done(IJobChangeEvent event) {
+				if (event.getJob().equals(job)) {
+					barrier.setStatus(TestBarrier2.STATUS_DONE);
+				}
+			}
+		};
+
+		manager.addJobChangeListener(monitor);
+
+		// Test 1: sleeping a job that isn't scheduled should have no effect
 		assertEquals("1.0", Job.NONE, job.getState());
 		assertTrue("1.1", job.sleep());
 		assertEquals("1.2", Job.NONE, job.getState());
 
-		// sleeping a job that is already running should not work
+		// Test 2: sleeping a job that is already running should not work
 		job.schedule();
-		barrier.waitForStatus(TestBarrier2.STATUS_START);
+		barrier.waitForStatus(TestBarrier2.STATUS_RUNNING);
 		assertState("2.0", job, Job.RUNNING);
 		assertTrue("2.1", !job.sleep());
 		assertState("2.2", job, Job.RUNNING);
+		barrier.setStatus(TestBarrier2.STATUS_WAIT_FOR_DONE);
 		job.terminate();
-		waitForNoneState(job);
+		barrier.waitForStatus(TestBarrier2.STATUS_DONE);
+		assertState("2.3", job, Job.NONE);
 
-		// sleeping a job that is already sleeping should make sure it never runs
+		// Test 3: sleeping a job that is in "post done state" (Job.None) should make sure it never runs
 		job.schedule(10000);
-		// for the next stage
 		assertState("3.0", job, Job.SLEEPING);
 		assertTrue("3.1", job.sleep());
 		assertState("3.2", job, Job.SLEEPING);
 		// wait awhile and ensure the job is still sleeping
 		Thread.yield();
-		sleep(60); // TODO is this necessary
-		Thread.yield();
 		assertState("3.3", job, Job.SLEEPING);
 		assertTrue("3.4", job.cancel()); // should be possible to cancel a sleeping job
+
+		manager.removeJobChangeListener(monitor);
 	}
 
 
