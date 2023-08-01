@@ -46,6 +46,7 @@ import org.eclipse.core.runtime.jobs.MultiRule;
 import org.eclipse.core.tests.harness.FussyProgressMonitor;
 import org.eclipse.core.tests.harness.TestBarrier2;
 import org.eclipse.core.tests.harness.TestJob;
+import org.junit.Assert;
 
 /**
  * Tests the API of the class IJobManager
@@ -156,7 +157,7 @@ public class IJobManagerTest extends AbstractJobManagerTest {
 				((TestJobListener) jobListener).cancelAllJobs();
 			}
 		}
-		waitForCompletion();
+		waitForNoJobsRunning();
 		for (IJobChangeListener jobListener : jobListeners) {
 			manager.removeJobChangeListener(jobListener);
 		}
@@ -573,7 +574,7 @@ public class IJobManagerTest extends AbstractJobManagerTest {
 			TestJob job = new TestJob("Noop", 0, 0);
 			assertEquals("1.0", 0, job.getRunCount());
 			job.schedule(sleepTimes[i]);
-			waitForCompletion();
+			waitForCompletion(job);
 			assertEquals("1.1." + i, 1, job.getRunCount());
 			long duration = now() - start;
 			assertTrue("1.2: duration: " + duration + " sleep: " + sleepTimes[i], duration >= sleepTimes[i]);
@@ -606,7 +607,7 @@ public class IJobManagerTest extends AbstractJobManagerTest {
 			jobs[i].schedule();
 		}
 
-		waitForStart(jobs[0]);
+		waitForRunning(jobs[0]);
 
 		assertState("1.0", jobs[0], Job.RUNNING);
 
@@ -622,7 +623,7 @@ public class IJobManagerTest extends AbstractJobManagerTest {
 		//the previously running job should have no state
 		assertState("2.0", jobs[0], Job.NONE);
 		//the first job from the second family should now be running
-		waitForStart(jobs[1]);
+		waitForRunning(jobs[1]);
 
 		for (int i = 2; i < NUM_JOBS; i++) {
 			//all other jobs in the first family should be removed from the waiting queue
@@ -700,7 +701,7 @@ public class IJobManagerTest extends AbstractJobManagerTest {
 			jobs[i].schedule();
 		}
 
-		waitForStart(jobs[0]);
+		waitForRunning(jobs[0]);
 
 		//try finding all jobs by supplying the NULL parameter
 		//note that this might find other jobs that are running as a side-effect of the test
@@ -762,7 +763,7 @@ public class IJobManagerTest extends AbstractJobManagerTest {
 		manager.cancel(first);
 
 		//the third job should start running
-		waitForStart(jobs[2]);
+		waitForRunning(jobs[2]);
 		assertState("7.1", jobs[2], Job.RUNNING);
 
 		//finding all jobs from the first family should return an empty array
@@ -959,7 +960,7 @@ public class IJobManagerTest extends AbstractJobManagerTest {
 		t.start();
 		TestBarrier2.waitForStatus(status, 0, TestBarrier2.STATUS_START);
 		status.set(0, TestBarrier2.STATUS_WAIT_FOR_RUN);
-		waitForStart(jobs[0]);
+		waitForRunning(jobs[0]);
 		TestBarrier2.waitForStatus(status, 0, TestBarrier2.STATUS_RUNNING);
 
 		assertState("2.0", jobs[0], Job.RUNNING);
@@ -1027,7 +1028,7 @@ public class IJobManagerTest extends AbstractJobManagerTest {
 		t.start();
 		TestBarrier2.waitForStatus(status, 0, TestBarrier2.STATUS_START);
 		status.set(0, TestBarrier2.STATUS_WAIT_FOR_RUN);
-		waitForStart(jobs[0]);
+		waitForRunning(jobs[0]);
 		TestBarrier2.waitForStatus(status, 0, TestBarrier2.STATUS_RUNNING);
 
 		assertState("2.0", jobs[0], Job.RUNNING);
@@ -1183,7 +1184,7 @@ public class IJobManagerTest extends AbstractJobManagerTest {
 
 		//try joining the third family of jobs, which is empty
 		//join method should return without blocking
-		waitForStart(jobs[0]);
+		waitForRunning(jobs[0]);
 		t.start();
 
 		//let the thread execute the join call
@@ -1487,7 +1488,7 @@ public class IJobManagerTest extends AbstractJobManagerTest {
 			jobs[i].schedule();
 		}
 
-		waitForStart(jobs[0]);
+		waitForRunning(jobs[0]);
 		assertState("1.0", jobs[0], Job.RUNNING);
 
 		//put all jobs to sleep
@@ -1545,7 +1546,7 @@ public class IJobManagerTest extends AbstractJobManagerTest {
 			jobs[i].schedule();
 		}
 
-		waitForStart(jobs[0]);
+		waitForRunning(jobs[0]);
 
 		assertState("1.0", jobs[0], Job.RUNNING);
 
@@ -1576,7 +1577,7 @@ public class IJobManagerTest extends AbstractJobManagerTest {
 		manager.sleep(second);
 		//cancel the running job
 		jobs[0].cancel();
-		waitForCancel(jobs[0]);
+		waitForNoneState(jobs[0]);
 
 		//no job should now be running
 		assertNull("4.0", manager.currentJob());
@@ -1612,7 +1613,7 @@ public class IJobManagerTest extends AbstractJobManagerTest {
 		TestJob seedJob = new FamilyTestJob("SeedJob", 1000000, 1, TestJobFamily.TYPE_THREE);
 		seedJob.setRule(rule);
 		seedJob.schedule();
-		waitForStart(seedJob);
+		waitForRunning(seedJob);
 		assertState("1.0", seedJob, Job.RUNNING);
 
 		//create jobs in first family and put them to sleep
@@ -1636,7 +1637,7 @@ public class IJobManagerTest extends AbstractJobManagerTest {
 
 		//cancel the seed job
 		seedJob.cancel();
-		waitForCancel(seedJob);
+		waitForNoneState(seedJob);
 		assertState("3.0", seedJob, Job.NONE);
 
 		//all family jobs should still be sleeping
@@ -1671,7 +1672,7 @@ public class IJobManagerTest extends AbstractJobManagerTest {
 		for (int i = 0; i < JOBS_PER_FAMILY; i++) {
 			//the running job may not respond immediately
 			if (!family2[i].cancel()) {
-				waitForCancel(family2[i]);
+				waitForNoneState(family2[i]);
 			}
 			assertState("5." + i, family2[i], Job.NONE);
 		}
@@ -1701,7 +1702,7 @@ public class IJobManagerTest extends AbstractJobManagerTest {
 		for (int i = 0; i < JOBS_PER_FAMILY; i++) {
 			//the running job may not respond immediately
 			if (!family1[i].cancel()) {
-				waitForCancel(family1[i]);
+				waitForNoneState(family1[i]);
 			}
 			assertState("8." + i, family1[i], Job.NONE);
 		}
@@ -1725,7 +1726,7 @@ public class IJobManagerTest extends AbstractJobManagerTest {
 			jobs[i].schedule();
 		}
 		//first job should be running, all others should be waiting
-		waitForStart(jobs[0]);
+		waitForRunning(jobs[0]);
 		assertState("1.0", jobs[0], Job.RUNNING);
 		for (int i = 1; i < JOB_COUNT; i++) {
 			assertState("1.1." + i, jobs[i], Job.WAITING);
@@ -1733,7 +1734,7 @@ public class IJobManagerTest extends AbstractJobManagerTest {
 		//cancel job i, then i+1 should run and all others should wait
 		for (int i = 0; i < JOB_COUNT - 1; i++) {
 			jobs[i].cancel();
-			waitForStart(jobs[i + 1]);
+			waitForRunning(jobs[i + 1]);
 			assertState("2.0." + i, jobs[i + 1], Job.RUNNING);
 			for (int j = i + 2; j < JOB_COUNT; j++) {
 				assertState("2.1" + i + "." + j, jobs[j], Job.WAITING);
@@ -1835,12 +1836,12 @@ public class IJobManagerTest extends AbstractJobManagerTest {
 		for (int i = 0; i < JOB_COUNT; i++) {
 			new TestJob("testSimple", 1, 1).schedule();
 		}
-		waitForCompletion();
+		waitForNoJobsRunning();
 		//
 		for (int i = 0; i < JOB_COUNT; i++) {
 			new TestJob("testSimple", 1, 1).schedule(50);
 		}
-		waitForCompletion();
+		waitForNoJobsRunning();
 	}
 
 	/**
@@ -1897,28 +1898,29 @@ public class IJobManagerTest extends AbstractJobManagerTest {
 		assertTrue("1.1", job.sleep());
 		assertEquals("1.2", Job.NONE, job.getState());
 
-		//sleeping a job that is already running should not work
+		// sleeping a job that is already running should not work
 		job.schedule();
-		//give the job a chance to start
-		waitForStart(job);
+		barrier.waitForStatus(TestBarrier2.STATUS_START);
 		assertState("2.0", job, Job.RUNNING);
 		assertTrue("2.1", !job.sleep());
 		assertState("2.2", job, Job.RUNNING);
 		job.terminate();
-		waitForCompletion();
+		waitForNoneState(job);
 
-		//sleeping a job that is already sleeping should make sure it never runs
+		// sleeping a job that is already sleeping should make sure it never runs
 		job.schedule(10000);
+		// for the next stage
 		assertState("3.0", job, Job.SLEEPING);
 		assertTrue("3.1", job.sleep());
 		assertState("3.2", job, Job.SLEEPING);
-		//wait awhile and ensure the job is still sleeping
+		// wait awhile and ensure the job is still sleeping
 		Thread.yield();
-		sleep(60);
+		sleep(60); // TODO is this necessary
 		Thread.yield();
 		assertState("3.3", job, Job.SLEEPING);
-		assertTrue("3.4", job.cancel()); //should be possible to cancel a sleeping job
+		assertTrue("3.4", job.cancel()); // should be possible to cancel a sleeping job
 	}
+
 
 	public void testSleepOnWait() {
 		final ISchedulingRule rule = new PathRule("testSleepOnWait");
@@ -1942,7 +1944,7 @@ public class IJobManagerTest extends AbstractJobManagerTest {
 
 		//now wake the job up
 		job.wakeUp();
-		waitForStart(job);
+		waitForRunning(job);
 		assertState("2.0", job, Job.RUNNING);
 
 		//finally cancel the job
@@ -2402,8 +2404,8 @@ public class IJobManagerTest extends AbstractJobManagerTest {
 			jobs[i].schedule();
 		}
 		//first two jobs should be running, all others should be waiting
-		waitForStart(jobs[0]);
-		waitForStart(jobs[1]);
+		waitForRunning(jobs[0]);
+		waitForRunning(jobs[1]);
 		assertState("1.0", jobs[0], Job.RUNNING);
 		assertState("1.1", jobs[1], Job.RUNNING);
 		for (int i = 2; i < JOB_COUNT; i++) {
@@ -2413,9 +2415,9 @@ public class IJobManagerTest extends AbstractJobManagerTest {
 		for (int i = 0; i < JOB_COUNT; i++) {
 			jobs[i].cancel();
 			try {
-				waitForStart(jobs[i + 1]);
+				waitForRunning(jobs[i + 1]);
 				assertState("2.0." + i, jobs[i + 1], Job.RUNNING);
-				waitForStart(jobs[i + 2]);
+				waitForRunning(jobs[i + 2]);
 				assertState("2.1." + i, jobs[i + 2], Job.RUNNING);
 			} catch (ArrayIndexOutOfBoundsException e) {
 				//ignore
@@ -2426,40 +2428,54 @@ public class IJobManagerTest extends AbstractJobManagerTest {
 		}
 	}
 
+	private static void waitForState(Job job, int expectedState, int sanityTimeout) {
+		long start = System.nanoTime();
+		int actualState = job.getState();
+		while (actualState != expectedState) {
+			Thread.yield();
+			// sanity test to avoid hanging tests
+			long elapsed = (System.nanoTime() - start) / 1_000_000;
+			boolean condition = elapsed < sanityTimeout;
+			if (!condition) {
+				String dump = TestBarrier2.getThreadDump();
+				if (actualState > expectedState) {
+					Assert.fail("Timeout after " + elapsed + "ms - Status already in state " + actualState
+							+ " - waiting for " + expectedState + "\n" + dump);
+				} else {
+					Assert.fail("Timeout after " + elapsed + "ms waiting for status to change from " + actualState
+							+ " to " + expectedState + "\n" + dump);
+				}
+			}
+			actualState = job.getState();
+		}
+	}
+
+	private static void waitForState(Job job, int expectedState) {
+		waitForState(job, expectedState, 1000);
+	}
+
+	/**
+	 * A job has been scheduled. Pause this thread so that a worker thread has a
+	 * chance to pick up the new job.
+	 */
+	private static void waitForRunning(TestJob job) {
+		waitForState(job, Job.RUNNING);
+	}
+
 	/**
 	 * A job has been canceled.  Pause this thread so that a worker thread
 	 * has a chance to receive the cancel event.
 	 */
-	private void waitForCancel(Job job) {
-		int i = 0;
-		while (job.getState() == Job.RUNNING) {
-			Thread.yield();
-			sleep(100);
-			Thread.yield();
-			//sanity test to avoid hanging tests
-			if (i++ > 1000) {
-				dumpState();
-				assertTrue("Timeout waiting for job to cancel", false);
-			}
-		}
+	private static void waitForNoneState(Job job) {
+		waitForState(job, Job.NONE);
 	}
 
-	private void waitForCompletion() {
-		int i = 0;
+	private void waitForNoJobsRunning() {
 		assertTrue("Jobs completed that weren't scheduled", completedJobs.get() <= scheduledJobs.get());
-		while (completedJobs.get() < scheduledJobs.get()) {
-			try {
-				synchronized (this) {
-					this.wait(1);
-				}
-			} catch (InterruptedException e) {
-				//ignore
-			}
-			//sanity test to avoid hanging tests
-			if (i++ > 100000) {
-				dumpState();
-				assertTrue("Timeout waiting for job to complete", false);
-			}
+		Job currentJob = manager.currentJob();
+		while (currentJob != null) {
+			waitForNoneState(currentJob);
+			currentJob = manager.currentJob();
 		}
 	}
 
@@ -2467,42 +2483,12 @@ public class IJobManagerTest extends AbstractJobManagerTest {
 	 * A family of jobs have been canceled. Pause this thread until all of the jobs
 	 * in the family are canceled
 	 */
-	private void waitForFamilyCancel(Job[] jobs, TestJobFamily type) {
+	private static void waitForFamilyCancel(Job[] jobs, TestJobFamily type) {
 
 		for (Job job : jobs) {
-			int i = 0;
-			while (job.belongsTo(type) && (job.getState() != Job.NONE)) {
-				Thread.yield();
-				sleep(100);
-				Thread.yield();
-				//sanity test to avoid hanging tests
-				if (i++ > 100) {
-					dumpState();
-					assertTrue("Timeout waiting for job in family " + type.getType() + "to be canceled ", false);
-				}
+			if (job.belongsTo(type)) {
+				waitForNoneState(job);
 			}
 		}
-	}
-
-	private void waitForRunCount(TestJob job, int runCount) {
-		int i = 0;
-		while (job.getRunCount() < runCount) {
-			Thread.yield();
-			sleep(100);
-			Thread.yield();
-			//sanity test to avoid hanging tests
-			if (i++ >= 1000) {
-				dumpState();
-				assertTrue("Timeout waiting for job to start. Job: " + job + ", state: " + job.getState(), false);
-			}
-		}
-	}
-
-	/**
-	 * A job has been scheduled.  Pause this thread so that a worker thread
-	 * has a chance to pick up the new job.
-	 */
-	private void waitForStart(TestJob job) {
-		waitForRunCount(job, 1);
 	}
 }
