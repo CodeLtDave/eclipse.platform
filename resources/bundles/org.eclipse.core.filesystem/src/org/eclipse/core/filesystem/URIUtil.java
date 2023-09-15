@@ -147,7 +147,11 @@ public class URIUtil {
 		try {
 			String scheme = null;
 			if (length > 0 && (pathBuf.charAt(0) == '/')) {
-				scheme = EFS.SCHEME_FILE;
+				if (pathString.endsWith("zip")) { //$NON-NLS-1$
+					scheme = "zip"; //$NON-NLS-1$
+				} else {
+					scheme = EFS.SCHEME_FILE;
+				}
 			}
 			return new URI(scheme, null, pathBuf.toString(), null);
 		} catch (URISyntaxException e) {

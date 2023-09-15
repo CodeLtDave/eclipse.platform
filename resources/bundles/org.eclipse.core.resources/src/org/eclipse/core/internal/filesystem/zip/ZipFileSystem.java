@@ -23,7 +23,8 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 
 /**
- * 
+ * @since 3.20
+ *
  */
 public class ZipFileSystem extends FileSystem {
 	/**
