@@ -16,10 +16,14 @@
  *******************************************************************************/
 package org.eclipse.core.internal.resources;
 
-import java.io.*;
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
 import java.util.Map;
 import org.eclipse.core.internal.localstore.FileStoreRoot;
-import org.eclipse.core.internal.utils.*;
+import org.eclipse.core.internal.utils.IStringPoolParticipant;
+import org.eclipse.core.internal.utils.ObjectMap;
+import org.eclipse.core.internal.utils.StringPool;
 import org.eclipse.core.internal.watson.IElementTreeData;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.QualifiedName;
@@ -456,8 +460,8 @@ public class ResourceInfo implements IElementTreeData, ICoreConstants, IStringPo
 	}
 
 	/**
-	 * Sets the type for this info to the given value.  Valid values are
-	 * FILE, FOLDER, PROJECT
+	 * Sets the type for this info to the given value. Valid values are FILE,
+	 * FOLDER, PROJECT, FOLDER_ARCHIVE
 	 */
 	public void setType(int value) {
 		setBits(M_TYPE, M_TYPE_START, value);

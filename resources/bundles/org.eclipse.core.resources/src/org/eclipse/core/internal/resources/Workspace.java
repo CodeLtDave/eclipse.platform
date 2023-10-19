@@ -2227,6 +2227,11 @@ public class Workspace extends PlatformObject implements IWorkspace, ICoreConsta
 					message = "Path must include project and resource name: " + path.toString(); //$NON-NLS-1$
 					Assert.isLegal(false, message);
 				}
+
+				if (path.lastSegment().endsWith(".zip")) { //$NON-NLS-1$
+					return new FolderArchive(path.makeAbsolute(), this);
+				}
+
 				return new Folder(path.makeAbsolute(), this);
 			case IResource.FILE :
 				if (path.segmentCount() < ICoreConstants.MINIMUM_FILE_SEGMENT_LENGTH) {

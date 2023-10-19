@@ -118,6 +118,15 @@ public interface IResource extends IAdaptable, ISchedulingRule {
 	 */
 	int ROOT = 0x8;
 
+	/**
+	 * Type constant (bit mask value 10) which identifies the root resource.
+	 *
+	 * @see IResource#getType()
+	 * @see IWorkspaceRoot
+	 * @since 3.20
+	 */
+	int FOLDER_ARCHIVE = 0x10;
+
 	/*====================================================================
 	 * Constants defining the depth of resource tree traversal:
 	 *====================================================================*/
