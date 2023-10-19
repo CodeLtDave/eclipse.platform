@@ -22,14 +22,27 @@ package org.eclipse.core.internal.localstore;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.regex.Pattern;
-import org.eclipse.core.filesystem.*;
+import org.eclipse.core.filesystem.EFS;
+import org.eclipse.core.filesystem.IFileInfo;
+import org.eclipse.core.filesystem.IFileStore;
+import org.eclipse.core.filesystem.IFileTree;
 import org.eclipse.core.internal.refresh.RefreshJob;
-import org.eclipse.core.internal.resources.*;
+import org.eclipse.core.internal.resources.ICoreConstants;
+import org.eclipse.core.internal.resources.Resource;
+import org.eclipse.core.internal.resources.ResourceInfo;
+import org.eclipse.core.internal.resources.Workspace;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.Assert;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.jobs.Job;
 
 /**
@@ -169,6 +182,9 @@ public class UnifiedTree {
 				target = members[workspaceIndex];
 				String name = target.getName();
 				IFileInfo localInfo = localIndex < list.length ? list[localIndex] : null;
+				if (localInfo.getName().endsWith(".zip")) { //$NON-NLS-1$
+					localInfo.setAttribute(1 << 0, true);
+				}
 				int comp = localInfo != null ? name.compareTo(localInfo.getName()) : -1;
 				//special handling for linked resources
 				if (target.isLinked()) {
