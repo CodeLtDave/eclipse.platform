@@ -168,6 +168,9 @@ public class FileInfo implements IFileInfo {
 
 	@Override
 	public void setAttribute(int attribute, boolean value) {
+		if (attribute == EFS.ATTRIBUTE_ARCHIVE) {
+			attribute = attribute | ATTRIBUTE_DIRECTORY;
+		}
 		if (attribute == EFS.ATTRIBUTE_READ_ONLY && isAttributeSuported(EFS.ATTRIBUTE_OWNER_WRITE)) {
 			if (value) {
 				clear(EFS.ATTRIBUTE_OWNER_WRITE | EFS.ATTRIBUTE_OTHER_WRITE | EFS.ATTRIBUTE_GROUP_WRITE);

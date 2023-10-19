@@ -264,7 +264,7 @@ public class ResourceInfo implements IElementTreeData, ICoreConstants, IStringPo
 
 	/**
 	 * Returns the type setting for this info.  Valid values are
-	 * FILE, FOLDER, PROJECT,
+	 * FILE, FOLDER, PROJECT, FOLDER_ARCHIVE,
 	 */
 	public int getType() {
 		return getType(flags);

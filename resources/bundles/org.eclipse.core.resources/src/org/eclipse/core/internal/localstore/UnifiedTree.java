@@ -182,9 +182,6 @@ public class UnifiedTree {
 				target = members[workspaceIndex];
 				String name = target.getName();
 				IFileInfo localInfo = localIndex < list.length ? list[localIndex] : null;
-				if (localInfo.getName().endsWith(".zip")) { //$NON-NLS-1$
-					localInfo.setAttribute(1 << 0, true);
-				}
 				int comp = localInfo != null ? name.compareTo(localInfo.getName()) : -1;
 				//special handling for linked resources
 				if (target.isLinked()) {
