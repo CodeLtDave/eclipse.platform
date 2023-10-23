@@ -221,7 +221,8 @@ public class ZipFileStore extends FileStore {
 
 	@Override
 	public InputStream openInputStream(int options, IProgressMonitor monitor) throws CoreException {
-		try (ZipInputStream in = new ZipInputStream(rootStore.openInputStream(EFS.NONE, monitor))) {
+		try {
+			ZipInputStream in = new ZipInputStream(rootStore.openInputStream(EFS.NONE, monitor));
 			ZipEntry entry = findEntry(path.toString(), in);
 			if (entry == null) {
 				throw new CoreException(Status.error("File not found: " + rootStore.toString()));
