@@ -15,26 +15,16 @@
 package org.eclipse.core.internal.resources;
 
 import org.eclipse.core.resources.IFolderArchive;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IProgressMonitor;
 
-public class FolderArchive extends Container implements IFolderArchive {
+public class FolderArchive extends Folder implements IFolderArchive {
 	protected FolderArchive(IPath path, Workspace container) {
 		super(path, container);
 	}
 
 	@Override
-	public String getDefaultCharset(boolean checkImplicit) throws CoreException {
+	public String getDefaultCharset(boolean checkImplicit) {
 		return null;
-	}
-
-	@Override
-	public void create(boolean force, boolean local, IProgressMonitor monitor) throws CoreException {
-	}
-
-	@Override
-	public void create(int updateFlags, boolean local, IProgressMonitor monitor) throws CoreException {
 	}
 
 	@Override

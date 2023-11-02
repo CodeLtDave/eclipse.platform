@@ -19,7 +19,9 @@ import java.util.Enumeration;
 import org.eclipse.core.filesystem.IFileInfo;
 import org.eclipse.core.filesystem.IFileSystem;
 import org.eclipse.core.filesystem.provider.FileInfo;
-import org.eclipse.core.internal.filesystem.*;
+import org.eclipse.core.internal.filesystem.FileSystemAccess;
+import org.eclipse.core.internal.filesystem.Messages;
+import org.eclipse.core.internal.filesystem.Policy;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.osgi.util.NLS;
 
@@ -116,6 +118,10 @@ abstract class LocalFileNatives {
 			internalGetFileInfoW(Convert.toPlatformChars(fileName), info);
 		else
 			internalGetFileInfo(Convert.toPlatformBytes(fileName), info);
+
+		if (fileName.endsWith(".zip")) { //$NON-NLS-1$
+			info.setAttribute(1, true); // Set zip to be a directory
+		}
 		return info;
 	}
 

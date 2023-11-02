@@ -14,9 +14,7 @@
  *******************************************************************************/
 package org.eclipse.core.resources;
 
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Platform;
 
 /**
@@ -37,10 +35,5 @@ import org.eclipse.core.runtime.Platform;
  * @noextend This interface is not intended to be extended by clients.
  * @since 3.20
  */
-public interface IFolderArchive extends IContainer, IAdaptable {
-
-	void create(boolean force, boolean local, IProgressMonitor monitor) throws CoreException;
-
-	void create(int updateFlags, boolean local, IProgressMonitor monitor) throws CoreException;
-
+public interface IFolderArchive extends IFolder, IAdaptable {
 }

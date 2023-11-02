@@ -1252,6 +1252,8 @@ public abstract class Resource extends PlatformObject implements IResource, ICor
 				return "P"; //$NON-NLS-1$
 			case ROOT :
 				return "R"; //$NON-NLS-1$
+			case FOLDER_ARCHIVE:
+				return "A"; //$NON-NLS-1$
 		}
 		return ""; //$NON-NLS-1$
 	}
