@@ -5,7 +5,7 @@ import java.io.InputStream;
 import org.eclipse.core.runtime.QualifiedName;
 
 /**
- * @since 3.9
+ * @since 3.10
  */
 public class ZipContentDescriber implements IContentDescriber {
 
