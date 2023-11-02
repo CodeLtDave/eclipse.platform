@@ -24,7 +24,14 @@
 			alias-for="org.eclipse.jdt.core.javaProperties"
 			file-extensions="properties">
 			<property name="org.eclipse.core.runtime.charset" default="ISO-8859-1"/>
-		</content-type>			
+		</content-type>
+		 <content-type 
+            id="org.eclipse.core.runtime.zip" 
+            name="%zipContentTypeName" 
+            priority="high"
+            file-extensions="zip">
+			<describer class="org.eclipse.core.runtime.content.ZipContentDescriber"/>
+        </content-type>			
 	</extension>
 	<extension point="org.eclipse.equinox.preferences.preferences">
 		<modifier class="org.eclipse.core.internal.content.PreferenceModifyListener"/>
