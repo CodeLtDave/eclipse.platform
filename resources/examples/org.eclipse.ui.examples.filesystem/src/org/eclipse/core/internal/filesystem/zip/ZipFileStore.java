@@ -94,6 +94,21 @@ public class ZipFileStore extends FileStore {
 		}
 		return names;
 	}
+	
+	@Override
+	public IFileStore[] childStores(int options, IProgressMonitor monitor) throws CoreException {
+		ZipEntry[] entries = childEntries(monitor);
+	    
+	    // Erstellen Sie ein Array von IFileStore für jeden ZipEntry.
+	    IFileStore[] stores = new IFileStore[entries.length];
+	    for (int i = 0; i < entries.length; i++) {
+	        // Der Pfad des untergeordneten Speichers basiert auf dem Namen des ZipEntry.
+	        String entryName = entries[i].getName();
+	        IPath entryPath = path.append(entryName);
+	        stores[i] = new ZipFileStore(rootStore, entryPath);
+	    }
+	    return stores;
+	}
 
 	/**
 	 * Computes the simple file name for a given zip entry.

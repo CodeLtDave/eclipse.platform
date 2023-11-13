@@ -32,6 +32,15 @@
             file-extensions="zip">
 			<describer class="org.eclipse.core.runtime.content.ZipContentDescriber"/>
         </content-type>			
+=======
+  <content-type
+        describer="org.eclipse.core.internal.content.ZipContentDescriber"
+        file-extensions="txt"
+        id="org.eclipse.core.contenttype.content-type.zip"
+        name="ZIP File"
+        priority="high">
+  </content-type>			
+>>>>>>> Stashed changes
 	</extension>
 	<extension point="org.eclipse.equinox.preferences.preferences">
 		<modifier class="org.eclipse.core.internal.content.PreferenceModifyListener"/>

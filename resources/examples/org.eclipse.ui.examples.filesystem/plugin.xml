@@ -173,5 +173,19 @@
          <adapter type="org.eclipse.ui.model.IWorkbenchAdapter"/>
       </factory>
    </extension>
+   
+   <extension
+         point="org.eclipse.core.runtime.contentTypes">
+      <content-type
+            base-type="org.eclipse.core.runtime.binary"
+            file-extensions="zip"
+            id="org.eclipse.ui.examples.filesystem.contentType.zip"
+            name="ZIP File"
+            priority="high">
+         <describer
+               class="org.eclipse.core.internal.filesystem.zip.ZipContentDescriber">
+         </describer>
+      </content-type>
+    </extension>
 
 </plugin>
