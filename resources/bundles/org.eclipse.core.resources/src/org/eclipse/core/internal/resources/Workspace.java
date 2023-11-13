@@ -2236,10 +2236,6 @@ public class Workspace extends PlatformObject implements IWorkspace, ICoreConsta
 					message = "Path must include project and resource name: " + path.toString(); //$NON-NLS-1$
 					Assert.isLegal(false, message);
 				}
-
-				if (path.lastSegment().endsWith(".zip")) { //$NON-NLS-1$
-					return new FolderArchive(path.makeAbsolute(), this);
-				}
 				return new File(path.makeAbsolute(), this);
 
 			case IResource.PROJECT :
@@ -2247,7 +2243,11 @@ public class Workspace extends PlatformObject implements IWorkspace, ICoreConsta
 			case IResource.ROOT :
 				return (Resource) getRoot();
 			case IResource.FOLDER_ARCHIVE:
-
+				if (path.segmentCount() < ICoreConstants.MINIMUM_FOLDER_SEGMENT_LENGTH) {
+					message = "Path must include project and resource name: " + path.toString(); //$NON-NLS-1$
+					Assert.isLegal(false, message);
+				}
+				return new FolderArchive(path.makeAbsolute(), this);
 		}
 		Assert.isLegal(false);
 		// will never get here because of assertion.

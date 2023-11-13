@@ -14,10 +14,11 @@
  *******************************************************************************/
 package org.eclipse.core.internal.resources;
 
+import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFolderArchive;
 import org.eclipse.core.runtime.IPath;
 
-public class FolderArchive extends Folder implements IFolderArchive {
+public class FolderArchive extends Container implements IFolderArchive {
 	protected FolderArchive(IPath path, Workspace container) {
 		super(path, container);
 	}
@@ -30,5 +31,10 @@ public class FolderArchive extends Folder implements IFolderArchive {
 	@Override
 	public int getType() {
 		return FOLDER_ARCHIVE;
+	}
+
+	@Override
+	public IFileStore getStore() {
+		return super.getStore();
 	}
 }

@@ -301,7 +301,16 @@ public class UnifiedTree {
 	 */
 	protected UnifiedTreeNode createChildNodeFromFileSystem(UnifiedTreeNode parent, IFileInfo info) {
 		IPath childPath = parent.getResource().getFullPath().append(info.getName());
-		int type = info.isDirectory() ? IResource.FOLDER : IResource.FILE;
+		int type;
+		if (info.isDirectory()) {
+			if (info.getName().endsWith(".zip")) { //$NON-NLS-1$ //TODO archive ending database
+				type = IResource.FOLDER_ARCHIVE;
+			} else {
+				type = IResource.FOLDER;
+			}
+		} else {
+			type = IResource.FILE;
+		}
 		IResource target = getWorkspace().newResource(childPath, type);
 		return createNode(target, null, info, target.exists());
 	}

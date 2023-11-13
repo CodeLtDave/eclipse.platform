@@ -35,5 +35,5 @@ import org.eclipse.core.runtime.Platform;
  * @noextend This interface is not intended to be extended by clients.
  * @since 3.20
  */
-public interface IFolderArchive extends IFolder, IAdaptable {
+public interface IFolderArchive extends IContainer, IAdaptable {
 }
