@@ -247,7 +247,7 @@ public class RefreshLocalVisitor implements IUnifiedTreeVisitor, ILocalStoreCons
 				return false;
 			}
 		} else {
-			if (!node.isFolder()) {
+			if (!node.isFolder() && !(target.getName().endsWith("zip") || target.getName().endsWith("jar"))) { //$NON-NLS-1$ //$NON-NLS-2$
 				folderToFile(node, target);
 				resourceChanged = true;
 				return false;
