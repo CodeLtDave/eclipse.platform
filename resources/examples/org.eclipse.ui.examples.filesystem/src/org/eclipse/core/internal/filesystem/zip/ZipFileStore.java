@@ -135,6 +135,18 @@ public class ZipFileStore extends FileStore {
 	}
 
 	@Override
+	public void delete(int options, IProgressMonitor monitor) throws CoreException {
+		try (FileSystem zipFs = openZipFileSystem()) {
+			Path fileToDelete = zipFs.getPath(path.toString());
+			if (Files.exists(fileToDelete)) {
+				Files.delete(fileToDelete);
+			}
+		} catch (IOException | URISyntaxException e) {
+			throw new CoreException(new Status(IStatus.ERROR, "org.eclipse.core.internal.filesystem.zip", "Error deleting file from zip", e));
+		}
+	}
+
+	@Override
 	public IFileInfo fetchInfo(int options, IProgressMonitor monitor) throws CoreException {
 		try (ZipInputStream in = new ZipInputStream(rootStore.openInputStream(EFS.NONE, monitor))) {
 			String myPath = path.toString();
