@@ -17,13 +17,24 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-import org.eclipse.core.filesystem.*;
+import org.eclipse.core.filesystem.EFS;
+import org.eclipse.core.filesystem.IFileInfo;
+import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.filesystem.provider.FileInfo;
 import org.eclipse.core.filesystem.provider.FileStore;
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 
 /**
  * File store implementation representing a file or directory inside
@@ -98,7 +109,7 @@ public class ZipFileStore extends FileStore {
 	 */
 	private String computeName(ZipEntry entry) {
 		//the entry name is a relative path, with an optional trailing separator
-		//We need to strip off the trailing slash, and then take everything after the 
+		//We need to strip off the trailing slash, and then take everything after the
 		//last separator as the name
 		String name = entry.getName();
 		int end = name.length() - 1;
@@ -110,7 +121,7 @@ public class ZipFileStore extends FileStore {
 
 	/**
 	 * Creates a file info object corresponding to a given zip entry
-	 * 
+	 *
 	 * @param entry the zip entry
 	 * @return The file info for a zip entry
 	 */
@@ -196,6 +207,7 @@ public class ZipFileStore extends FileStore {
 	 * @param child the potential child
 	 * @return <code>true</code> or <code>false</code>
 	 */
+
 	private boolean isAncestor(String ancestor, String child) {
 		//children will start with myName and have no child path
 		int ancestorLength = ancestor.length();
@@ -232,6 +244,13 @@ public class ZipFileStore extends FileStore {
 		} catch (IOException e) {
 			throw new CoreException(Status.error("Could not read file: " + rootStore.toString(), e));
 		}
+	}
+
+	private FileSystem openZipFileSystem() throws IOException, URISyntaxException {
+		URI zipUri = new URI("jar:" + rootStore.toURI().toString() + "!/");
+		Map<String, Object> env = new HashMap<>();
+		env.put("create", "false");
+		return FileSystems.newFileSystem(zipUri, env);
 	}
 
 	@Override
