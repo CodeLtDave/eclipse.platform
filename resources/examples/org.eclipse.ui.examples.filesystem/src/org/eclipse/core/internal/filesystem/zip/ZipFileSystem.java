@@ -41,4 +41,9 @@ public class ZipFileSystem extends FileSystem {
 		}
 		return EFS.getNullFileSystem().getStore(uri);
 	}
+
+	@Override
+	public boolean canDelete() {
+		return true;
+	}
 }
