@@ -21,31 +21,15 @@
 package org.eclipse.core.internal.localstore;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Pattern;
-import org.eclipse.core.filesystem.EFS;
-import org.eclipse.core.filesystem.IFileInfo;
-import org.eclipse.core.filesystem.IFileStore;
-import org.eclipse.core.filesystem.IFileTree;
+import org.eclipse.core.filesystem.*;
 import org.eclipse.core.internal.refresh.RefreshJob;
-import org.eclipse.core.internal.resources.ICoreConstants;
-import org.eclipse.core.internal.resources.Resource;
-import org.eclipse.core.internal.resources.ResourceInfo;
-import org.eclipse.core.internal.resources.Workspace;
+import org.eclipse.core.internal.resources.*;
 import org.eclipse.core.resources.IContainer;
-import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.Assert;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.Job;
 
 /**
@@ -216,15 +200,9 @@ public class UnifiedTree {
 					child = createNode(target, null, null, true);
 					workspaceIndex++;
 				}
-				if (child != null) {
+				if (child != null)
 					addChildToTree(node, child);
-					if (child.fileInfo != null) {
-						if (child.fileInfo.getName().endsWith("zip") || child.fileInfo.getName().endsWith("jar")) { //$NON-NLS-1$ //$NON-NLS-2$
-							changeArchiveToFolder(node, localInfo);
-						}
-				}
 			}
-		}
 		}
 
 		/* process any remaining resource from the file system */
@@ -241,25 +219,6 @@ public class UnifiedTree {
 		/* if we added children, add the childMarker separator */
 		if (node.getFirstChild() != null)
 			addChildrenMarker();
-	}
-
-	private void changeArchiveToFolder(UnifiedTreeNode node, IFileInfo localInfo) {
-		try {
-			IPath childPath = node.getResource().getFullPath().append(localInfo.getName());
-			int type = localInfo.isDirectory() ? IResource.FOLDER : IResource.FILE;
-			IResource newResource = getWorkspace().newResource(childPath, type);
-			URI zipURI;
-			if (!newResource.isLinked()) {
-				zipURI = new URI("zip", null, "/", newResource.getLocationURI().toString(), null); //$NON-NLS-1$ //$NON-NLS-2$
-			} else {
-				zipURI = newResource.getLocationURI();
-			}
-			IFolder link = newResource.getParent()
-					.getFolder(IPath.fromOSString(newResource.getName()));
-			link.createLink(zipURI, IResource.REPLACE, null);
-		} catch (URISyntaxException | CoreException e) {
-			e.printStackTrace();
-		}
 	}
 
 	protected void addChildrenFromFileSystem(UnifiedTreeNode node, IFileInfo[] childInfos, int index) {
