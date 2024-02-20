@@ -46,4 +46,9 @@ public class ZipFileSystem extends FileSystem {
 	public boolean canDelete() {
 		return true;
 	}
+
+	@Override
+	public boolean canWrite() {
+		return true;
+	}
 }
