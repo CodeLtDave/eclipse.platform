@@ -1,26 +1,27 @@
 /*******************************************************************************
  * Copyright (c) 2022 IBM Corporation and others.
  *
- * This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License 2.0
- * which accompanies this distribution, and is available at
- * https://www.eclipse.org/legal/epl-2.0/
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which accompanies this distribution,
+ * and is available at https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
  *
- * Contributors:
- *     IBM Corporation - initial API and implementation
+ * Contributors: IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.core.internal.filesystem.zip;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.ZipEntry;
@@ -37,8 +38,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 
 /**
- * File store implementation representing a file or directory inside
- * a zip file.
+ * File store implementation representing a file or directory inside a zip file.
  */
 public class ZipFileStore extends FileStore {
 	/**
@@ -108,9 +108,11 @@ public class ZipFileStore extends FileStore {
 	 * Computes the simple file name for a given zip entry.
 	 */
 	private String computeName(ZipEntry entry) {
-		//the entry name is a relative path, with an optional trailing separator
-		//We need to strip off the trailing slash, and then take everything after the
-		//last separator as the name
+		// the entry name is a relative path, with an optional trailing
+		// separator
+		// We need to strip off the trailing slash, and then take everything
+		// after the
+		// last separator as the name
 		String name = entry.getName();
 		int end = name.length() - 1;
 		if (name.charAt(end) == '/') {
@@ -156,7 +158,8 @@ public class ZipFileStore extends FileStore {
 				if (myPath.equals(currentPath)) {
 					return convertZipEntryToFileInfo(current);
 				}
-				//directories don't always have their own entry, but it is implied by the existence of a child
+				// directories don't always have their own entry, but it is
+				// implied by the existence of a child
 				if (isAncestor(myPath, currentPath)) {
 					return createDirectoryInfo(getName());
 				}
@@ -164,7 +167,7 @@ public class ZipFileStore extends FileStore {
 		} catch (IOException e) {
 			throw new CoreException(Status.error("Could not read file: " + rootStore.toString(), e));
 		}
-		//does not exist
+		// does not exist
 		return new FileInfo(getName());
 	}
 
@@ -179,9 +182,9 @@ public class ZipFileStore extends FileStore {
 	}
 
 	/**
-	 * Finds the zip entry with the given name in this zip file.  Returns the
-	 * entry and leaves the input stream open positioned at the beginning of
-	 * the bytes of that entry.  Returns null if the entry could not be found.
+	 * Finds the zip entry with the given name in this zip file. Returns the
+	 * entry and leaves the input stream open positioned at the beginning of the
+	 * bytes of that entry. Returns null if the entry could not be found.
 	 */
 	private ZipEntry findEntry(String name, ZipInputStream in) throws IOException {
 		ZipEntry current;
@@ -209,19 +212,20 @@ public class ZipFileStore extends FileStore {
 		if (path.segmentCount() > 0) {
 			return new ZipFileStore(rootStore, path.removeLastSegments(1));
 		}
-		//the root entry has no parent
+		// the root entry has no parent
 		return null;
 	}
 
 	/**
 	 * Returns whether ancestor is a parent of child.
+	 *
 	 * @param ancestor the potential ancestor
 	 * @param child the potential child
 	 * @return <code>true</code> or <code>false</code>
 	 */
 
 	private boolean isAncestor(String ancestor, String child) {
-		//children will start with myName and have no child path
+		// children will start with myName and have no child path
 		int ancestorLength = ancestor.length();
 		if (ancestorLength == 0) {
 			return true;
@@ -231,14 +235,52 @@ public class ZipFileStore extends FileStore {
 
 	/**
 	 * Returns whether parent is the immediate parent of child.
+	 *
 	 * @param parent the potential parent
 	 * @param child the potential child
 	 * @return <code>true</code> or <code>false</code>
 	 */
 	private boolean isParent(String parent, String child) {
-		//children will start with myName and have no child path
+		// children will start with myName and have no child path
 		int chop = parent.length() + 1;
 		return child.startsWith(parent) && child.length() > chop && child.substring(chop).indexOf('/') == -1;
+	}
+
+	@Override
+	public IFileStore mkdir(int options, IProgressMonitor monitor) throws CoreException {
+		URI zipUri;
+		try {
+			zipUri = new URI("jar:" + rootStore.toURI().toString() + "!/");
+		} catch (URISyntaxException e) {
+			throw new CoreException(new Status(IStatus.ERROR, "org.eclipse.core.internal.filesystem.zip", "Invalid ZIP file URI", e));
+		}
+
+		Map<String, String> env = new HashMap<>();
+		env.put("create", "false");
+
+		// Assuming the directory to create is represented by 'this.path'
+		try (FileSystem zipFs = FileSystems.newFileSystem(zipUri, env)) {
+			Path dirInZipPath = zipFs.getPath(this.path.toString());
+			if (Files.notExists(dirInZipPath)) {
+				Files.createDirectories(dirInZipPath);
+
+				// To ensure the directory is actually added to the ZIP, we
+				// might need to add a temporary file
+				// in this directory. This is a workaround and should be used
+				// with caution.
+				Path tempFileInDir = dirInZipPath.resolve(".keep");
+				Files.createFile(tempFileInDir);
+
+				// Immediately delete the temporary file after creation to just
+				// keep the directory
+				Files.delete(tempFileInDir);
+			}
+		} catch (IOException e) {
+			throw new CoreException(new Status(IStatus.ERROR, "org.eclipse.core.internal.filesystem.zip", "Error creating directory in ZIP file", e));
+		}
+
+		// Return a file store representing the newly created directory.
+		return new ZipFileStore(rootStore, this.path);
 	}
 
 	@Override
@@ -258,6 +300,35 @@ public class ZipFileStore extends FileStore {
 		}
 	}
 
+	@Override
+	public OutputStream openOutputStream(int options, IProgressMonitor monitor) throws CoreException {
+		// Creating a ByteArrayOutputStream to capture the data written to the
+		// OutputStream
+		ByteArrayOutputStream baos = new ByteArrayOutputStream() {
+			@Override
+			public void close() throws IOException {
+				super.close();
+
+				try (FileSystem zipFs = openZipFileSystem()) {
+					Path entryPath = zipFs.getPath(path.toString());
+					// Ensure parent directories exist
+					Path parentPath = entryPath.getParent();
+					if (parentPath != null) {
+						Files.createDirectories(parentPath);
+					}
+					// Write the ByteArrayOutputStream's data to the entry
+					// in the ZIP file
+					Files.write(entryPath, this.toByteArray(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+
+				} catch (Exception e) {
+					throw new IOException("Failed to integrate data into ZIP file", e);
+				}
+			}
+		};
+
+		return baos;
+	}
+
 	private FileSystem openZipFileSystem() throws IOException, URISyntaxException {
 		URI zipUri = new URI("jar:" + rootStore.toURI().toString() + "!/");
 		Map<String, Object> env = new HashMap<>();
@@ -270,7 +341,7 @@ public class ZipFileStore extends FileStore {
 		try {
 			return new URI(ZipFileSystem.SCHEME_ZIP, null, path.makeAbsolute().toString(), rootStore.toURI().toString(), null);
 		} catch (URISyntaxException e) {
-			//should not happen
+			// should not happen
 			throw new RuntimeException(e);
 		}
 	}
