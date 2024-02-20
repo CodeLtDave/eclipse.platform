@@ -37,6 +37,7 @@ Require-Bundle: org.eclipse.core.resources,
 Import-Package: org.assertj.core.api,
  org.junit.jupiter.api,
  org.junit.platform.suite.api,
+ org.eclipse.core.tests.runtime,
  org.mockito
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-17
