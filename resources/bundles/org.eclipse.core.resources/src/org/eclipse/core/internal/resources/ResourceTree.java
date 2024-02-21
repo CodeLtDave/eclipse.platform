@@ -14,6 +14,8 @@
  *******************************************************************************/
 package org.eclipse.core.internal.resources;
 
+import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
 import java.net.URI;
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileInfo;
@@ -33,6 +35,7 @@ import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceStatus;
 import org.eclipse.core.resources.IResourceVisitor;
+import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.resources.team.IResourceTree;
 import org.eclipse.core.runtime.Assert;
@@ -1053,8 +1056,49 @@ class ResourceTree implements IResourceTree {
 			//for linked resources, nothing needs to be moved in the file system
 			boolean isDeep = (flags & IResource.SHALLOW) == 0;
 			if (!isDeep && (source.isLinked() || source.isVirtual())) {
-				movedFolderSubtree(source, destination);
-				return;
+				if (source.getFullPath().getFileExtension().equals("zip") //$NON-NLS-1$
+						|| source.getFullPath().getFileExtension().equals("jar")) { //$NON-NLS-1$
+					IFile newSource = null;
+					IFile newDestination = null;
+					try {
+						URI zipURI = new URI(source.getLocationURI().getQuery());
+						// check if the zip file is physically stored below the folder in the workspace
+						IFileStore parentStore = EFS.getStore(source.getParent().getLocationURI());
+						URI childURI = parentStore.getChild(source.getName()).toURI();
+						if (URIUtil.equals(zipURI, childURI)) {
+							IPath parentFolderLocation = source.getParent().getLocation();
+							if (parentFolderLocation == null) {
+								// folder is Archive inside of Archive so the folder parent
+								// is also an Archive (linked folder) and has no location
+								// TODO implement this case
+							}
+							String path = parentFolderLocation.toOSString() + "\\" + source.getName(); //$NON-NLS-1$
+							FileInputStream fileInputStream = new FileInputStream(path);
+							byte[] content = new byte[fileInputStream.available()];
+							fileInputStream.read(content);
+							fileInputStream.close();
+							IFile file = source.getParent().getFile(IPath.fromOSString(source.getName()));
+							source.delete(IResource.NONE, null);
+							source.getParent().refreshLocal(IResource.DEPTH_INFINITE, null);
+							ByteArrayInputStream inputStream = new ByteArrayInputStream(content);
+							IWorkspaceRunnable runnable = monitor1 -> file.create(inputStream, false, null);
+							inputStream.close();
+							ResourcesPlugin.getWorkspace().run(runnable, null);
+							file.getParent().refreshLocal(IResource.DEPTH_INFINITE, null);
+							newSource = file;
+							newDestination = destination.getParent().getFile(IPath.fromOSString(destination.getName()));
+						}
+						standardMoveFile(newSource, newDestination, flags, monitor);
+						source.getParent().refreshLocal(IResource.DEPTH_INFINITE, null);
+						destination.getParent().refreshLocal(IResource.DEPTH_INFINITE, null);
+						return;
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				} else {
+					movedFolderSubtree(source, destination);
+					return;
+				}
 			}
 
 			// Move the resources in the file system. Only the FORCE flag is valid here so don't

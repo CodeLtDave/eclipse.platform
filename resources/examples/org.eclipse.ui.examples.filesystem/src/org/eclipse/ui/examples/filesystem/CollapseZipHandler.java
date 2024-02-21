@@ -16,6 +16,8 @@
  *******************************************************************************/
 package org.eclipse.ui.examples.filesystem;
 
+import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
 import java.net.URI;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -26,6 +28,8 @@ import org.eclipse.core.filesystem.URIUtil;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspaceRunnable;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
@@ -42,10 +46,29 @@ public class CollapseZipHandler extends AbstractHandler {
 			IFileStore parentStore = EFS.getStore(folder.getParent().getLocationURI());
 			URI childURI = parentStore.getChild(folder.getName()).toURI();
 			if (URIUtil.equals(zipURI, childURI)) {
-				//the zip file is in the workspace so just delete the link 
-				// and refresh the parent to create the resource
+				IPath parentFolderLocation = folder.getParent().getLocation();
+				if (parentFolderLocation == null) {
+					// folder is Archive inside of Archive so the folder parent
+					// is also an Archive (linked folder) and has no location
+					// TODO implement this case
+				}
+				String path = parentFolderLocation.toOSString() + "\\" + folder.getName();
+				FileInputStream fileInputStream = new FileInputStream(path);
+				byte[] content = new byte[fileInputStream.available()];
+				fileInputStream.read(content);
+				fileInputStream.close();
+				IFile file = folder.getParent().getFile(IPath.fromOSString(folder.getName()));
 				folder.delete(IResource.NONE, null);
 				folder.getParent().refreshLocal(IResource.DEPTH_INFINITE, null);
+				ByteArrayInputStream inputStream = new ByteArrayInputStream(content);
+				IWorkspaceRunnable createFileRunnable = monitor -> {
+					file.create(inputStream, false, null);
+				};
+				// IWorkspaceRunnable runnable = monitor ->
+				// file.create(inputStream, false, null);
+				inputStream.close();
+				ResourcesPlugin.getWorkspace().run(createFileRunnable, null);
+				file.getParent().refreshLocal(IResource.DEPTH_INFINITE, null);
 			} else {
 				//otherwise the zip file must be a linked resource
 				IFile file = folder.getParent().getFile(IPath.fromOSString(folder.getName()));

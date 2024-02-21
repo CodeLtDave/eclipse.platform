@@ -72,15 +72,11 @@ public class ResourceDelta extends PlatformObject implements IResourceDelta {
 		final boolean includeTeamPrivate = (memberFlags & IContainer.INCLUDE_TEAM_PRIVATE_MEMBERS) != 0;
 		final boolean includeHidden = (memberFlags & IContainer.INCLUDE_HIDDEN) != 0;
 		int mask = includePhantoms ? ALL_WITH_PHANTOMS : REMOVED | ADDED | CHANGED;
-		if ((getKind() & mask) == 0)
-			return;
-		if (!visitor.visit(this))
+		if (((getKind() & mask) == 0) || !visitor.visit(this))
 			return;
 		for (ResourceDelta childDelta : children) {
 			// quietly exclude team-private, hidden and phantom members unless explicitly included
-			if (!includeTeamPrivate && childDelta.isTeamPrivate())
-				continue;
-			if (!includePhantoms && childDelta.isPhantom())
+			if ((!includeTeamPrivate && childDelta.isTeamPrivate()) || (!includePhantoms && childDelta.isPhantom()))
 				continue;
 			if (!includeHidden && childDelta.isHidden())
 				continue;
@@ -208,13 +204,11 @@ public class ResourceDelta extends PlatformObject implements IResourceDelta {
 		//first count the number of matches so we can allocate the exact array size
 		int matching = 0;
 		for (int i = 0; i < numChildren; i++) {
-			if ((children[i].getKind() & kindMask) == 0)
-				continue;// child has wrong kind
-			if (!includePhantoms && children[i].isPhantom())
+			// child has wrong kind
+			if (((children[i].getKind() & kindMask) == 0) || (!includePhantoms && children[i].isPhantom()))
 				continue;
-			if (!includeTeamPrivate && children[i].isTeamPrivate())
-				continue; // child has is a team-private member which are not included
-			if (!includeHidden && children[i].isHidden())
+			 // child has is a team-private member which are not included
+			if ((!includeTeamPrivate && children[i].isTeamPrivate()) || (!includeHidden && children[i].isHidden()))
 				continue;
 			matching++;
 		}
@@ -228,13 +222,11 @@ public class ResourceDelta extends PlatformObject implements IResourceDelta {
 		IResourceDelta[] result = new IResourceDelta[matching];
 		int nextPosition = 0;
 		for (int i = 0; i < numChildren; i++) {
-			if ((children[i].getKind() & kindMask) == 0)
-				continue; // child has wrong kind
-			if (!includePhantoms && children[i].isPhantom())
+			 // child has wrong kind
+			if (((children[i].getKind() & kindMask) == 0) || (!includePhantoms && children[i].isPhantom()))
 				continue;
-			if (!includeTeamPrivate && children[i].isTeamPrivate())
-				continue; // child has is a team-private member which are not included
-			if (!includeHidden && children[i].isHidden())
+			 // child has is a team-private member which are not included
+			if ((!includeTeamPrivate && children[i].isTeamPrivate()) || (!includeHidden && children[i].isHidden()))
 				continue;
 			result[nextPosition++] = children[i];
 		}
@@ -316,12 +308,18 @@ public class ResourceDelta extends PlatformObject implements IResourceDelta {
 		// if the delta is a remove then we have to look for the old info to find the type
 		// of resource to create.
 		ResourceInfo info = null;
+		boolean isChanged = (getKind() & (CHANGED)) != 0;
 		if ((getKind() & (REMOVED | REMOVED_PHANTOM)) != 0)
 			info = oldInfo;
 		else
 			info = newInfo;
+
 		Assert.isNotNull(info, "Do not have resource info for resource in delta: " + path); //$NON-NLS-1$
-		cachedResource = deltaInfo.getWorkspace().newResource(path, info.getType());
+		if ((path.lastSegment().endsWith("zip") || path.lastSegment().endsWith("jar")) && isChanged) { //$NON-NLS-1$ //$NON-NLS-2$
+			cachedResource = deltaInfo.getWorkspace().newResource(path, info.getType(), false);
+		} else {
+			cachedResource = deltaInfo.getWorkspace().newResource(path, info.getType());
+		}
 		return cachedResource;
 	}
 
