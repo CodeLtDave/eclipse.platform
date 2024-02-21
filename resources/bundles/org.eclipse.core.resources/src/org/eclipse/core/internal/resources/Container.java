@@ -15,31 +15,13 @@
  *******************************************************************************/
 package org.eclipse.core.internal.resources;
 
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Set;
+import java.util.*;
 import org.eclipse.core.internal.events.LifecycleEvent;
 import org.eclipse.core.internal.localstore.IHistoryStore;
-import org.eclipse.core.internal.utils.Messages;
-import org.eclipse.core.internal.utils.Policy;
-import org.eclipse.core.internal.utils.WrappedRuntimeException;
-import org.eclipse.core.internal.watson.ElementTree;
-import org.eclipse.core.internal.watson.ElementTreeIterator;
-import org.eclipse.core.internal.watson.IElementContentVisitor;
-import org.eclipse.core.internal.watson.IPathRequestor;
-import org.eclipse.core.resources.FileInfoMatcherDescription;
-import org.eclipse.core.resources.IContainer;
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IResourceFilterDescription;
-import org.eclipse.core.resources.IWorkspaceRoot;
-import org.eclipse.core.runtime.Assert;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.core.internal.utils.*;
+import org.eclipse.core.internal.watson.*;
+import org.eclipse.core.resources.*;
+import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.osgi.util.NLS;
 
@@ -211,16 +193,16 @@ public abstract class Container extends Resource implements IContainer {
 
 	@Override
 	public IFile getFile(IPath childPath) {
-		return (IFile) workspace.newResource(getFullPath().append(childPath), FILE, false);
+		return (IFile) workspace.newResource(getFullPath().append(childPath), FILE);
 	}
 
 	public IFolder getFolder(String name) {
-		return (IFolder) workspace.newResource(getFullPath().append(name), FOLDER, false);
+		return (IFolder) workspace.newResource(getFullPath().append(name), FOLDER);
 	}
 
 	@Override
 	public IFolder getFolder(IPath childPath) {
-		return (IFolder) workspace.newResource(getFullPath().append(childPath), FOLDER, false);
+		return (IFolder) workspace.newResource(getFullPath().append(childPath), FOLDER);
 	}
 
 	@Deprecated
