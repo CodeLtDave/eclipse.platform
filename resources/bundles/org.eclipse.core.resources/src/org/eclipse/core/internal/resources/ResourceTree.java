@@ -15,14 +15,34 @@
 package org.eclipse.core.internal.resources;
 
 import java.net.URI;
-import org.eclipse.core.filesystem.*;
+import org.eclipse.core.filesystem.EFS;
+import org.eclipse.core.filesystem.IFileInfo;
+import org.eclipse.core.filesystem.IFileStore;
+import org.eclipse.core.filesystem.IFileSystem;
 import org.eclipse.core.filesystem.URIUtil;
 import org.eclipse.core.internal.localstore.FileSystemResourceManager;
 import org.eclipse.core.internal.properties.IPropertyManager;
-import org.eclipse.core.internal.utils.*;
-import org.eclipse.core.resources.*;
+import org.eclipse.core.internal.utils.BitMask;
+import org.eclipse.core.internal.utils.Messages;
+import org.eclipse.core.internal.utils.Policy;
+import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IProjectDescription;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResourceStatus;
+import org.eclipse.core.resources.IResourceVisitor;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.resources.team.IResourceTree;
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.Assert;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.MultiStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.jobs.ILock;
 import org.eclipse.osgi.util.NLS;
 
@@ -345,27 +365,57 @@ class ResourceTree implements IResourceTree {
 		if (!folder.exists())
 			return true;
 
-		// Don't delete contents if this is a linked resource
-		if (folder.isLinked()) {
-			deletedFolder(folder);
-			return true;
-		}
+		if (folder.getFileExtension() != null
+				&& (folder.getFileExtension().equals("zip") || folder.getFileExtension().equals("jar"))) { //$NON-NLS-1$ //$NON-NLS-2$
+			try {
+				URI zipURI = new URI(folder.getLocationURI().getQuery());
+				// check if the zip file is physically stored below the folder in the workspace
+				IFileStore parentStore = EFS.getStore(folder.getParent().getLocationURI());
+				URI childURI = parentStore.getChild(folder.getName()).toURI();
+				IFile file;
+				if (URIUtil.equals(zipURI, childURI)) {
+					deletedFolder(folder);
+					file = folder.getParent().getFile(IPath.fromOSString(folder.getName()));
+					IFileStore fileStore = localManager.getStore(file);
+					fileStore.delete(EFS.NONE, Policy.subMonitorFor(monitor, Policy.totalWork / 4));
+					// If the file was successfully deleted from the file system the
+					// workspace tree should be updated accordingly.
+					deletedFile(file);
+					// Indicate that the delete was successful.
+					return true;
+				}
+				// otherwise the zip file must be a linked resource
+				file = folder.getParent().getFile(IPath.fromOSString(folder.getName()));
+				file.createLink(zipURI, IResource.REPLACE, null);
+				return internalDeleteFile(file, flags, monitor);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		} else {
+			// Don't delete contents if this is a linked resource
+			if (folder.isLinked()) {
+				deletedFolder(folder);
+				return true;
+			}
 
-		// If the folder doesn't exist on disk then update the tree and return.
-		IFileStore fileStore = localManager.getStore(folder);
-		if (!fileStore.fetchInfo().exists()) {
-			deletedFolder(folder);
-			return true;
-		}
+			// If the folder doesn't exist on disk then update the tree and return.
+			IFileStore fileStore = localManager.getStore(folder);
+			if (!fileStore.fetchInfo().exists()) {
+				deletedFolder(folder);
+				return true;
+			}
 
-		try {
-			//this will delete local and workspace
-			localManager.delete(folder, flags, Policy.subMonitorFor(monitor, Policy.totalWork));
-		} catch (CoreException ce) {
-			message = NLS.bind(Messages.localstore_couldnotDelete, folder.getFullPath());
-			IStatus status = new ResourceStatus(IStatus.ERROR, IResourceStatus.FAILED_DELETE_LOCAL, folder.getFullPath(), message, ce);
-			failed(status);
-			return false;
+			try {
+				// this will delete local and workspace
+				localManager.delete(folder, flags, Policy.subMonitorFor(monitor, Policy.totalWork));
+			} catch (CoreException ce) {
+				message = NLS.bind(Messages.localstore_couldnotDelete, folder.getFullPath());
+				IStatus status = new ResourceStatus(IStatus.ERROR, IResourceStatus.FAILED_DELETE_LOCAL,
+						folder.getFullPath(), message, ce);
+				failed(status);
+				return false;
+			}
+			return true;
 		}
 		return true;
 	}
