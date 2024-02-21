@@ -364,7 +364,7 @@ class ResourceTree implements IResourceTree {
 		// Do nothing if the folder doesn't exist in the workspace.
 		if (!folder.exists())
 			return true;
-
+		boolean collapse = (flags & (IResource.COLLAPSE)) != 0;
 		if (folder.getFileExtension() != null
 				&& (folder.getFileExtension().equals("zip") || folder.getFileExtension().equals("jar"))) { //$NON-NLS-1$ //$NON-NLS-2$
 			try {
@@ -375,13 +375,13 @@ class ResourceTree implements IResourceTree {
 				IFile file;
 				if (URIUtil.equals(zipURI, childURI)) {
 					deletedFolder(folder);
+					if (collapse) {
+						return true;
+					}
 					file = folder.getParent().getFile(IPath.fromOSString(folder.getName()));
 					IFileStore fileStore = localManager.getStore(file);
 					fileStore.delete(EFS.NONE, Policy.subMonitorFor(monitor, Policy.totalWork / 4));
-					// If the file was successfully deleted from the file system the
-					// workspace tree should be updated accordingly.
 					deletedFile(file);
-					// Indicate that the delete was successful.
 					return true;
 				}
 				// otherwise the zip file must be a linked resource
@@ -1050,11 +1050,39 @@ class ResourceTree implements IResourceTree {
 			}
 			monitor.worked(20);
 
-			//for linked resources, nothing needs to be moved in the file system
 			boolean isDeep = (flags & IResource.SHALLOW) == 0;
 			if (!isDeep && (source.isLinked() || source.isVirtual())) {
-				movedFolderSubtree(source, destination);
-				return;
+				if (source.getFullPath().getFileExtension().equals("zip") //$NON-NLS-1$
+						|| source.getFullPath().getFileExtension().equals("jar")) { //$NON-NLS-1$
+					IFile newSource = null;
+					IFile newDestination = null;
+					try {
+						URI folderZipURI = new URI(source.getLocationURI().getQuery());
+						// check if the zip file is physically stored below the folder in the workspace
+						IFileStore parentStore = EFS.getStore(source.getParent().getLocationURI());
+						URI childURI = parentStore.getChild(source.getName()).toURI();
+						if (URIUtil.equals(folderZipURI, childURI)) {
+							source.delete(IResource.COLLAPSE, null);
+							source.getParent().refreshLocal(IResource.DEPTH_INFINITE, null);
+							IFile file = source.getParent().getFile(IPath.fromOSString(source.getName()));
+							newSource = file;
+							newDestination = destination.getParent().getFile(IPath.fromOSString(destination.getName()));
+						}
+						standardMoveFile(newSource, newDestination, flags, monitor);
+						source.getParent().refreshLocal(IResource.DEPTH_INFINITE, null);
+						destination.getParent().refreshLocal(IResource.DEPTH_INFINITE, null);
+						URI fileZipURI = new URI("zip", null, "/", newDestination.getLocationURI().toString(), null); //$NON-NLS-1$ //$NON-NLS-2$
+						IFolder link = newDestination.getParent()
+								.getFolder(IPath.fromOSString(newDestination.getName()));
+						link.createLink(fileZipURI, IResource.REPLACE, null);
+						return;
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				} else {
+					movedFolderSubtree(source, destination);
+					return;
+				}
 			}
 
 			// Move the resources in the file system. Only the FORCE flag is valid here so don't
