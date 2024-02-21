@@ -44,7 +44,7 @@ public class CollapseZipHandler extends AbstractHandler {
 			if (URIUtil.equals(zipURI, childURI)) {
 				//the zip file is in the workspace so just delete the link 
 				// and refresh the parent to create the resource
-				folder.delete(IResource.NONE, null);
+				folder.delete(IResource.COLLAPSE, null);
 				folder.getParent().refreshLocal(IResource.DEPTH_INFINITE, null);
 			} else {
 				//otherwise the zip file must be a linked resource
