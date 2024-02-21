@@ -71,7 +71,6 @@ import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFileModificationValidator;
 import org.eclipse.core.resources.IFilterMatcherDescriptor;
-import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IPathVariableManager;
 import org.eclipse.core.resources.IProject;
@@ -2228,27 +2227,6 @@ public class Workspace extends PlatformObject implements IWorkspace, ICoreConsta
 				if (path.segmentCount() < ICoreConstants.MINIMUM_FILE_SEGMENT_LENGTH) {
 					message = "Path must include project and resource name: " + path.toString(); //$NON-NLS-1$
 					Assert.isLegal(false, message);
-				}
-
-				if (considerArchives) {
-					String[] segments = path.segments();
-					if (segments[segments.length - 1].endsWith("zip") //$NON-NLS-1$
-							|| segments[segments.length - 1].endsWith("jar")) { //$NON-NLS-1$
-						try {
-							IResource newResource = new File(path.makeAbsolute(), this);
-							URI zipURI;
-							if (!newResource.isLinked()) {
-								zipURI = new URI("zip", null, "/", newResource.getLocationURI().toString(), null); //$NON-NLS-1$ //$NON-NLS-2$
-							} else {
-								zipURI = newResource.getLocationURI();
-							}
-							IFolder link = newResource.getParent().getFolder(IPath.fromOSString(newResource.getName()));
-							link.createLink(zipURI, IResource.REPLACE, null);
-							return new Folder(path.makeAbsolute(), this);
-						} catch (URISyntaxException | CoreException e) {
-							e.printStackTrace();
-						}
-					}
 				}
 				return new File(path.makeAbsolute(), this);
 			case IResource.PROJECT :
