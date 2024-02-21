@@ -124,7 +124,7 @@ public abstract class Container extends Resource implements IContainer {
 	public IResource findMember(String memberPath, boolean phantom) {
 		IPath childPath = getFullPath().append(memberPath);
 		ResourceInfo info = workspace.getResourceInfo(childPath, phantom, false);
-		return info == null ? null : workspace.newResource(childPath, info.getType(), false);
+		return info == null ? null : workspace.newResource(childPath, info.getType());
 	}
 
 	@Override
@@ -136,7 +136,7 @@ public abstract class Container extends Resource implements IContainer {
 	public IResource findMember(IPath childPath, boolean phantom) {
 		childPath = getFullPath().append(childPath);
 		ResourceInfo info = workspace.getResourceInfo(childPath, phantom, false);
-		return (info == null) ? null : workspace.newResource(childPath, info.getType(), false);
+		return (info == null) ? null : workspace.newResource(childPath, info.getType());
 	}
 
 	@Override
@@ -164,7 +164,7 @@ public abstract class Container extends Resource implements IContainer {
 		for (IPath child : children) {
 			ResourceInfo info = workspace.getResourceInfo(child, true, false);
 			if (info != null && isMember(info.getFlags(), memberFlags))
-				result[found++] = workspace.newResource(child, info.getType(), false);
+				result[found++] = workspace.newResource(child, info.getType());
 		}
 		if (found == result.length)
 			return result;
@@ -174,7 +174,7 @@ public abstract class Container extends Resource implements IContainer {
 	}
 
 	public IFile getFile(String name) {
-		return (IFile) workspace.newResource(getFullPath().append(name), FILE, false);
+		return (IFile) workspace.newResource(getFullPath().append(name), FILE);
 	}
 
 	@Override
