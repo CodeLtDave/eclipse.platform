@@ -35,7 +35,7 @@ import org.eclipse.ui.handlers.HandlerUtil;
 
 public class CollapseZipHandler extends AbstractHandler {
 
-	private void collapseZip(IFolder folder, Shell shell) {
+	public void collapseZip(IFolder folder, Shell shell) {
 		try {
 			URI zipURI = new URI(folder.getLocationURI().getQuery());
 			//check if the zip file is physically stored below the folder in the workspace
