@@ -4,7 +4,9 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -237,6 +239,76 @@ public class ZipFileSystemTest {
 		IFolder newFolder = secondProject.getFolder(destinationFolder.getName() + "/" + ZIP_FILE_VIRTUAL_FOLDER_NAME);
 		assertTrue(newFolder.exists());
 		secondProject.delete(true, null);
+	}
+
+	@Test
+	public void testDeleteFileInsideOfZip() throws Exception {
+		IFolder virtualFolder = project.getFolder(ZIP_FILE_VIRTUAL_FOLDER_NAME);
+		IFile textFile = virtualFolder.getFile(TEXT_FILE_NAME);
+		Assert.assertTrue("Text.txt should exist in the virtual folder", textFile.exists());
+		textFile.delete(true, null);
+		Assert.assertTrue("Text.txt should not exist in the virtual folder", !textFile.exists());
+	}
+
+	@Test
+	public void testCreateFileInsideOfZip() throws Exception {
+		IFolder virtualFolder = project.getFolder(ZIP_FILE_VIRTUAL_FOLDER_NAME);
+		IFile textFile = virtualFolder.getFile("NewFile.txt");
+		Assert.assertTrue("Text.txt should not exist in the virtual folder", !textFile.exists());
+		String text = "Foo";
+		InputStream stream = new ByteArrayInputStream(text.getBytes());
+		textFile.create(stream, true, null);
+		stream.close();
+		Assert.assertTrue("Text.txt should exist in the virtual folder", textFile.exists());
+		try (InputStreamReader isr = new InputStreamReader(textFile.getContents());
+				BufferedReader reader = new BufferedReader(isr)) {
+			String content = reader.readLine();
+			Assert.assertEquals("The content of Text.txt should be 'Foo'", "Foo", content);
+		}
+	}
+
+	@Test
+	public void testMoveFileIntoZip() throws Exception {
+		IFile textFile = project.getFile("NewFile.txt");
+		Assert.assertTrue("NewFile.txt should not exist in the project", !textFile.exists());
+		String text = "Foo";
+		InputStream stream = new ByteArrayInputStream(text.getBytes());
+		textFile.create(stream, true, null);
+		stream.close();
+		Assert.assertTrue("NewFile.txt should exist in the project", textFile.exists());
+		IFile destinationFile = project.getFile(ZIP_FILE_VIRTUAL_FOLDER_NAME + "/" + "NewFile.txt");
+		textFile.move(destinationFile.getFullPath(), true, null);
+
+		// Verify that the file exists at the new location
+		assertTrue("NewFile.txt should exist in the virtual folder", destinationFile.exists());
+		try (InputStreamReader isr = new InputStreamReader(destinationFile.getContents());
+				BufferedReader reader = new BufferedReader(isr)) {
+			String content = reader.readLine();
+			Assert.assertEquals("The content of NewFile.txt should be 'Foo'", "Foo", content);
+		}
+
+		// Verify that the file does not exist at the old location
+		Assert.assertTrue("NewFile.txt should not exist in the project", !textFile.exists());
+	}
+
+	@Test
+	public void testMoveFileFromZip() throws Exception {
+		IFile textFile = project.getFile(ZIP_FILE_VIRTUAL_FOLDER_NAME + "/" + TEXT_FILE_NAME);
+		Assert.assertTrue(TEXT_FILE_NAME + " should exist in the virtual folder", textFile.exists());
+		IFile destinationFile = project.getFile(TEXT_FILE_NAME);
+		textFile.move(destinationFile.getFullPath(), true, null);
+
+		// Verify that the file exists at the new location
+		assertTrue(TEXT_FILE_NAME + " should exist in the project", destinationFile.exists());
+		try (InputStreamReader isr = new InputStreamReader(destinationFile.getContents());
+				BufferedReader reader = new BufferedReader(isr)) {
+			String content = reader.readLine();
+			Assert.assertEquals("The content of + " + TEXT_FILE_NAME + " should be 'Hello World!'", "Hello World!",
+					content);
+		}
+
+		// Verify that the file does not exist at the old location
+		Assert.assertTrue(TEXT_FILE_NAME + " should not exist in virtual Folder", !textFile.exists());
 	}
 
 	private IProject initializeSecondProject() throws CoreException, JavaModelException {
