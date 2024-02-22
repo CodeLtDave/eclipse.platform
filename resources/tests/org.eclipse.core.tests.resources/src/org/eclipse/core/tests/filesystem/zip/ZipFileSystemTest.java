@@ -1,5 +1,6 @@
 package org.eclipse.core.tests.filesystem.zip;
 
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
 import java.io.BufferedReader;
@@ -194,6 +195,80 @@ public class ZipFileSystemTest {
 		Assert.assertFalse("Virtual Folder should not exist after deletion", virtualFolder.exists());
 		IFile zipFile = project.getFile(ZIP_FILE_VIRTUAL_FOLDER_NAME);
 		Assert.assertFalse("ZIP file should not exist after deletion", zipFile.exists());
+	}
+
+	@Test
+	public void testMoveArchiveWithinProject() throws CoreException, IOException {
+		IFolder destinationFolder = project.getFolder("destinationFolder");
+		destinationFolder.create(true, true, null);
+		IFolder destination = project.getFolder("destinationFolder/" + ZIP_FILE_VIRTUAL_FOLDER_NAME);
+		IFolder virtualFolder = project.getFolder(ZIP_FILE_VIRTUAL_FOLDER_NAME);
+		virtualFolder.move(destination.getFullPath(), true, null);
+
+		// Verify that the folder exists at the new location
+		IFolder newFolder = project.getFolder(destinationFolder.getName() + "/" + ZIP_FILE_VIRTUAL_FOLDER_NAME);
+		assertTrue(newFolder.exists());
+	}
+
+	@Test
+	public void testMoveArchiveToOtherProject() throws CoreException, IOException {
+		IProject secondProject = initializeSecondProject();
+		IFolder destination = secondProject.getFolder(ZIP_FILE_VIRTUAL_FOLDER_NAME);
+		IFolder virtualFolder = project.getFolder(ZIP_FILE_VIRTUAL_FOLDER_NAME);
+		virtualFolder.move(destination.getFullPath(), true, null);
+
+		// Verify that the folder exists at the new location
+		IFolder newFolder = secondProject.getFolder(ZIP_FILE_VIRTUAL_FOLDER_NAME);
+		assertTrue(newFolder.exists());
+		secondProject.delete(true, null);
+	}
+
+
+	@Test
+	public void testMoveArchiveToOtherProjectFolder() throws CoreException, IOException {
+		IProject secondProject = initializeSecondProject();
+		IFolder destinationFolder = secondProject.getFolder("destinationFolder");
+		destinationFolder.create(true, true, null);
+		IFolder destination = secondProject.getFolder("destinationFolder/" + ZIP_FILE_VIRTUAL_FOLDER_NAME);
+		IFolder virtualFolder = project.getFolder(ZIP_FILE_VIRTUAL_FOLDER_NAME);
+		virtualFolder.move(destination.getFullPath(), true, null);
+
+		// Verify that the folder exists at the new location
+		IFolder newFolder = secondProject.getFolder(destinationFolder.getName() + "/" + ZIP_FILE_VIRTUAL_FOLDER_NAME);
+		assertTrue(newFolder.exists());
+		secondProject.delete(true, null);
+	}
+
+	private IProject initializeSecondProject() throws CoreException, JavaModelException {
+		IWorkspace workspace = ResourcesPlugin.getWorkspace();
+		IProject secondProject = workspace.getRoot().getProject("SecondProject");
+		secondProject.create(null);
+		secondProject.open(null);
+		IProjectDescription description = secondProject.getDescription();
+		description.setNatureIds(new String[] { JavaCore.NATURE_ID });
+		secondProject.setDescription(description, null);
+		IJavaProject secondJavaProject = JavaCore.create(secondProject);
+		IFolder srcFolder = secondProject.getFolder("src");
+		if (!srcFolder.exists()) {
+			srcFolder.create(false, true, null);
+		}
+		IFolder binFolder = secondProject.getFolder("bin");
+		if (!binFolder.exists()) {
+			binFolder.create(false, true, null);
+		}
+		secondJavaProject.setOutputLocation(binFolder.getFullPath(), null);
+		// Set Java compliance level and JRE container
+		secondJavaProject.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_8);
+		secondJavaProject.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_8);
+		secondJavaProject.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_8);
+		// Add the JRE container to the classpath
+		IClasspathEntry jreContainerEntry = JavaCore.newContainerEntry(new Path(JavaRuntime.JRE_CONTAINER),
+				new IAccessRule[0],
+				new IClasspathAttribute[] { JavaCore.newClasspathAttribute("owner.project.facets", "java") }, false);
+		IClasspathEntry srcEntry = JavaCore.newSourceEntry(srcFolder.getFullPath());
+		secondJavaProject.setRawClasspath(new IClasspathEntry[] { jreContainerEntry, srcEntry }, null);
+		secondProject.refreshLocal(IResource.DEPTH_INFINITE, null);
+		return secondProject;
 	}
 
 	private void expandZipFile(IFile file) throws Exception {
