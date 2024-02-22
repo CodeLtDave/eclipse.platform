@@ -225,7 +225,6 @@ public class ZipFileSystemTest {
 		secondProject.delete(true, null);
 	}
 
-
 	@Test
 	public void testMoveArchiveToOtherProjectFolder() throws CoreException, IOException {
 		IProject secondProject = initializeSecondProject();
@@ -303,13 +302,61 @@ public class ZipFileSystemTest {
 		try (InputStreamReader isr = new InputStreamReader(destinationFile.getContents());
 				BufferedReader reader = new BufferedReader(isr)) {
 			String content = reader.readLine();
-			Assert.assertEquals("The content of + " + TEXT_FILE_NAME + " should be 'Hello World!'", "Hello World!",
+			Assert.assertEquals("The content of " + TEXT_FILE_NAME + " should be 'Hello World!'", "Hello World!",
 					content);
 		}
 
 		// Verify that the file does not exist at the old location
 		Assert.assertTrue(TEXT_FILE_NAME + " should not exist in virtual Folder", !textFile.exists());
 	}
+
+	@Test
+	public void testCopyArchive() throws Exception {
+		IFolder virtualFolder = project.getFolder(ZIP_FILE_VIRTUAL_FOLDER_NAME);
+		Assert.assertTrue("Virtual Folder should exist before copy", virtualFolder.exists());
+		IFolder destinationFolder = project.getFolder("Folder");
+		destinationFolder.create(true, true, null);
+		Assert.assertTrue("Destination Folder should exist before copy", destinationFolder.exists());
+		IFolder copyDestination = project.getFolder("Folder" + "/" + ZIP_FILE_VIRTUAL_FOLDER_NAME);
+		virtualFolder.copy(copyDestination.getFullPath(), true, progressMonitor);
+		Assert.assertTrue("Virtual Folder should exist at new location after copy", copyDestination.exists());
+		Assert.assertTrue("Virtual Folder should exist at old location after copy", virtualFolder.exists());
+	}
+
+	@Test
+	public void testCopyFileInsideOfArchive() throws Exception {
+		IFile textFile = project.getFile(ZIP_FILE_VIRTUAL_FOLDER_NAME + "/" + TEXT_FILE_NAME);
+		Assert.assertTrue("textFile should exist before copy", textFile.exists());
+		IFolder destinationFolder = project.getFolder("Folder");
+		destinationFolder.create(true, true, null);
+		Assert.assertTrue("Destination Folder should exist before copy", destinationFolder.exists());
+		IFile copyDestination = project.getFile("Folder" + "/" + TEXT_FILE_NAME);
+		textFile.copy(copyDestination.getFullPath(), true, progressMonitor);
+		Assert.assertTrue("Copied File should exist at new location after copy", copyDestination.exists());
+		Assert.assertTrue("Copied File should exist at old location after copy", textFile.exists());
+	}
+
+	@Test
+	public void testCopyFileIntoArchive() throws Exception {
+		IFile textFile = project.getFile("NewFile.txt");
+		Assert.assertTrue("NewFile.txt should not exist in the project", !textFile.exists());
+		String text = "Foo";
+		InputStream stream = new ByteArrayInputStream(text.getBytes());
+		textFile.create(stream, true, null);
+		stream.close();
+		Assert.assertTrue("NewFile.txt should exist in the project", textFile.exists());
+		IFile copyDestination = project.getFile(ZIP_FILE_VIRTUAL_FOLDER_NAME + "/" + "NewFile.txt");
+		textFile.copy(copyDestination.getFullPath(), true, null);
+		Assert.assertTrue("Copied File should exist at new location after copy", copyDestination.exists());
+		Assert.assertTrue("Copied FIle should exist at old location after copy", textFile.exists());
+
+		try (InputStreamReader isr = new InputStreamReader(copyDestination.getContents());
+				BufferedReader reader = new BufferedReader(isr)) {
+			String content = reader.readLine();
+			Assert.assertEquals("The content of NewFile.txt should be 'Foo'", "Foo", content);
+		}
+	}
+
 
 	private IProject initializeSecondProject() throws CoreException, JavaModelException {
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
