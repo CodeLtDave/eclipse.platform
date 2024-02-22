@@ -33,7 +33,7 @@ import org.eclipse.ui.handlers.HandlerUtil;
 
 public class ExpandZipHandler extends AbstractHandler {
 
-	private void expandZip(IFile file, Shell shell) {
+	public void expandZip(IFile file, Shell shell) {
 		try {
 			URI zipURI = new URI(ZipFileSystem.SCHEME_ZIP, null, "/", file.getLocationURI().toString(), null);
 			IFolder link = file.getParent().getFolder(IPath.fromOSString(file.getName()));
