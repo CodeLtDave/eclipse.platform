@@ -1,5 +1,7 @@
 package org.eclipse.core.tests.filesystem.zip;
 
+import static org.mockito.Mockito.mock;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -30,9 +32,13 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.launching.JavaRuntime;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.examples.filesystem.CollapseZipHandler;
+import org.eclipse.ui.examples.filesystem.ExpandZipHandler;
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
 
 public class ZipFileSystemTest {
@@ -46,14 +52,26 @@ public class ZipFileSystemTest {
 	private static IJavaProject javaProject;
 	private static IProgressMonitor progressMonitor = new NullProgressMonitor();
 
-	@BeforeClass
-	public static void setup() throws Exception {
+	@Before
+	public void setup() throws Exception {
 		createProject();
 		createJavaProject();
 		refreshProject();
-		Thread.sleep(1000);
 		copyZipIntoJavaProject(ZIP_FILE_VIRTUAL_FOLDER_NAME);
 		refreshProject();
+		expandZipFile(project.getFile(ZIP_FILE_VIRTUAL_FOLDER_NAME));
+	}
+
+	@After
+	public void teardown() throws Exception {
+		deleteProject();
+	}
+
+	private static void deleteProject() throws CoreException {
+		if (project != null && project.exists()) {
+			project.delete(true, true, progressMonitor);
+			project = null;
+		}
 	}
 
 	private static void createProject() throws CoreException {
@@ -98,7 +116,6 @@ public class ZipFileSystemTest {
 		javaProject.setRawClasspath(new IClasspathEntry[] { jreContainerEntry, srcEntry }, null);
 	}
 
-
 	private static void refreshProject() {
 		try {
 			if (project.exists() && project.isOpen()) {
@@ -126,7 +143,6 @@ public class ZipFileSystemTest {
 		}
 
 		// Determine the target location within the project
-		IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(javaProject.getElementName());
 		java.nio.file.Path targetPath = Paths.get(project.getLocation().toOSString(), zipFileName);
 
 		// Copy the file using java.nio.file.Files
@@ -144,8 +160,17 @@ public class ZipFileSystemTest {
 	}
 
 	@Test
-	public void testTextFileInVirtualFolder() throws Exception {
+	public void testCollapseZipFile() throws Exception {
+		IFolder virtualFolder = project.getFolder(ZIP_FILE_VIRTUAL_FOLDER_NAME);
+		Assert.assertTrue("Virtual folder should exist in the project", virtualFolder.exists());
+		collapseZipFile(virtualFolder);
+		IFile zipFile = project.getFile(ZIP_FILE_VIRTUAL_FOLDER_NAME);
+		Assert.assertTrue("Virtual folder should not exist in the project", !virtualFolder.exists());
+		Assert.assertTrue("ZipFile should exist in the project", zipFile.exists());
+	}
 
+	@Test
+	public void testTextFileInVirtualFolder() throws Exception {
 		printContents(project, PROJECT_NAME);
 
 		IFolder virtualFolder = project.getFolder(ZIP_FILE_VIRTUAL_FOLDER_NAME);
@@ -159,7 +184,32 @@ public class ZipFileSystemTest {
 			String content = reader.readLine(); // Assuming the file has a single line with "Hello World!"
 			Assert.assertEquals("The content of Text.txt should be 'Hello World!'", "Hello World!", content);
 		}
+	}
 
+	@Test
+	public void testDeleteZipFile() throws Exception {
+		IFolder virtualFolder = project.getFolder(ZIP_FILE_VIRTUAL_FOLDER_NAME);
+		Assert.assertTrue("Virtual Folder should exist before deletion", virtualFolder.exists());
+		virtualFolder.delete(false, false, null);
+		Assert.assertFalse("Virtual Folder should not exist after deletion", virtualFolder.exists());
+		IFile zipFile = project.getFile(ZIP_FILE_VIRTUAL_FOLDER_NAME);
+		Assert.assertFalse("ZIP file should not exist after deletion", zipFile.exists());
+	}
+
+	private void expandZipFile(IFile file) throws Exception {
+		ExpandZipHandler expandZipHandler = new ExpandZipHandler();
+		Shell shell = mock(Shell.class);
+		expandZipHandler.expandZip(file, shell);
+		IFolder virtualFolder = project.getFolder(file.getName());
+		Assert.assertTrue("ZIP file should exist before deletion", virtualFolder.exists());
+	}
+
+	private void collapseZipFile(IFolder folder) throws Exception {
+		CollapseZipHandler collapseZipHandler = new CollapseZipHandler();
+		Shell shell = mock(Shell.class);
+		collapseZipHandler.collapseZip(folder, shell);
+		IFile zipFile = project.getFile(folder.getName());
+		Assert.assertTrue("ZIP file should exist before deletion", zipFile.exists());
 	}
 
 	private static void printContents(IContainer container, String indent) throws CoreException {
@@ -176,7 +226,6 @@ public class ZipFileSystemTest {
 
 	@AfterClass
 	public static void cleanup() throws CoreException, InterruptedException {
-
 		// Optionally clean up by deleting the test project
 		if (project != null && project.exists()) {
 			project.delete(true, null);
