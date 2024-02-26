@@ -21,7 +21,7 @@ import org.junit.runners.Suite;
  */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({ CollapseTest.class, CopyTest.class, CreateTest.class, DeleteTest.class, MoveTest.class,
-		SetupTest.class })
+		RenameTest.class, SetupTest.class })
 public class AllZipFileSystemTests {
 }
 
