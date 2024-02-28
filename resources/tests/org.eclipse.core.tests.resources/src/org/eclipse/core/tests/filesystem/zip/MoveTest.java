@@ -40,7 +40,7 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.launching.JavaRuntime;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.examples.filesystem.ExpandZipHandler;
+import org.eclipse.ui.internal.ide.commands.ExpandZipHandler;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
