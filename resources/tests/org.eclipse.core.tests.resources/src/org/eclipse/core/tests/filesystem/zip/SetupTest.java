@@ -13,14 +13,10 @@
  *******************************************************************************/
 package org.eclipse.core.tests.filesystem.zip;
 
-import static org.mockito.Mockito.mock;
-
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.internal.ide.commands.ExpandZipHandler;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -34,20 +30,11 @@ public class SetupTest {
 	@Before
 	public void setup() throws Exception {
 		ZipFileSystemTestSetup.setup();
-		expandZipFile(ZipFileSystemTestSetup.project.getFile(ZipFileSystemTestSetup.ZIP_FILE_VIRTUAL_FOLDER_NAME));
 	}
 
 	@After
 	public void teardown() throws Exception {
 		ZipFileSystemTestSetup.teardown();
-	}
-
-	private void expandZipFile(IFile file) throws Exception {
-		ExpandZipHandler expandZipHandler = new ExpandZipHandler();
-		Shell shell = mock(Shell.class);
-		expandZipHandler.expandZip(file, shell);
-		IFolder virtualFolder = ZipFileSystemTestSetup.project.getFolder(file.getName());
-		Assert.assertTrue("ZIP file should exist before deletion", virtualFolder.exists());
 	}
 
 	@Test

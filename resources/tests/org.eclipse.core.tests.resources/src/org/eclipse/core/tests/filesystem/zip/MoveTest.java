@@ -16,7 +16,6 @@ package org.eclipse.core.tests.filesystem.zip;
 import static org.eclipse.core.tests.filesystem.zip.ZipFileSystemTestUtil.ensureDoesNotExist;
 import static org.eclipse.core.tests.filesystem.zip.ZipFileSystemTestUtil.ensureExists;
 import static org.eclipse.core.tests.filesystem.zip.ZipFileSystemTestUtil.getMonitor;
-import static org.mockito.Mockito.mock;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -39,8 +38,6 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.launching.JavaRuntime;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.internal.ide.commands.ExpandZipHandler;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -57,7 +54,6 @@ public class MoveTest {
 	@Before
 	public void setup() throws Exception {
 		ZipFileSystemTestSetup.setup();
-		expandZipFile(ZipFileSystemTestSetup.project.getFile(ZipFileSystemTestSetup.ZIP_FILE_VIRTUAL_FOLDER_NAME));
 		// Second project is needed for some tests
 		initializeSecondProject();
 	}
@@ -66,14 +62,6 @@ public class MoveTest {
 	public void teardown() throws Exception {
 		ZipFileSystemTestSetup.teardown();
 		secondProject.delete(false, getMonitor());
-	}
-
-	private void expandZipFile(IFile file) throws Exception {
-		ExpandZipHandler expandZipHandler = new ExpandZipHandler();
-		Shell shell = mock(Shell.class);
-		expandZipHandler.expandZip(file, shell);
-		IFolder virtualFolder = ZipFileSystemTestSetup.project.getFolder(file.getName());
-		Assert.assertTrue("ZIP file should exist before deletion", virtualFolder.exists());
 	}
 
 	@Test
