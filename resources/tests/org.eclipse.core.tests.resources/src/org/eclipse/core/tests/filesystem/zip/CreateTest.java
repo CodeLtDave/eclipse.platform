@@ -12,7 +12,7 @@ import java.io.InputStreamReader;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.examples.filesystem.ExpandZipHandler;
+import org.eclipse.ui.internal.ide.commands.ExpandZipHandler;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
