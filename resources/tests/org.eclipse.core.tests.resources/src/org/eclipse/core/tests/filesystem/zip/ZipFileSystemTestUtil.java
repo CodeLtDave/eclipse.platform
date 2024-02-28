@@ -12,6 +12,7 @@
 package org.eclipse.core.tests.filesystem.zip;
 
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
 
 import java.io.IOException;
 import org.eclipse.core.filesystem.EFS;
@@ -24,6 +25,10 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.tests.harness.FussyProgressMonitor;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.internal.ide.commands.ZipCollapser;
+import org.eclipse.ui.internal.ide.commands.ZipExpander;
+import org.junit.Assert;
 
 final class ZipFileSystemTestUtil {
 
@@ -95,6 +100,20 @@ final class ZipFileSystemTestUtil {
 
 	static IProgressMonitor getMonitor() {
 		return new FussyProgressMonitor();
+	}
+
+	static void expandZipFile(IFile file) throws Exception {
+		Shell shell = mock(Shell.class);
+		ZipExpander.expandZip(file, shell);
+		IFolder virtualFolder = ZipFileSystemTestSetup.project.getFolder(file.getName());
+		Assert.assertTrue("ZIP file should exist before deletion", virtualFolder.exists());
+	}
+
+	static void collapseZipFile(IFolder folder) throws Exception {
+		Shell shell = mock(Shell.class);
+		ZipCollapser.collapseZip(folder, shell);
+		IFile zipFile = ZipFileSystemTestSetup.project.getFile(folder.getName());
+		ensureExists(zipFile);
 	}
 
 	static void printContents(IContainer container, String indent) throws CoreException {
