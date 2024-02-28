@@ -62,6 +62,7 @@ public class ZipFileSystemTestSetup {
 		refreshProject();
 		copyZipIntoJavaProject(ZIP_FILE_VIRTUAL_FOLDER_NAME);
 		refreshProject();
+		ZipFileSystemTestUtil.expandZipFile(project.getFile(ZIP_FILE_VIRTUAL_FOLDER_NAME));
 	}
 
 	static void teardown() throws Exception {
