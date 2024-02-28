@@ -77,7 +77,7 @@ public class ZipFileStore extends FileStore {
 				}
 			}
 		} catch (IOException e) {
-			throw new CoreException(Status.error("Could not read file: " + rootStore.toString(), e));
+			throw new CoreException(Status.error("Could not read file: " + rootStore.toString(), e)); //$NON-NLS-1$
 		}
 		return entries.values().toArray(new ZipEntry[entries.size()]);
 	}
@@ -144,7 +144,7 @@ public class ZipFileStore extends FileStore {
 				Files.delete(fileToDelete);
 			}
 		} catch (IOException | URISyntaxException e) {
-			throw new CoreException(new Status(IStatus.ERROR, "org.eclipse.core.internal.filesystem.zip", "Error deleting file from zip", e));
+			throw new CoreException(new Status(IStatus.ERROR, "org.eclipse.core.internal.filesystem.zip", "Error deleting file from zip", e)); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	}
 
@@ -165,7 +165,7 @@ public class ZipFileStore extends FileStore {
 				}
 			}
 		} catch (IOException e) {
-			throw new CoreException(Status.error("Could not read file: " + rootStore.toString(), e));
+			throw new CoreException(Status.error("Could not read file: " + rootStore.toString(), e)); //$NON-NLS-1$
 		}
 		// does not exist
 		return new FileInfo(getName());
@@ -250,13 +250,13 @@ public class ZipFileStore extends FileStore {
 	public IFileStore mkdir(int options, IProgressMonitor monitor) throws CoreException {
 		URI zipUri;
 		try {
-			zipUri = new URI("jar:" + rootStore.toURI().toString() + "!/");
+			zipUri = new URI("jar:" + rootStore.toURI().toString() + "!/"); //$NON-NLS-1$ //$NON-NLS-2$
 		} catch (URISyntaxException e) {
-			throw new CoreException(new Status(IStatus.ERROR, "org.eclipse.core.internal.filesystem.zip", "Invalid ZIP file URI", e));
+			throw new CoreException(new Status(IStatus.ERROR, "org.eclipse.core.internal.filesystem.zip", "Invalid ZIP file URI", e)); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 
 		Map<String, String> env = new HashMap<>();
-		env.put("create", "false");
+		env.put("create", "false"); //$NON-NLS-1$ //$NON-NLS-2$
 
 		// Assuming the directory to create is represented by 'this.path'
 		try (FileSystem zipFs = FileSystems.newFileSystem(zipUri, env)) {
@@ -268,7 +268,7 @@ public class ZipFileStore extends FileStore {
 				// might need to add a temporary file
 				// in this directory. This is a workaround and should be used
 				// with caution.
-				Path tempFileInDir = dirInZipPath.resolve(".keep");
+				Path tempFileInDir = dirInZipPath.resolve(".keep"); //$NON-NLS-1$
 				Files.createFile(tempFileInDir);
 
 				// Immediately delete the temporary file after creation to just
@@ -276,7 +276,7 @@ public class ZipFileStore extends FileStore {
 				Files.delete(tempFileInDir);
 			}
 		} catch (IOException e) {
-			throw new CoreException(new Status(IStatus.ERROR, "org.eclipse.core.internal.filesystem.zip", "Error creating directory in ZIP file", e));
+			throw new CoreException(new Status(IStatus.ERROR, "org.eclipse.core.internal.filesystem.zip", "Error creating directory in ZIP file", e)); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 
 		// Return a file store representing the newly created directory.
@@ -289,19 +289,19 @@ public class ZipFileStore extends FileStore {
 			ZipInputStream in = new ZipInputStream(rootStore.openInputStream(EFS.NONE, monitor));
 			ZipEntry entry = findEntry(path.toString(), in);
 			if (entry == null) {
-				throw new CoreException(Status.error("File not found: " + rootStore.toString()));
+				throw new CoreException(Status.error("File not found: " + rootStore.toString())); //$NON-NLS-1$
 			}
 			if (entry.isDirectory()) {
-				throw new CoreException(Status.error("Resource is not a file: " + rootStore.toString()));
+				throw new CoreException(Status.error("Resource is not a file: " + rootStore.toString())); //$NON-NLS-1$
 			}
 			return in;
 		} catch (IOException e) {
-			throw new CoreException(Status.error("Could not read file: " + rootStore.toString(), e));
+			throw new CoreException(Status.error("Could not read file: " + rootStore.toString(), e)); //$NON-NLS-1$
 		}
 	}
 
 	@Override
-	public OutputStream openOutputStream(int options, IProgressMonitor monitor) throws CoreException {
+	public OutputStream openOutputStream(int options, IProgressMonitor monitor) {
 		// Creating a ByteArrayOutputStream to capture the data written to the
 		// OutputStream
 		ByteArrayOutputStream baos = new ByteArrayOutputStream() {
@@ -321,7 +321,7 @@ public class ZipFileStore extends FileStore {
 					Files.write(entryPath, this.toByteArray(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
 
 				} catch (Exception e) {
-					throw new IOException("Failed to integrate data into ZIP file", e);
+					throw new IOException("Failed to integrate data into ZIP file", e); //$NON-NLS-1$
 				}
 			}
 		};
@@ -330,9 +330,9 @@ public class ZipFileStore extends FileStore {
 	}
 
 	private FileSystem openZipFileSystem() throws IOException, URISyntaxException {
-		URI zipUri = new URI("jar:" + rootStore.toURI().toString() + "!/");
+		URI zipUri = new URI("jar:" + rootStore.toURI().toString() + "!/"); //$NON-NLS-1$ //$NON-NLS-2$
 		Map<String, Object> env = new HashMap<>();
-		env.put("create", "false");
+		env.put("create", "false"); //$NON-NLS-1$ //$NON-NLS-2$
 		return FileSystems.newFileSystem(zipUri, env);
 	}
 
