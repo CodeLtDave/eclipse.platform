@@ -49,8 +49,9 @@ public class ZipFileSystemTestSetup {
 	}
 
 	static final String PROJECT_NAME = "TestProject";
-	static final String ZIP_FILE_VIRTUAL_FOLDER_NAME = "BasicText.zip"; // Assuming the ZIP is represented as
-																				// this folder
+	static final String ZIP_FILE_VIRTUAL_FOLDER_NAME = "BasicText.zip"; // Assuming the ZIP is represented as this
+																		// folder
+	static final String JAR_FILE_VIRTUAL_FOLDER_NAME = "BasicText.jar";
 	static final String TEXT_FILE_NAME = "Text.txt";
 	static IProject project;
 	static IJavaProject javaProject;
@@ -61,6 +62,12 @@ public class ZipFileSystemTestSetup {
 		createJavaProject();
 		refreshProject();
 		copyZipIntoJavaProject(ZIP_FILE_VIRTUAL_FOLDER_NAME);
+		copyZipIntoJavaProject(JAR_FILE_VIRTUAL_FOLDER_NAME);
+		refreshProject();
+		ZipFileSystemTestUtil.expandZipFile(project.getFile(ZIP_FILE_VIRTUAL_FOLDER_NAME));
+		ZipFileSystemTestUtil.expandZipFile(project.getFile(JAR_FILE_VIRTUAL_FOLDER_NAME));
+	}
+
 		refreshProject();
 		ZipFileSystemTestUtil.expandZipFile(project.getFile(ZIP_FILE_VIRTUAL_FOLDER_NAME));
 	}
