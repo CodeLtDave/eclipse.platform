@@ -16,16 +16,33 @@ package org.eclipse.core.tests.filesystem.zip;
 import static org.eclipse.core.tests.filesystem.zip.ZipFileSystemTestUtil.ensureExists;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Arrays;
+import java.util.Collection;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 /**
  *
  */
+@RunWith(Parameterized.class)
 public class CollapseTest {
+
+	@Parameterized.Parameters
+	public static Collection<String[]> archiveNames() {
+		return Arrays.asList(new String[][] { { ZipFileSystemTestSetup.ZIP_FILE_VIRTUAL_FOLDER_NAME },
+				{ ZipFileSystemTestSetup.JAR_FILE_VIRTUAL_FOLDER_NAME } });
+	}
+
+	private String archiveName;
+
+	public CollapseTest(String archiveName) {
+		this.archiveName = archiveName;
+	}
 
 	@Before
 	public void setup() throws Exception {
@@ -38,12 +55,12 @@ public class CollapseTest {
 	}
 
 	@Test
-	public void testCollapseZipFile() throws Exception {
+	public void testCollapseArchive() throws Exception {
 		IFolder virtualFolder = ZipFileSystemTestSetup.project
-				.getFolder(ZipFileSystemTestSetup.ZIP_FILE_VIRTUAL_FOLDER_NAME);
+				.getFolder(archiveName);
 		ensureExists(virtualFolder);
 		ZipFileSystemTestUtil.collapseZipFile(virtualFolder);
-		IFile zipFile = ZipFileSystemTestSetup.project.getFile(ZipFileSystemTestSetup.ZIP_FILE_VIRTUAL_FOLDER_NAME);
+		IFile zipFile = ZipFileSystemTestSetup.project.getFile(archiveName);
 		// Don't use Utility method ensureDoesNotExist because the fileStore is still
 		// available after collapse. The fileStore is the File itself in the local file
 		// system that still exists after collapse.
