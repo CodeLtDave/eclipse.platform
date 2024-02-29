@@ -13,19 +13,38 @@
  *******************************************************************************/
 package org.eclipse.core.tests.filesystem.zip;
 
+import static org.eclipse.core.tests.filesystem.zip.ZipFileSystemTestUtil.ensureExists;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.Arrays;
+import java.util.Collection;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 /**
  *
  */
+@RunWith(Parameterized.class)
 public class SetupTest {
+
+	@Parameterized.Parameters
+	public static Collection<String[]> archiveNames() {
+		return Arrays.asList(new String[][] { { ZipFileSystemTestSetup.ZIP_FILE_VIRTUAL_FOLDER_NAME },
+				{ ZipFileSystemTestSetup.JAR_FILE_VIRTUAL_FOLDER_NAME } });
+	}
+
+	private String archiveName;
+
+	public SetupTest(String archiveName) {
+		this.archiveName = archiveName;
+	}
 
 	@Before
 	public void setup() throws Exception {
@@ -38,22 +57,22 @@ public class SetupTest {
 	}
 
 	@Test
-	public void testZipFileInProject() throws Exception {
+	public void testArchiveInProject() throws Exception {
 		// Check if the "virtual folder" (ZIP file) exists in the project
 		IFolder virtualFolder = ZipFileSystemTestSetup.project
-				.getFolder(ZipFileSystemTestSetup.ZIP_FILE_VIRTUAL_FOLDER_NAME);
-		Assert.assertTrue("Virtual folder should exist in the project", virtualFolder.exists());
+				.getFolder(archiveName);
+		ensureExists(virtualFolder);
 	}
 
 	@Test
-	public void testTextFileInVirtualFolder() throws Exception {
+	public void testTextFileInArchive() throws Exception {
 		ZipFileSystemTestUtil.printContents(ZipFileSystemTestSetup.project, ZipFileSystemTestSetup.PROJECT_NAME);
 
 		IFolder virtualFolder = ZipFileSystemTestSetup.project
-				.getFolder(ZipFileSystemTestSetup.ZIP_FILE_VIRTUAL_FOLDER_NAME);
+				.getFolder(archiveName);
 
 		IFile textFile = virtualFolder.getFile(ZipFileSystemTestSetup.TEXT_FILE_NAME);
-		Assert.assertTrue("Text.txt should exist in the virtual folder", textFile.exists());
+		ensureExists(textFile);
 
 		// Read and verify the content of Text.txt
 		try (InputStreamReader isr = new InputStreamReader(textFile.getContents());

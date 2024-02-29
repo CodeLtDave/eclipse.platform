@@ -8,17 +8,34 @@ import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Arrays;
+import java.util.Collection;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 /**
  *
  */
+@RunWith(Parameterized.class)
 public class CreateTest {
+
+	@Parameterized.Parameters
+	public static Collection<String[]> archiveNames() {
+		return Arrays.asList(new String[][] { { ZipFileSystemTestSetup.ZIP_FILE_VIRTUAL_FOLDER_NAME },
+				{ ZipFileSystemTestSetup.JAR_FILE_VIRTUAL_FOLDER_NAME } });
+	}
+
+	private String archiveName;
+
+	public CreateTest(String archiveName) {
+		this.archiveName = archiveName;
+	}
 
 	@Before
 	public void setup() throws Exception {
@@ -31,9 +48,9 @@ public class CreateTest {
 	}
 
 	@Test
-	public void testCreateFileInsideOfZip() throws Exception {
+	public void testCreateFileInsideOfArchive() throws Exception {
 		IFolder virtualFolder = ZipFileSystemTestSetup.project
-				.getFolder(ZipFileSystemTestSetup.ZIP_FILE_VIRTUAL_FOLDER_NAME);
+				.getFolder(archiveName);
 		IFile textFile = virtualFolder.getFile("NewFile.txt");
 		ensureDoesNotExist(textFile);
 		String text = "Foo";

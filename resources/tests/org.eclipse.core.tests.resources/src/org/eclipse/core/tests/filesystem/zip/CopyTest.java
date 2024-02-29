@@ -8,17 +8,34 @@ import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Arrays;
+import java.util.Collection;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 /**
  *
  */
+@RunWith(Parameterized.class)
 public class CopyTest {
+
+	@Parameterized.Parameters
+	public static Collection<String[]> archiveNames() {
+		return Arrays.asList(new String[][] { { ZipFileSystemTestSetup.ZIP_FILE_VIRTUAL_FOLDER_NAME },
+				{ ZipFileSystemTestSetup.JAR_FILE_VIRTUAL_FOLDER_NAME } });
+	}
+
+	private String archiveName;
+
+	public CopyTest(String archiveName) {
+		this.archiveName = archiveName;
+	}
 
 	@Before
 	public void setup() throws Exception {
@@ -33,13 +50,13 @@ public class CopyTest {
 	@Test
 	public void testCopyArchive() throws Exception {
 		IFolder virtualFolder = ZipFileSystemTestSetup.project
-				.getFolder(ZipFileSystemTestSetup.ZIP_FILE_VIRTUAL_FOLDER_NAME);
+				.getFolder(archiveName);
 		ensureExists(virtualFolder);
 		IFolder destinationFolder = ZipFileSystemTestSetup.project.getFolder("Folder");
 		destinationFolder.create(true, true, getMonitor());
 		ensureExists(destinationFolder);
 		IFolder copyDestination = ZipFileSystemTestSetup.project
-				.getFolder("Folder" + "/" + ZipFileSystemTestSetup.ZIP_FILE_VIRTUAL_FOLDER_NAME);
+				.getFolder("Folder" + "/" + archiveName);
 		virtualFolder.copy(copyDestination.getFullPath(), true, getMonitor());
 		ensureExists(copyDestination);
 		ensureExists(virtualFolder);
@@ -48,7 +65,7 @@ public class CopyTest {
 	@Test
 	public void testCopyFileInsideOfArchive() throws Exception {
 		IFile textFile = ZipFileSystemTestSetup.project.getFile(
-				ZipFileSystemTestSetup.ZIP_FILE_VIRTUAL_FOLDER_NAME + "/" + ZipFileSystemTestSetup.TEXT_FILE_NAME);
+				archiveName + "/" + ZipFileSystemTestSetup.TEXT_FILE_NAME);
 		ensureExists(textFile);
 		IFolder destinationFolder = ZipFileSystemTestSetup.project.getFolder("Folder");
 		destinationFolder.create(true, true, getMonitor());
@@ -70,7 +87,7 @@ public class CopyTest {
 		stream.close();
 		ensureExists(textFile);
 		IFile copyDestination = ZipFileSystemTestSetup.project
-				.getFile(ZipFileSystemTestSetup.ZIP_FILE_VIRTUAL_FOLDER_NAME + "/" + "NewFile.txt");
+				.getFile(archiveName + "/" + "NewFile.txt");
 		textFile.copy(copyDestination.getFullPath(), true, getMonitor());
 		ensureExists(copyDestination);
 		ensureExists(textFile);
