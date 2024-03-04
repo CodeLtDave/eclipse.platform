@@ -52,6 +52,10 @@ public class ZipFileSystemTestSetup {
 	static final String ZIP_FILE_VIRTUAL_FOLDER_NAME = "BasicText.zip"; // Assuming the ZIP is represented as this
 																		// folder
 	static final String JAR_FILE_VIRTUAL_FOLDER_NAME = "BasicText.jar";
+	static final String PERFORMANCE_ZIP_FILE_NAME = "Performance.zip";
+	static final String BIG_PERFORMANCE_ZIP_FILE_NAME = "BigPerformance.zip";
+	static final String LARGE_PERFORMANCE_ZIP_FILE_NAME = "JavaFX.zip";
+	static final String HUGE_PERFORMANCE_ZIP_FILE_NAME = "oomph-installer.zip";
 	static final String TEXT_FILE_NAME = "Text.txt";
 	static IProject project;
 	static IJavaProject javaProject;
@@ -68,6 +72,15 @@ public class ZipFileSystemTestSetup {
 		ZipFileSystemTestUtil.expandZipFile(project.getFile(JAR_FILE_VIRTUAL_FOLDER_NAME));
 	}
 
+	static void performanceSetup() throws Exception {
+		createProject();
+		createJavaProject();
+		refreshProject();
+		copyZipIntoJavaProject(ZIP_FILE_VIRTUAL_FOLDER_NAME);
+		copyZipIntoJavaProject(PERFORMANCE_ZIP_FILE_NAME);
+		copyZipIntoJavaProject(BIG_PERFORMANCE_ZIP_FILE_NAME);
+		copyZipIntoJavaProject(LARGE_PERFORMANCE_ZIP_FILE_NAME);
+		copyZipIntoJavaProject(HUGE_PERFORMANCE_ZIP_FILE_NAME);
 		refreshProject();
 		ZipFileSystemTestUtil.expandZipFile(project.getFile(ZIP_FILE_VIRTUAL_FOLDER_NAME));
 	}
