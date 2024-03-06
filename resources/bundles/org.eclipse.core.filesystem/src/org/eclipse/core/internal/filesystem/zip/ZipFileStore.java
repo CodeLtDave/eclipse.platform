@@ -18,9 +18,11 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.FileSystem;
+import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
 import java.util.Map;
@@ -337,7 +339,7 @@ public class ZipFileStore extends FileStore {
 	}
 
 	@Override
-	public void putInfo(IFileInfo info, int options, IProgressMonitor monitor) throws CoreException {
+	public void putInfo(IFileInfo info, int options, IProgressMonitor monitor) throws CoreException { //TODO apply whats possible
 		// Start task
 		if (monitor != null) {
 			monitor.beginTask("Updating Zip Entry Information", 1); //$NON-NLS-1$
