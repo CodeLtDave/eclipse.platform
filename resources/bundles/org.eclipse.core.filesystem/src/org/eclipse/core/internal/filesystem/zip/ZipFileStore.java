@@ -309,8 +309,6 @@ public class ZipFileStore extends FileStore {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream() {
 			@Override
 			public void close() throws IOException {
-				super.close();
-
 				try (FileSystem zipFs = openZipFileSystem()) {
 					Path entryPath = zipFs.getPath(path.toString());
 					// Ensure parent directories exist
@@ -335,7 +333,14 @@ public class ZipFileStore extends FileStore {
 		URI zipUri = new URI("jar:" + rootStore.toURI().toString() + "!/"); //$NON-NLS-1$ //$NON-NLS-2$
 		Map<String, Object> env = new HashMap<>();
 		env.put("create", "false"); //$NON-NLS-1$ //$NON-NLS-2$
-		return FileSystems.newFileSystem(zipUri, env);
+		FileSystem fs;
+		try {
+			fs = FileSystems.getFileSystem(zipUri);
+		} catch (FileSystemNotFoundException e) {
+			return FileSystems.newFileSystem(zipUri, env);
+		}
+		return fs;
+
 	}
 
 	@Override
