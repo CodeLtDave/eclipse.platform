@@ -286,6 +286,34 @@ public class ZipFileStore extends FileStore {
 	}
 
 	@Override
+	public void move(IFileStore destination, int options, IProgressMonitor monitor) throws CoreException {
+		//if destination is no archive
+		if (!(destination instanceof ZipFileStore)) {
+			super.move(destination, options, monitor);
+			return;
+		}
+		ZipFileStore destZipFileStore = (ZipFileStore) destination;
+
+		try (FileSystem srcFs = openZipFileSystem(); FileSystem destFs = destZipFileStore.openZipFileSystem()) {
+
+			Path srcPath = srcFs.getPath(this.path.toString());
+			Path destPath = destFs.getPath(destZipFileStore.path.toString());
+
+			// Ensure the parent directories of the destination path exist.
+			if (destPath.getParent() != null) {
+				Files.createDirectories(destPath.getParent());
+			}
+
+			// Attempt to move the file or directory.
+			// Note: This conceptual code does not account for the actual limitations of ZIP FileSystem.
+			Files.move(srcPath, destPath, StandardCopyOption.REPLACE_EXISTING);
+		} catch (IOException | URISyntaxException e) {
+			throw new CoreException(new Status(IStatus.ERROR, "org.eclipse.core.internal.filesystem.zip", "Error moving entry within ZIP", e)); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+	}
+
+
+	@Override
 	public InputStream openInputStream(int options, IProgressMonitor monitor) throws CoreException {
 		try {
 			ZipInputStream in = new ZipInputStream(rootStore.openInputStream(EFS.NONE, monitor));
