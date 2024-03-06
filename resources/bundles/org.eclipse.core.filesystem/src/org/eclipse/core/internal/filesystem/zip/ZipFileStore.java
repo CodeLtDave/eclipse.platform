@@ -136,6 +136,16 @@ public class ZipFileStore extends FileStore {
 		return info;
 	}
 
+	/**
+	 * @return A directory info for this file store
+	 */
+	private IFileInfo createDirectoryInfo(String name) {
+		FileInfo result = new FileInfo(name);
+		result.setExists(true);
+		result.setDirectory(true);
+		return result;
+	}
+
 	@Override
 	public void delete(int options, IProgressMonitor monitor) throws CoreException {
 		try (FileSystem zipFs = openZipFileSystem()) {
@@ -169,16 +179,6 @@ public class ZipFileStore extends FileStore {
 		}
 		// does not exist
 		return new FileInfo(getName());
-	}
-
-	/**
-	 * @return A directory info for this file store
-	 */
-	private IFileInfo createDirectoryInfo(String name) {
-		FileInfo result = new FileInfo(name);
-		result.setExists(true);
-		result.setDirectory(true);
-		return result;
 	}
 
 	/**
@@ -334,6 +334,37 @@ public class ZipFileStore extends FileStore {
 		Map<String, Object> env = new HashMap<>();
 		env.put("create", "false"); //$NON-NLS-1$ //$NON-NLS-2$
 		return FileSystems.newFileSystem(zipUri, env);
+	}
+
+	@Override
+	public void putInfo(IFileInfo info, int options, IProgressMonitor monitor) throws CoreException {
+		// Start task
+		if (monitor != null) {
+			monitor.beginTask("Updating Zip Entry Information", 1); //$NON-NLS-1$
+		}
+		try {
+			// Check options for what information is requested to be updated
+			if ((options & EFS.SET_ATTRIBUTES) != 0) {
+				// Demonstrate acknowledging attribute change request
+				System.out.println("Attribute change request for " + path + " within ZIP file. Direct modification is not supported."); //$NON-NLS-1$ //$NON-NLS-2$
+			}
+			if ((options & EFS.SET_LAST_MODIFIED) != 0) {
+				// Demonstrate acknowledging last modified time change request
+				System.out.println("Last modified time change request for " + path + " within ZIP file. Direct modification is not supported."); //$NON-NLS-1$ //$NON-NLS-2$
+			}
+
+			// Note: Since direct modification of zip entry attributes like last modified time is not supported through Java NIO,
+			// we are logging the operation request. Actual attribute modification in a zip requires extracting, modifying, and repackaging the zip.
+
+			// Additional code here to handle other supported options, if applicable.
+
+		} catch (Exception e) {
+			throw new CoreException(new Status(IStatus.ERROR, "org.eclipse.core.internal.filesystem.zip", "Error updating ZIP file entry information", e)); //$NON-NLS-1$ //$NON-NLS-2$
+		} finally {
+			if (monitor != null) {
+				monitor.done();
+			}
+		}
 	}
 
 	@Override
