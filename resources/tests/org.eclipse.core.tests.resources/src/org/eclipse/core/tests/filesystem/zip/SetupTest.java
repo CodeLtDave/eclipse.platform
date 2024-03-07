@@ -66,8 +66,6 @@ public class SetupTest {
 
 	@Test
 	public void testTextFileInArchive() throws Exception {
-		ZipFileSystemTestUtil.printContents(ZipFileSystemTestSetup.project, ZipFileSystemTestSetup.PROJECT_NAME);
-
 		IFolder virtualFolder = ZipFileSystemTestSetup.project
 				.getFolder(archiveName);
 
