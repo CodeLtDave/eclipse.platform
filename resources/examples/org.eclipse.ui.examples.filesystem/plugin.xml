@@ -7,6 +7,82 @@
 	      <run class="org.eclipse.core.internal.filesystem.memory.MemoryFileSystem"/>
 	   </filesystem>
 	</extension>
+	 <extension
+       point="org.eclipse.ui.commands">
+    <command
+          defaultHandler="org.eclipse.ui.examples.filesystem.IncludeResourceHandler"
+          id="org.eclipse.ui.examples.filesystem.includeResource"
+          name="Include Resource">
+    </command>
+    <command
+          defaultHandler="org.eclipse.ui.examples.filesystem.ExcludeResourceHandler"
+          id="org.eclipse.ui.examples.filesystem.excludeResource"
+          name="Exclude Resource">
+    </command>
+    <command
+          defaultHandler="org.eclipse.ui.examples.filesystem.CreatedNestedProjectsHandler"
+          id="org.eclipse.ui.examples.filesystem.createdNested"
+          name="Create Nested Projects">
+    </command>
+ </extension>
+ <extension
+       point="org.eclipse.ui.menus">
+    <menuContribution
+          allPopups="false"
+          locationURI="popup:org.eclipse.ui.popup.any?after=additions">
+       <command
+             commandId="org.eclipse.ui.examples.filesystem.includeResource"
+             label="Include Resource"
+             style="push">
+          <visibleWhen
+                checkEnabled="false">
+             <with
+                   variable="activeMenuSelection">
+                <iterate
+                      ifEmpty="false">
+                   <instanceof
+                         value="org.eclipse.core.resources.IResource">
+                   </instanceof>
+                </iterate>
+             </with>
+          </visibleWhen>
+       </command>
+       <command
+             commandId="org.eclipse.ui.examples.filesystem.excludeResource"
+             label="Exclude Resource"
+             style="push">
+          <visibleWhen
+                checkEnabled="false">
+             <with
+                   variable="activeMenuSelection">
+                <iterate
+                      ifEmpty="false">
+                   <instanceof
+                         value="org.eclipse.core.resources.IResource">
+                   </instanceof>
+                </iterate>
+             </with>
+          </visibleWhen>
+       </command>
+       <command
+             commandId="org.eclipse.ui.examples.filesystem.createdNested"
+             label="Create Nested Projects"
+             style="push">
+          <visibleWhen
+                checkEnabled="false">
+             <with
+                   variable="activeMenuSelection">
+                <iterate
+                      ifEmpty="false">
+                   <instanceof
+                         value="org.eclipse.core.resources.IProject">
+                   </instanceof>
+                </iterate>
+             </with>
+          </visibleWhen>
+       </command>
+       </menuContribution>
+   </extension>
    <extension
          point="org.eclipse.ui.ide.filesystemSupport">
       <filesystemContributor
