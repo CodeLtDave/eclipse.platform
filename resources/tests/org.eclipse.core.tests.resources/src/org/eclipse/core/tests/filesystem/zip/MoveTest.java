@@ -180,6 +180,22 @@ public class MoveTest {
 		ensureDoesNotExist(textFile);
 	}
 
+	@Test
+	public void testMoveFileInsideOfArchive() throws Exception {
+		IFolder virtualFolder = ZipFileSystemTestSetup.project.getFolder(archiveName);
+		IFolder destinationFolder = virtualFolder.getFolder("destinationFolder");
+		ensureDoesNotExist(destinationFolder);
+		destinationFolder.create(false, true, getMonitor());
+		ensureExists(destinationFolder);
+		IFile textFile = virtualFolder.getFile(ZipFileSystemTestSetup.TEXT_FILE_NAME);
+		ensureExists(textFile);
+		IFile fileDestination = destinationFolder.getFile(ZipFileSystemTestSetup.TEXT_FILE_NAME);
+		ensureDoesNotExist(fileDestination);
+		textFile.move(fileDestination.getFullPath(), false, getMonitor());
+		ensureExists(fileDestination);
+		ensureDoesNotExist(textFile);
+	}
+
 	private IProject initializeSecondProject() throws CoreException, JavaModelException {
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		secondProject = workspace.getRoot().getProject(SECOND_PROJECT_NAME);
