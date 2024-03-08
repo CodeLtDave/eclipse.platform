@@ -12,7 +12,6 @@
 package org.eclipse.core.tests.filesystem.zip;
 
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
 
 import java.io.IOException;
 import org.eclipse.core.filesystem.EFS;
@@ -25,9 +24,8 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.tests.harness.FussyProgressMonitor;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.internal.ide.commands.ZipCollapser;
-import org.eclipse.ui.internal.ide.commands.ZipExpander;
+import org.eclipse.ui.handlers.ZipCollapser;
+import org.eclipse.ui.handlers.ZipExpander;
 import org.junit.Assert;
 
 final class ZipFileSystemTestUtil {
@@ -103,15 +101,13 @@ final class ZipFileSystemTestUtil {
 	}
 
 	static void expandZipFile(IFile file) throws Exception {
-		Shell shell = mock(Shell.class);
-		ZipExpander.expandZip(file, shell);
+		ZipExpander.expandZip(file);
 		IFolder virtualFolder = ZipFileSystemTestSetup.project.getFolder(file.getName());
 		Assert.assertTrue("ZIP file should exist before deletion", virtualFolder.exists());
 	}
 
 	static void collapseZipFile(IFolder folder) throws Exception {
-		Shell shell = mock(Shell.class);
-		ZipCollapser.collapseZip(folder, shell);
+		ZipCollapser.collapseZip(folder);
 		IFile zipFile = ZipFileSystemTestSetup.project.getFile(folder.getName());
 		ensureExists(zipFile);
 	}
