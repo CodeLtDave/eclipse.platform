@@ -368,7 +368,13 @@ class ResourceTree implements IResourceTree {
 		if (folder.getFileExtension() != null
 				&& (folder.getFileExtension().equals("zip") || folder.getFileExtension().equals("jar"))) { //$NON-NLS-1$ //$NON-NLS-2$
 			try {
+				if (folder.getLocationURI().getQuery() == null) {
+					deletedFolder(folder);
+					return true;
+				}
+
 				URI zipURI = new URI(folder.getLocationURI().getQuery());
+
 				// check if the zip file is physically stored below the folder in the workspace
 				IFileStore parentStore = EFS.getStore(folder.getParent().getLocationURI());
 				URI childURI = parentStore.getChild(folder.getName()).toURI();
@@ -1052,27 +1058,28 @@ class ResourceTree implements IResourceTree {
 
 			if (source.getFullPath().getFileExtension().equals("zip") //$NON-NLS-1$
 					|| source.getFullPath().getFileExtension().equals("jar")) { //$NON-NLS-1$
-				IFile newSource = null;
-				IFile newDestination = null;
 				try {
 					URI folderZipURI = new URI(source.getLocationURI().getQuery());
 					// check if the zip file is physically stored below the folder in the workspace
 					IFileStore parentStore = EFS.getStore(source.getParent().getLocationURI());
 					URI childURI = parentStore.getChild(source.getName()).toURI();
 					if (URIUtil.equals(folderZipURI, childURI)) {
-						source.delete(IResource.COLLAPSE, null);
-						source.getParent().refreshLocal(IResource.DEPTH_INFINITE, null);
+						source.delete(IResource.COLLAPSE, monitor);
+						source.getProject().refreshLocal(IResource.DEPTH_INFINITE, null);
 						IFile file = source.getParent().getFile(IPath.fromOSString(source.getName()));
-						newSource = file;
-						newDestination = destination.getParent().getFile(IPath.fromOSString(destination.getName()));
-					}
-					standardMoveFile(newSource, newDestination, flags, monitor);
-					source.getParent().refreshLocal(IResource.DEPTH_INFINITE, null);
-					destination.getParent().refreshLocal(IResource.DEPTH_INFINITE, null);
-					URI fileZipURI = new URI("zip", null, "/", newDestination.getLocationURI().toString(), null); //$NON-NLS-1$ //$NON-NLS-2$
-					IFolder link = newDestination.getParent().getFolder(IPath.fromOSString(newDestination.getName()));
-					link.createLink(fileZipURI, IResource.REPLACE, null);
+						IFile newSource = file;
+						IFile newDestination = destination.getParent()
+								.getFile(IPath.fromOSString(destination.getName()));
+						newSource.move(newDestination.getFullPath(), false, null);
+						source.getParent().refreshLocal(IResource.DEPTH_INFINITE, null);
+						destination.getParent().refreshLocal(IResource.DEPTH_INFINITE, null);
+						URI fileZipURI = new URI("zip", null, "/", newDestination.getLocationURI().toString(), //$NON-NLS-1$ //$NON-NLS-2$
+								null);
+						IFolder link = newDestination.getParent()
+								.getFolder(IPath.fromOSString(newDestination.getName()));
+						link.createLink(fileZipURI, IResource.REPLACE, null);
 					return;
+					}
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
