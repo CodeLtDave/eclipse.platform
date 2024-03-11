@@ -22,6 +22,12 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.Collection;
 import org.eclipse.core.resources.IFile;
@@ -31,8 +37,11 @@ import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.resources.ZipExpander;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.core.IAccessRule;
 import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.IClasspathEntry;
@@ -196,6 +205,32 @@ public class MoveTest {
 		ensureDoesNotExist(textFile);
 	}
 
+	@Test
+	public void testMoveArchiveIntoArchive() throws Exception {
+		// create and expand first archive
+		IFile archiveFile = secondProject.getFile(archiveName);
+		ensureDoesNotExist(archiveFile);
+		copyZipIntoJavaProject(archiveName);
+		ensureExists(archiveFile);
+		ZipExpander.expandZip(archiveFile);
+		IFolder archiveFolder = secondProject.getFolder(archiveName);
+		ensureExists(archiveFolder);
+		// create and expand second archive
+		String newArchiveName = archiveName.replace(".", "New.");
+		IFile newArchiveFile = secondProject.getFile(newArchiveName);
+		ensureDoesNotExist(newArchiveFile);
+		copyZipIntoJavaProject(newArchiveName);
+		ensureExists(newArchiveFile);
+		ZipExpander.expandZip(newArchiveFile);
+		IFolder newArchiveFolder = secondProject.getFolder(newArchiveName);
+		ensureExists(newArchiveFolder);
+		// move second archive into first archive
+		IFolder newArchiveFolderDestination = archiveFolder.getFolder(newArchiveName);
+		newArchiveFolder.move(newArchiveFolderDestination.getFullPath(), false, getMonitor());
+		ensureExists(newArchiveFolderDestination);
+		ensureDoesNotExist(newArchiveFolder);
+	}
+
 	private IProject initializeSecondProject() throws CoreException, JavaModelException {
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		secondProject = workspace.getRoot().getProject(SECOND_PROJECT_NAME);
@@ -226,5 +261,30 @@ public class MoveTest {
 		secondJavaProject.setRawClasspath(new IClasspathEntry[] { jreContainerEntry, srcEntry }, getMonitor());
 		secondProject.refreshLocal(IResource.DEPTH_INFINITE, getMonitor());
 		return secondProject;
+	}
+
+	private static void copyZipIntoJavaProject(String zipFileName) throws Exception {
+		// Resolve the source file URL from the plugin bundle
+		URL zipFileUrl = Platform.getBundle("org.eclipse.core.tests.resources")
+				.getEntry("resources/ZipFileSystem/" + zipFileName);
+		// Ensure proper conversion from URL to URI to Path
+		URL resolvedURL = FileLocator.resolve(zipFileUrl); // Resolves any redirection or bundling
+		java.nio.file.Path sourcePath;
+		try {
+			// Convert URL to URI to Path correctly handling spaces and special characters
+			URI resolvedURI = resolvedURL.toURI();
+			sourcePath = Paths.get(resolvedURI);
+		} catch (URISyntaxException e) {
+			throw new IOException("Failed to resolve URI for the ZIP file", e);
+		}
+
+		// Determine the target location within the project
+		java.nio.file.Path targetPath = Paths.get(secondProject.getLocation().toOSString(), zipFileName);
+
+		// Copy the file using java.nio.file.Files
+		Files.copy(sourcePath, targetPath, StandardCopyOption.REPLACE_EXISTING);
+
+		// Refresh the project to make Eclipse aware of the new file
+		secondProject.refreshLocal(IResource.DEPTH_INFINITE, null);
 	}
 }
