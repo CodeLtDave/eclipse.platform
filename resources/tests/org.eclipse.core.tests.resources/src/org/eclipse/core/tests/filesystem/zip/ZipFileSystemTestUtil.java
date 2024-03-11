@@ -21,11 +21,11 @@ import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.ZipCollapser;
+import org.eclipse.core.resources.ZipExpander;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.tests.harness.FussyProgressMonitor;
-import org.eclipse.ui.handlers.ZipCollapser;
-import org.eclipse.ui.handlers.ZipExpander;
 import org.junit.Assert;
 
 final class ZipFileSystemTestUtil {
