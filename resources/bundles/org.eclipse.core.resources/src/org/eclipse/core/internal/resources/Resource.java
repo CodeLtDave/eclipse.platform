@@ -242,6 +242,9 @@ public abstract class Resource extends PlatformObject implements IResource, ICor
 		ResourceInfo info = getResourceInfo(false, false);
 		int flags = getFlags(info);
 		checkAccessible(flags);
+		if (this.getFileExtension() != null && this.getFileExtension().equals("jar")) { //$NON-NLS-1$
+			return info;
+		}
 		checkLocal(flags, depth);
 		return info;
 	}
