@@ -20,11 +20,16 @@ import java.net.URISyntaxException;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.FileSystems;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -62,27 +67,48 @@ public class ZipFileStore extends FileStore {
 	}
 
 	private ZipEntry[] childEntries(IProgressMonitor monitor) throws CoreException {
-		HashMap<String, ZipEntry> entries = new HashMap<>();
+		List<ZipEntry> entryList = new ArrayList<>();
 		String myName = path.toString();
-		try (ZipInputStream in = new ZipInputStream(rootStore.openInputStream(EFS.NONE, monitor))) {
-			ZipEntry current;
-			while ((current = in.getNextEntry()) != null) {
-				final String currentPath = current.getName();
-				if (isParent(myName, currentPath)) {
-					entries.put(currentPath, current);
-				} else if (isAncestor(myName, currentPath)) {
-					int myNameLength = myName.length() + 1;
-					int nameEnd = currentPath.indexOf('/', myNameLength);
-					String dirName = nameEnd == -1 ? currentPath : currentPath.substring(0, nameEnd + 1);
-					if (!entries.containsKey(dirName))
-						entries.put(dirName, new ZipEntry(dirName));
+
+		try (FileSystem zipFs = openZipFileSystem()) {
+			Path zipRoot = zipFs.getPath(myName);
+			Files.walkFileTree(zipRoot, new SimpleFileVisitor<Path>() {
+				@Override
+				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+					String entryName = zipRoot.relativize(file).toString();
+					if (!Files.isDirectory(file)) {
+						// For files, read attributes and create ZipEntry
+						ZipEntry zipEntry = new ZipEntry(entryName);
+						zipEntry.setSize(attrs.size());
+						zipEntry.setTime(attrs.lastModifiedTime().toMillis());
+						// Compressed size is not directly available; method is set based on ZIP standard
+						zipEntry.setMethod(ZipEntry.DEFLATED);
+						entryList.add(zipEntry);
+					} else {
+						// For directories, simply add them with a trailing slash
+						entryList.add(new ZipEntry(entryName + "/")); //$NON-NLS-1$
+					}
+					return FileVisitResult.CONTINUE;
 				}
-			}
-		} catch (IOException e) {
-			throw new CoreException(Status.error("Could not read file: " + rootStore.toString(), e)); //$NON-NLS-1$
+
+				@Override
+				public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
+					// Include directories only if they are not the root directory
+					if (!dir.equals(zipRoot)) {
+						String dirName = zipRoot.relativize(dir).toString() + "/"; //$NON-NLS-1$
+						entryList.add(new ZipEntry(dirName));
+					}
+					return FileVisitResult.CONTINUE;
+				}
+			});
+		} catch (IOException | URISyntaxException e) {
+			throw new CoreException(new Status(IStatus.ERROR, "YourPluginID", "Error reading ZIP file", e)); //$NON-NLS-1$ //$NON-NLS-2$
 		}
-		return entries.values().toArray(new ZipEntry[entries.size()]);
+
+		return entryList.toArray(new ZipEntry[0]);
 	}
+
+
 
 	@Override
 	public IFileInfo[] childInfos(int options, IProgressMonitor monitor) throws CoreException {
@@ -233,19 +259,6 @@ public class ZipFileStore extends FileStore {
 			return true;
 		}
 		return child.startsWith(ancestor) && child.length() > ancestorLength && child.charAt(ancestorLength) == '/';
-	}
-
-	/**
-	 * Returns whether parent is the immediate parent of child.
-	 *
-	 * @param parent the potential parent
-	 * @param child the potential child
-	 * @return <code>true</code> or <code>false</code>
-	 */
-	private boolean isParent(String parent, String child) {
-		// children will start with myName and have no child path
-		int chop = parent.length() + 1;
-		return child.startsWith(parent) && child.length() > chop && child.substring(chop).indexOf('/') == -1;
 	}
 
 	@Override
