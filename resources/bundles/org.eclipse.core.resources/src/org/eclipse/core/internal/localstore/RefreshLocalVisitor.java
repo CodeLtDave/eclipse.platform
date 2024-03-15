@@ -282,8 +282,7 @@ public class RefreshLocalVisitor implements IUnifiedTreeVisitor, ILocalStoreCons
 				/* for folders we only care about updating local status */
 				if (targetType == IResource.FOLDER && node.isFolder()) {
 					// if not local, mark as local
-					if (!target.isLocal(IResource.DEPTH_ZERO)
-							&& (target.getFileExtension() != null && !target.getFileExtension().equals("jar"))) //$NON-NLS-1$
+					if (!target.isLocal(IResource.DEPTH_ZERO))
 						makeLocal(node, target);
 					ResourceInfo info = target.getResourceInfo(false, false);
 					if (info != null && info.getModificationStamp() != IResource.NULL_STAMP)
