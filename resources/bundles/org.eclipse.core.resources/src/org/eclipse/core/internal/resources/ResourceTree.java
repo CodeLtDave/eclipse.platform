@@ -387,7 +387,6 @@ class ResourceTree implements IResourceTree {
 					file = folder.getParent().getFile(IPath.fromOSString(folder.getName()));
 					IFileStore fileStore = localManager.getStore(file);
 					fileStore.delete(EFS.NONE, Policy.subMonitorFor(monitor, Policy.totalWork / 4));
-					deletedFile(file);
 					return true;
 				}
 				// otherwise the zip file must be a linked resource
