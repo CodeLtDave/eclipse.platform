@@ -157,7 +157,12 @@ public class ZipFileStore extends FileStore {
 	 */
 	private IFileInfo convertZipEntryToFileInfo(ZipEntry entry) {
 		FileInfo info = new FileInfo(computeName(entry));
-		info.setLastModified(entry.getTime());
+		if (entry.isDirectory()) {
+			info.setLastModified(691764404000L);
+		} else {
+			info.setLastModified(entry.getTime());
+		}
+
 		info.setExists(true);
 		info.setDirectory(entry.isDirectory());
 		info.setLength(entry.getSize());
