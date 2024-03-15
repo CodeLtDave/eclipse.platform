@@ -34,6 +34,8 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceStatus;
 import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.resources.ZipCollapser;
+import org.eclipse.core.resources.ZipExpander;
 import org.eclipse.core.resources.team.IResourceTree;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
@@ -1063,20 +1065,12 @@ class ResourceTree implements IResourceTree {
 					IFileStore parentStore = EFS.getStore(source.getParent().getLocationURI());
 					URI childURI = parentStore.getChild(source.getName()).toURI();
 					if (URIUtil.equals(folderZipURI, childURI)) {
-						source.delete(IResource.COLLAPSE, monitor);
-						source.getProject().refreshLocal(IResource.DEPTH_INFINITE, null);
-						IFile file = source.getParent().getFile(IPath.fromOSString(source.getName()));
-						IFile newSource = file;
+						ZipCollapser.collapseZip(source);
+						IFile newSource = source.getParent().getFile(IPath.fromOSString(source.getName()));
 						IFile newDestination = destination.getParent()
 								.getFile(IPath.fromOSString(destination.getName()));
 						newSource.move(newDestination.getFullPath(), false, null);
-						source.getParent().refreshLocal(IResource.DEPTH_INFINITE, null);
-						destination.getParent().refreshLocal(IResource.DEPTH_INFINITE, null);
-						URI fileZipURI = new URI("zip", null, "/", newDestination.getLocationURI().toString(), //$NON-NLS-1$ //$NON-NLS-2$
-								null);
-						IFolder link = newDestination.getParent()
-								.getFolder(IPath.fromOSString(newDestination.getName()));
-						link.createLink(fileZipURI, IResource.REPLACE, null);
+						ZipExpander.expandZip(newDestination);
 					return;
 					}
 				} catch (Exception e) {
