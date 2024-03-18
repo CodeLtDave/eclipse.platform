@@ -64,4 +64,13 @@ public class CreateTest {
 			Assert.assertEquals("The content of Text.txt should be 'Foo'", "Foo", content);
 		}
 	}
+
+	@Test
+	public void testCreateFolderInsideOfArchive() throws Exception {
+		IFolder virtualFolder = ZipFileSystemTestSetup.project.getFolder(archiveName);
+		IFolder newFolder = virtualFolder.getFolder("NewFolder");
+		ensureDoesNotExist(newFolder);
+		newFolder.create(false, true, getMonitor());
+		ensureExists(newFolder);
+	}
 }
