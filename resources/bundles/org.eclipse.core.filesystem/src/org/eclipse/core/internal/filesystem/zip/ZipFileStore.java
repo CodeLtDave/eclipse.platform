@@ -27,6 +27,7 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.FileTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -390,26 +391,26 @@ public class ZipFileStore extends FileStore {
 	}
 
 	@Override
-	public void putInfo(IFileInfo info, int options, IProgressMonitor monitor) throws CoreException { //TODO apply whats possible
-		// Start task
+	public void putInfo(IFileInfo info, int options, IProgressMonitor monitor) throws CoreException {
 		if (monitor != null) {
 			monitor.beginTask("Updating Zip Entry Information", 1); //$NON-NLS-1$
 		}
-		try {
+		try (FileSystem zipFs = openZipFileSystem()) {
+			Path filePath = zipFs.getPath(path.toString());
 			// Check options for what information is requested to be updated
 			if ((options & EFS.SET_ATTRIBUTES) != 0) {
-				// Demonstrate acknowledging attribute change request
-				System.out.println("Attribute change request for " + path + " within ZIP file. Direct modification is not supported."); //$NON-NLS-1$ //$NON-NLS-2$
+				boolean isHidden = info.getAttribute(EFS.ATTRIBUTE_HIDDEN);
+				boolean isArchive = info.getAttribute(EFS.ATTRIBUTE_ARCHIVE);
+
+				if (ZipFileSystem.getOS().startsWith("Windows")) { //$NON-NLS-1$
+					Files.setAttribute(filePath, "dos:hidden", isHidden); //$NON-NLS-1$
+					Files.setAttribute(filePath, "dos:archive", isArchive); //$NON-NLS-1$
+				}
 			}
 			if ((options & EFS.SET_LAST_MODIFIED) != 0) {
-				// Demonstrate acknowledging last modified time change request
-				System.out.println("Last modified time change request for " + path + " within ZIP file. Direct modification is not supported."); //$NON-NLS-1$ //$NON-NLS-2$
+				FileTime lastModified = FileTime.fromMillis(info.getLastModified());
+				Files.setLastModifiedTime(filePath, lastModified);
 			}
-
-			// Note: Since direct modification of zip entry attributes like last modified time is not supported through Java NIO,
-			// we are logging the operation request. Actual attribute modification in a zip requires extracting, modifying, and repackaging the zip.
-
-			// Additional code here to handle other supported options, if applicable.
 
 		} catch (Exception e) {
 			throw new CoreException(new Status(IStatus.ERROR, "org.eclipse.core.internal.filesystem.zip", "Error updating ZIP file entry information", e)); //$NON-NLS-1$ //$NON-NLS-2$

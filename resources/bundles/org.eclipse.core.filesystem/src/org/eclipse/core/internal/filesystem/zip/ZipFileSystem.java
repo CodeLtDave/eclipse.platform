@@ -42,6 +42,14 @@ public class ZipFileSystem extends FileSystem {
 		return EFS.getNullFileSystem().getStore(uri);
 	}
 
+	/**
+	 * Returns the current OS.  This is equivalent to Platform.getOS(), but
+	 * is tolerant of the platform runtime not being present.
+	 */
+	static String getOS() {
+		return System.getProperty("osgi.os", ""); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+
 	@Override
 	public boolean canDelete() {
 		return true;
