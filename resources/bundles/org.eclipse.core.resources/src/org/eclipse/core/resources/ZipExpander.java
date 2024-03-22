@@ -11,8 +11,6 @@ import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.filesystem.URIUtil;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
 
 /**
  * @since 3.21
@@ -26,13 +24,9 @@ public class ZipExpander {
 		IFileStore fileStore = EFS.getStore(URIUtil.toURI(file.getLocation()));
 		URI jarUri = new URI("jar:" + fileStore.toURI().toString() + "!/"); //$NON-NLS-1$ //$NON-NLS-2$
 		// Try creating file System to catch errors before actual execution
-		FileSystems.newFileSystem(jarUri, env);
+		FileSystems.newFileSystem(jarUri, env).close();
 
 		IFolder link = file.getParent().getFolder(IPath.fromOSString(file.getName()));
 		link.createLink(zipURI, IResource.REPLACE, null);
-		if (link.members().length == 0) {
-			ZipCollapser.collapseZip(link);
-			throw new CoreException(new Status(IStatus.ERROR, "YourPluginID", "compression method not supported")); //$NON-NLS-1$ //$NON-NLS-2$
-		}
 	}
 }
