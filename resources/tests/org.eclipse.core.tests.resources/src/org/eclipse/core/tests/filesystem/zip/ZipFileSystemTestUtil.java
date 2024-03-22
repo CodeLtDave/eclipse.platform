@@ -14,6 +14,7 @@ package org.eclipse.core.tests.filesystem.zip;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileInfo;
 import org.eclipse.core.filesystem.IFileStore;
@@ -100,10 +101,10 @@ final class ZipFileSystemTestUtil {
 		return new FussyProgressMonitor();
 	}
 
-	static void expandZipFile(IFile file) throws Exception {
+	static void expandZipFile(IFile file) throws URISyntaxException, CoreException, IOException {
 		ZipExpander.expandZip(file);
 		IFolder virtualFolder = ZipFileSystemTestSetup.project.getFolder(file.getName());
-		Assert.assertTrue("ZIP file should exist before deletion", virtualFolder.exists());
+		Assert.assertTrue(virtualFolder.exists());
 	}
 
 	static void collapseZipFile(IFolder folder) throws Exception {
