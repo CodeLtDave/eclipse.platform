@@ -147,7 +147,7 @@ public class ZipFileStore extends FileStore {
 		if (name.charAt(end) == '/') {
 			end--;
 		}
-		return name.substring(name.lastIndexOf('/', end) + 1, end + 1);
+		return name.substring(0, end + 1);
 	}
 
 	/**
