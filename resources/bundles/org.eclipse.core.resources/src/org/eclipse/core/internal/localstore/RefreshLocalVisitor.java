@@ -295,7 +295,9 @@ public class RefreshLocalVisitor implements IUnifiedTreeVisitor, ILocalStoreCons
 						return true;
 				}
 			} else {
-				if (node.existsInFileSystem() && !IPath.EMPTY.isValidSegment(node.getLocalName())) {
+				boolean isArchive = node.getResource().getFullPath().toString().contains("jar") //$NON-NLS-1$
+						|| node.getResource().getFullPath().toString().contains("zip"); //$NON-NLS-1$
+				if (node.existsInFileSystem() && !IPath.EMPTY.isValidSegment(node.getLocalName()) && !isArchive) {
 					String message = NLS.bind(Messages.resources_invalidResourceName, node.getLocalName());
 					errors.merge(new ResourceStatus(IResourceStatus.INVALID_RESOURCE_NAME, message));
 					return false;
