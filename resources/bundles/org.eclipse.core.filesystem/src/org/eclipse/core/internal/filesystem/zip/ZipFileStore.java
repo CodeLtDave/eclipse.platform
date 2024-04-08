@@ -267,6 +267,10 @@ public class ZipFileStore extends FileStore {
 		return child.startsWith(ancestor) && child.length() > ancestorLength && child.charAt(ancestorLength) == '/';
 	}
 
+	private boolean isNested() {
+		return this.rootStore instanceof ZipFileStore;
+	}
+
 	@Override
 	public IFileStore mkdir(int options, IProgressMonitor monitor) throws CoreException {
 		URI zipUri;
@@ -377,14 +381,20 @@ public class ZipFileStore extends FileStore {
 	}
 
 	private FileSystem openZipFileSystem() throws IOException, URISyntaxException {
-		URI zipUri = new URI("jar:" + rootStore.toURI().toString() + "!/"); //$NON-NLS-1$ //$NON-NLS-2$
+		ZipFileStore store = this;
+		URI nioURI = toNioURI();
+		while (store.isNested()) {
+			System.out.println("Nested"); //$NON-NLS-1$
+
+		}
+
 		Map<String, Object> env = new HashMap<>();
 		env.put("create", "false"); //$NON-NLS-1$ //$NON-NLS-2$
 		FileSystem fs;
 		try {
-			fs = FileSystems.getFileSystem(zipUri);
+			fs = FileSystems.getFileSystem(nioURI);
 		} catch (FileSystemNotFoundException e) {
-			return FileSystems.newFileSystem(zipUri, env);
+			return FileSystems.newFileSystem(nioURI, env);
 		}
 		return fs;
 
@@ -395,8 +405,7 @@ public class ZipFileStore extends FileStore {
 		if (monitor != null) {
 			monitor.beginTask("Updating Zip Entry Information", 1); //$NON-NLS-1$
 		}
-		try (FileSystem zipFs = openZipFileSystem()) {
-			Path filePath = zipFs.getPath(path.toString());
+		try {
 			// Check options for what information is requested to be updated
 			if ((options & EFS.SET_ATTRIBUTES) != 0) {
 				boolean isHidden = info.getAttribute(EFS.ATTRIBUTE_HIDDEN);
@@ -429,5 +438,12 @@ public class ZipFileStore extends FileStore {
 			// should not happen
 			throw new RuntimeException(e);
 		}
+	}
+
+	private URI toNioURI() throws URISyntaxException {
+		String nioScheme = "jar:"; //$NON-NLS-1$
+		String path = rootStore.toURI().toString();
+		String suffix = "!/"; //$NON-NLS-1$
+		return new URI(nioScheme + path + suffix);
 	}
 }
