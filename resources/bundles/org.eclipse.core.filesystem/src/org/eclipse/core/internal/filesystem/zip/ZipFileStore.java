@@ -382,26 +382,27 @@ public class ZipFileStore extends FileStore {
 	}
 
 	private FileSystem openZipFileSystem() throws IOException, URISyntaxException {
-	    URI nioURI = toNioURI();
 	    Map<String, Object> env = new HashMap<>();
 		env.put("create", "false"); //$NON-NLS-1$ //$NON-NLS-2$
 
 	    if (!isNested()) {
+			URI nioURI = toNioURI();
 	        try {
 				return FileSystems.getFileSystem(nioURI);
 	        } catch (FileSystemNotFoundException e) {
 				return FileSystems.newFileSystem(nioURI, env);
 	        }
 	    }
-		URI nestedURI = new URI(nioURI.toString() + this.path + "!/"); //$NON-NLS-1$
+		ZipFileStore outerZipFileStore = (ZipFileStore) this.rootStore;
+		URI outerNioURI = outerZipFileStore.toNioURI();
 		FileSystem outerFs;
 		try {
-			outerFs = FileSystems.newFileSystem(nestedURI, env);
+			outerFs = FileSystems.newFileSystem(outerNioURI, env);
 		} catch (FileSystemAlreadyExistsException e) {
-			outerFs = FileSystems.getFileSystem(nioURI);
+			outerFs = FileSystems.getFileSystem(outerNioURI);
 		}
 
-		Path innerArchivePath = outerFs.getPath(this.path.toString());
+		Path innerArchivePath = outerFs.getPath(outerZipFileStore.path.toString());
 		try {
 			return FileSystems.newFileSystem(innerArchivePath, env);
 		} catch (FileSystemAlreadyExistsException e) {
