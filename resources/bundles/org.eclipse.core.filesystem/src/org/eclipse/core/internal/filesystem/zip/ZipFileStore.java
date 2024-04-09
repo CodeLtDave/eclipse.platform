@@ -444,8 +444,14 @@ public class ZipFileStore extends FileStore {
 
 	@Override
 	public URI toURI() {
+		String scheme = ZipFileSystem.SCHEME_ZIP;
+		String pathString = path.makeAbsolute().toString();
+		URI rootStoreURI = rootStore.toURI();
+		String rootStoreScheme = rootStoreURI.getScheme();
+		String rootStorePath = rootStoreURI.getPath();
+		String rootStoreQuery = rootStoreScheme + ":" + rootStorePath; //$NON-NLS-1$
 		try {
-			return new URI(ZipFileSystem.SCHEME_ZIP, null, path.makeAbsolute().toString(), rootStore.toURI().toString(), null);
+			return new URI(scheme, null, pathString, rootStoreQuery, null);
 		} catch (URISyntaxException e) {
 			// should not happen
 			throw new RuntimeException(e);
