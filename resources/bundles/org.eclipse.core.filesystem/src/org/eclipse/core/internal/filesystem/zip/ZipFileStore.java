@@ -458,13 +458,16 @@ public class ZipFileStore extends FileStore {
 		}
 	}
 
+
 	private URI toNioURI() throws URISyntaxException {
 		String nioScheme = "jar:"; //$NON-NLS-1$
+		String path = rootStore.toURI().toString();
 		URI rootURI = rootStore.toURI();
-		String fileScheme = rootURI.getScheme();
-		String path = rootURI.getPath();
+		rootURI = rootURI;
+
 		String suffix = "!/"; //$NON-NLS-1$
-		String ret = nioScheme + fileScheme + path + suffix;
+		String ret = nioScheme + path + suffix;
 		return new URI(ret);
 	}
+
 }
