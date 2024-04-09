@@ -18,6 +18,7 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.FileSystem;
+import java.nio.file.FileSystemAlreadyExistsException;
 import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
@@ -381,31 +382,42 @@ public class ZipFileStore extends FileStore {
 	}
 
 	private FileSystem openZipFileSystem() throws IOException, URISyntaxException {
-		ZipFileStore store = this;
-		URI nioURI = toNioURI();
-		while (store.isNested()) {
-			System.out.println("Nested"); //$NON-NLS-1$
-
-		}
-
-		Map<String, Object> env = new HashMap<>();
+	    URI nioURI = toNioURI();
+	    Map<String, Object> env = new HashMap<>();
 		env.put("create", "false"); //$NON-NLS-1$ //$NON-NLS-2$
-		FileSystem fs;
+
+	    if (!isNested()) {
+	        try {
+				return FileSystems.getFileSystem(nioURI);
+	        } catch (FileSystemNotFoundException e) {
+				return FileSystems.newFileSystem(nioURI, env);
+	        }
+	    }
+		URI nestedURI = new URI(nioURI.toString() + this.path + "!/"); //$NON-NLS-1$
+		FileSystem outerFs;
 		try {
-			fs = FileSystems.getFileSystem(nioURI);
-		} catch (FileSystemNotFoundException e) {
-			return FileSystems.newFileSystem(nioURI, env);
+			outerFs = FileSystems.newFileSystem(nestedURI, env);
+		} catch (FileSystemAlreadyExistsException e) {
+			outerFs = FileSystems.getFileSystem(nioURI);
 		}
-		return fs;
+
+		Path innerArchivePath = outerFs.getPath(this.path.toString());
+		try {
+			return FileSystems.newFileSystem(innerArchivePath, env);
+		} catch (FileSystemAlreadyExistsException e) {
+			return FileSystems.getFileSystem(innerArchivePath.toUri());
+		}
 
 	}
+
 
 	@Override
 	public void putInfo(IFileInfo info, int options, IProgressMonitor monitor) throws CoreException {
 		if (monitor != null) {
 			monitor.beginTask("Updating Zip Entry Information", 1); //$NON-NLS-1$
 		}
-		try {
+		try (FileSystem zipFs = openZipFileSystem()) {
+			Path filePath = zipFs.getPath(path.toString());
 			// Check options for what information is requested to be updated
 			if ((options & EFS.SET_ATTRIBUTES) != 0) {
 				boolean isHidden = info.getAttribute(EFS.ATTRIBUTE_HIDDEN);
@@ -442,8 +454,11 @@ public class ZipFileStore extends FileStore {
 
 	private URI toNioURI() throws URISyntaxException {
 		String nioScheme = "jar:"; //$NON-NLS-1$
-		String path = rootStore.toURI().toString();
+		URI rootURI = rootStore.toURI();
+		String fileScheme = rootURI.getScheme();
+		String path = rootURI.getPath();
 		String suffix = "!/"; //$NON-NLS-1$
-		return new URI(nioScheme + path + suffix);
+		String ret = nioScheme + fileScheme + path + suffix;
+		return new URI(ret);
 	}
 }
