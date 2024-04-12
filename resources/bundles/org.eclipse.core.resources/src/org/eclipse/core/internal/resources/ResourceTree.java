@@ -1045,19 +1045,12 @@ class ResourceTree implements IResourceTree {
 			if (source.getFullPath().getFileExtension().equals("zip") //$NON-NLS-1$
 					|| source.getFullPath().getFileExtension().equals("jar")) { //$NON-NLS-1$
 				try {
-					URI folderZipURI = new URI(source.getLocationURI().getQuery());
-					// check if the zip file is physically stored below the folder in the workspace
-					IFileStore parentStore = EFS.getStore(source.getParent().getLocationURI());
-					URI childURI = parentStore.getChild(source.getName()).toURI();
-					if (URIUtil.equals(folderZipURI, childURI)) {
-						ZipCollapser.collapseZip(source);
-						IFile newSource = source.getParent().getFile(IPath.fromOSString(source.getName()));
-						IFile newDestination = destination.getParent()
-								.getFile(IPath.fromOSString(destination.getName()));
-						newSource.move(newDestination.getFullPath(), false, null);
-						ZipExpander.expandZip(newDestination);
+					ZipCollapser.collapseZip(source);
+					IFile newSource = source.getParent().getFile(IPath.fromOSString(source.getName()));
+					IFile newDestination = destination.getParent().getFile(IPath.fromOSString(destination.getName()));
+					newSource.move(newDestination.getFullPath(), false, null);
+					ZipExpander.expandZip(newDestination);
 					return;
-					}
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
