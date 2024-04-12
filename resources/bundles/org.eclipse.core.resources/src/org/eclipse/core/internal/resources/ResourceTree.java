@@ -366,35 +366,20 @@ class ResourceTree implements IResourceTree {
 		// Do nothing if the folder doesn't exist in the workspace.
 		if (!folder.exists())
 			return true;
-		boolean collapse = (flags & (IResource.COLLAPSE)) != 0;
+		boolean shouldCollapse = (flags & (IResource.COLLAPSE)) != 0;
+
+		// Folder is expanded archive
 		if (folder.getFileExtension() != null
 				&& (folder.getFileExtension().equals("zip") || folder.getFileExtension().equals("jar"))) { //$NON-NLS-1$ //$NON-NLS-2$
 			try {
-				if (folder.getLocationURI().getQuery() == null) {
-					deletedFolder(folder);
+				deletedFolder(folder);
+				if (shouldCollapse) {
 					return true;
 				}
-
-				URI zipURI = new URI(folder.getLocationURI().getQuery());
-
-				// check if the zip file is physically stored below the folder in the workspace
-				IFileStore parentStore = EFS.getStore(folder.getParent().getLocationURI());
-				URI childURI = parentStore.getChild(folder.getName()).toURI();
-				IFile file;
-				if (URIUtil.equals(zipURI, childURI)) {
-					deletedFolder(folder);
-					if (collapse) {
-						return true;
-					}
-					file = folder.getParent().getFile(IPath.fromOSString(folder.getName()));
-					IFileStore fileStore = localManager.getStore(file);
-					fileStore.delete(EFS.NONE, Policy.subMonitorFor(monitor, Policy.totalWork / 4));
-					return true;
-				}
-				// otherwise the zip file must be a linked resource
-				file = folder.getParent().getFile(IPath.fromOSString(folder.getName()));
-				file.createLink(zipURI, IResource.REPLACE, null);
-				return internalDeleteFile(file, flags, monitor);
+				IFile file = folder.getParent().getFile(IPath.fromOSString(folder.getName()));
+				IFileStore fileStore = localManager.getStore(file);
+				fileStore.delete(EFS.NONE, Policy.subMonitorFor(monitor, Policy.totalWork / 4));
+				return true;
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
