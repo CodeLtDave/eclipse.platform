@@ -48,65 +48,73 @@ public class ZipFileSystemTestSetup {
 	private ZipFileSystemTestSetup() {
 	}
 
-	static final String PROJECT_NAME = "TestProject";
+	static final String FIRST_PROJECT_NAME = "TestProject";
+	static final String SECOND_PROJECT_NAME = "SecondProject";
 	static final String ZIP_FILE_VIRTUAL_FOLDER_NAME = "BasicText.zip"; // Assuming the ZIP is represented as this
 																		// folder
 	static final String JAR_FILE_VIRTUAL_FOLDER_NAME = "BasicText.jar";
 	static final String PERFORMANCE_ZIP_FILE_NAME = "Performance.zip";
 	static final String BIG_PERFORMANCE_ZIP_FILE_NAME = "BigPerformance.zip";
-	static final String LARGE_PERFORMANCE_ZIP_FILE_NAME = "JavaFX.zip";
-	static final String HUGE_PERFORMANCE_ZIP_FILE_NAME = "oomph-installer.zip";
+	static final String LARGE_PERFORMANCE_ZIP_FILE_NAME = "LargePerformance.zip";
+	static final String HUGE_PERFORMANCE_ZIP_FILE_NAME = "HugePerformance.zip";
 	static final String TEXT_FILE_NAME = "Text.txt";
-	static IProject project;
+	static IProject firstProject;
+	static IProject secondProject;
 	static IJavaProject javaProject;
 	static IProgressMonitor progressMonitor = new NullProgressMonitor();
 
 	static void setup() throws Exception {
-		createProject();
-		createJavaProject();
-		refreshProject();
-		copyZipIntoJavaProject(ZIP_FILE_VIRTUAL_FOLDER_NAME);
-		copyZipIntoJavaProject(JAR_FILE_VIRTUAL_FOLDER_NAME);
-		refreshProject();
-		ZipFileSystemTestUtil.expandZipFile(project.getFile(ZIP_FILE_VIRTUAL_FOLDER_NAME));
-		ZipFileSystemTestUtil.expandZipFile(project.getFile(JAR_FILE_VIRTUAL_FOLDER_NAME));
+		firstProject = createProject(FIRST_PROJECT_NAME);
+		createJavaProject(firstProject);
+		refreshProject(firstProject);
+		copyZipIntoJavaProject(firstProject, ZIP_FILE_VIRTUAL_FOLDER_NAME);
+		copyZipIntoJavaProject(firstProject, JAR_FILE_VIRTUAL_FOLDER_NAME);
+		refreshProject(firstProject);
+		ZipFileSystemTestUtil.expandZipFile(firstProject.getFile(ZIP_FILE_VIRTUAL_FOLDER_NAME));
+		ZipFileSystemTestUtil.expandZipFile(firstProject.getFile(JAR_FILE_VIRTUAL_FOLDER_NAME));
+	}
+
+	static void setupWithTwoProjects() throws Exception {
+		setup();
+		secondProject = createProject(SECOND_PROJECT_NAME);
+		createJavaProject(secondProject);
+		refreshProject(secondProject);
 	}
 
 	static void performanceSetup() throws Exception {
-		createProject();
-		createJavaProject();
-		refreshProject();
-		copyZipIntoJavaProject(ZIP_FILE_VIRTUAL_FOLDER_NAME);
-		copyZipIntoJavaProject(PERFORMANCE_ZIP_FILE_NAME);
-		copyZipIntoJavaProject(BIG_PERFORMANCE_ZIP_FILE_NAME);
-		copyZipIntoJavaProject(LARGE_PERFORMANCE_ZIP_FILE_NAME);
-		copyZipIntoJavaProject(HUGE_PERFORMANCE_ZIP_FILE_NAME);
-		refreshProject();
-		ZipFileSystemTestUtil.expandZipFile(project.getFile(ZIP_FILE_VIRTUAL_FOLDER_NAME));
+		setup();
+		copyZipIntoJavaProject(firstProject, ZIP_FILE_VIRTUAL_FOLDER_NAME);
+		copyZipIntoJavaProject(firstProject, PERFORMANCE_ZIP_FILE_NAME);
+		copyZipIntoJavaProject(firstProject, BIG_PERFORMANCE_ZIP_FILE_NAME);
+		copyZipIntoJavaProject(firstProject, LARGE_PERFORMANCE_ZIP_FILE_NAME);
+		copyZipIntoJavaProject(firstProject, HUGE_PERFORMANCE_ZIP_FILE_NAME);
+		refreshProject(firstProject);
 	}
 
 	static void teardown() throws Exception {
-		deleteProject();
+		deleteProject(firstProject);
+		deleteProject(secondProject);
 	}
 
-	private static void deleteProject() throws CoreException {
+	private static void deleteProject(IProject project) throws CoreException {
 		if (project != null && project.exists()) {
 			project.delete(true, true, progressMonitor);
 			project = null;
 		}
 	}
 
-	private static void createProject() throws CoreException {
+	static IProject createProject(String projectName) throws CoreException {
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
-		project = workspace.getRoot().getProject(PROJECT_NAME);
+		IProject project = workspace.getRoot().getProject(projectName);
 
 		if (!project.exists()) {
 			project.create(progressMonitor);
 		}
 		project.open(progressMonitor);
+		return project;
 	}
 
-	private static void createJavaProject() throws CoreException, JavaModelException {
+	private static void createJavaProject(IProject project) throws CoreException, JavaModelException {
 		IProjectDescription description = project.getDescription();
 		description.setNatureIds(new String[] { JavaCore.NATURE_ID });
 		project.setDescription(description, progressMonitor);
@@ -138,7 +146,7 @@ public class ZipFileSystemTestSetup {
 		javaProject.setRawClasspath(new IClasspathEntry[] { jreContainerEntry, srcEntry }, null);
 	}
 
-	private static void refreshProject() {
+	private static void refreshProject(IProject project) {
 		try {
 			if (project.exists() && project.isOpen()) {
 				// Refreshing the specific project
@@ -149,7 +157,7 @@ public class ZipFileSystemTestSetup {
 		}
 	}
 
-	private static void copyZipIntoJavaProject(String zipFileName) throws Exception {
+	static void copyZipIntoJavaProject(IProject project, String zipFileName) throws Exception {
 		// Resolve the source file URL from the plugin bundle
 		URL zipFileUrl = Platform.getBundle("org.eclipse.core.tests.resources")
 				.getEntry("resources/ZipFileSystem/" + zipFileName);

@@ -58,21 +58,21 @@ public class RenameTest {
 	@Test
 	public void testRenameArchive() throws Exception {
 		// IFolder is renamed by moving with the new path
-		IFolder virtualFolder = ZipFileSystemTestSetup.project
+		IFolder archiveFolder = ZipFileSystemTestSetup.firstProject
 				.getFolder(archiveName);
-		IFolder virtualFolder2 = ZipFileSystemTestSetup.project
+		IFolder archiveFolderWithNewName = ZipFileSystemTestSetup.firstProject
 				.getFolder(archiveName + "Renamed");
-		virtualFolder.move(virtualFolder2.getFullPath(), false, getMonitor());
-		ensureExists(virtualFolder2);
-		ensureDoesNotExist(virtualFolder);
+		archiveFolder.move(archiveFolderWithNewName.getFullPath(), false, getMonitor());
+		ensureExists(archiveFolderWithNewName);
+		ensureDoesNotExist(archiveFolder);
 	}
 
 	@Test
 	public void testRenameFileInsideOfArchive() throws Exception {
 		// IFolder is renamed by moving with the new path
-		IFile textFile = ZipFileSystemTestSetup.project.getFile(
+		IFile textFile = ZipFileSystemTestSetup.firstProject.getFile(
 				archiveName + "/" + ZipFileSystemTestSetup.TEXT_FILE_NAME);
-		IFile newTextFile = ZipFileSystemTestSetup.project
+		IFile newTextFile = ZipFileSystemTestSetup.firstProject
 				.getFile(archiveName
 				+ "/" + ZipFileSystemTestSetup.TEXT_FILE_NAME + "Renamed");
 		textFile.move(newTextFile.getFullPath(), false, getMonitor());

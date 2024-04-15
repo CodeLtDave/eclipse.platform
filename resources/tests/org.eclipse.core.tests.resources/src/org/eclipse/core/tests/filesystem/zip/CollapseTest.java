@@ -56,15 +56,15 @@ public class CollapseTest {
 
 	@Test
 	public void testCollapseArchive() throws Exception {
-		IFolder virtualFolder = ZipFileSystemTestSetup.project
+		IFolder archiveFolder = ZipFileSystemTestSetup.firstProject
 				.getFolder(archiveName);
-		ensureExists(virtualFolder);
-		ZipFileSystemTestUtil.collapseZipFile(virtualFolder);
-		IFile zipFile = ZipFileSystemTestSetup.project.getFile(archiveName);
+		ensureExists(archiveFolder);
+		ZipFileSystemTestUtil.collapseZipFile(archiveFolder);
+		IFile zipFile = ZipFileSystemTestSetup.firstProject.getFile(archiveName);
 		// Don't use Utility method ensureDoesNotExist because the fileStore is still
 		// available after collapse. The fileStore is the File itself in the local file
 		// system that still exists after collapse.
-		assertTrue("folder was not properly deleted: " + virtualFolder, !virtualFolder.exists());
+		assertTrue("folder was not properly deleted: " + archiveFolder, !archiveFolder.exists());
 		ensureExists(zipFile);
 	}
 }

@@ -58,18 +58,17 @@ public class SetupTest {
 
 	@Test
 	public void testArchiveInProject() throws Exception {
-		// Check if the "virtual folder" (ZIP file) exists in the project
-		IFolder virtualFolder = ZipFileSystemTestSetup.project
+		IFolder archiveFolder = ZipFileSystemTestSetup.firstProject
 				.getFolder(archiveName);
-		ensureExists(virtualFolder);
+		ensureExists(archiveFolder);
 	}
 
 	@Test
 	public void testTextFileInArchive() throws Exception {
-		IFolder virtualFolder = ZipFileSystemTestSetup.project
+		IFolder archiveFolder = ZipFileSystemTestSetup.firstProject
 				.getFolder(archiveName);
 
-		IFile textFile = virtualFolder.getFile(ZipFileSystemTestSetup.TEXT_FILE_NAME);
+		IFile textFile = archiveFolder.getFile(ZipFileSystemTestSetup.TEXT_FILE_NAME);
 		ensureExists(textFile);
 
 		// Read and verify the content of Text.txt
