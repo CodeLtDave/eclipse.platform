@@ -49,9 +49,8 @@ public class CreateTest {
 
 	@Test
 	public void testCreateFileInsideOfArchive() throws Exception {
-		IFolder virtualFolder = ZipFileSystemTestSetup.project
-				.getFolder(archiveName);
-		IFile textFile = virtualFolder.getFile("NewFile.txt");
+		IFolder archiveFolder = ZipFileSystemTestSetup.firstProject.getFolder(archiveName);
+		IFile textFile = archiveFolder.getFile("NewFile.txt");
 		ensureDoesNotExist(textFile);
 		String text = "Foo";
 		InputStream stream = new ByteArrayInputStream(text.getBytes());
@@ -67,8 +66,8 @@ public class CreateTest {
 
 	@Test
 	public void testCreateFolderInsideOfArchive() throws Exception {
-		IFolder virtualFolder = ZipFileSystemTestSetup.project.getFolder(archiveName);
-		IFolder newFolder = virtualFolder.getFolder("NewFolder");
+		IFolder archiveFolder = ZipFileSystemTestSetup.firstProject.getFolder(archiveName);
+		IFolder newFolder = archiveFolder.getFolder("NewFolder");
 		ensureDoesNotExist(newFolder);
 		newFolder.create(false, true, getMonitor());
 		ensureExists(newFolder);

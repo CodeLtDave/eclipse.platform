@@ -22,33 +22,12 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.Collection;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IProjectDescription;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.resources.ZipExpander;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Platform;
-import org.eclipse.jdt.core.IAccessRule;
-import org.eclipse.jdt.core.IClasspathAttribute;
-import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.launching.JavaRuntime;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -61,9 +40,6 @@ import org.junit.runners.Parameterized;
  */
 @RunWith(Parameterized.class)
 public class MoveTest {
-
-	private static IProject secondProject;
-	private static final String SECOND_PROJECT_NAME = "SecondProject";
 
 	@Parameterized.Parameters
 	public static Collection<String[]> archiveNames() {
@@ -79,79 +55,72 @@ public class MoveTest {
 
 	@Before
 	public void setup() throws Exception {
-		ZipFileSystemTestSetup.setup();
-		// Second project is needed for some tests
-		initializeSecondProject();
+		ZipFileSystemTestSetup.setupWithTwoProjects();
 	}
 
 	@After
 	public void teardown() throws Exception {
 		ZipFileSystemTestSetup.teardown();
-		secondProject.delete(false, getMonitor());
 	}
 
 	@Test
 	public void testMoveArchiveWithinProject() throws CoreException, IOException {
-		IFolder destinationFolder = ZipFileSystemTestSetup.project.getFolder("destinationFolder");
+		IFolder archiveFolder = ZipFileSystemTestSetup.firstProject.getFolder(archiveName);
+		IFolder destinationFolder = ZipFileSystemTestSetup.firstProject.getFolder("destinationFolder");
 		destinationFolder.create(false, true, getMonitor());
-		IFolder destination = ZipFileSystemTestSetup.project
+		IFolder destination = ZipFileSystemTestSetup.firstProject
 				.getFolder("destinationFolder/" + archiveName);
-		IFolder virtualFolder = ZipFileSystemTestSetup.project
-				.getFolder(archiveName);
-		virtualFolder.move(destination.getFullPath(), false, getMonitor());
+
+		archiveFolder.move(destination.getFullPath(), false, getMonitor());
 
 		// Verify that the folder exists at the new location and not at the old location
 		// anymore
-		IFolder newFolder = ZipFileSystemTestSetup.project
+		IFolder newFolder = ZipFileSystemTestSetup.firstProject
 				.getFolder(destinationFolder.getName() + "/" + archiveName);
 		ensureExists(newFolder);
-		ensureDoesNotExist(virtualFolder);
+		ensureDoesNotExist(archiveFolder);
 	}
 
 	@Test
 	public void testMoveArchiveToOtherProject() throws CoreException, IOException {
-		IFolder destination = secondProject.getFolder(archiveName);
-		IFolder virtualFolder = ZipFileSystemTestSetup.project
-				.getFolder(archiveName);
-		virtualFolder.move(destination.getFullPath(), false, getMonitor());
+		IFolder archiveFolder = ZipFileSystemTestSetup.firstProject.getFolder(archiveName);
+		IFolder destination = ZipFileSystemTestSetup.secondProject.getFolder(archiveName);
+		archiveFolder.move(destination.getFullPath(), false, getMonitor());
 
 		// Verify that the folder exists at the new location and not at the old location
 		// anymore
-		IFolder newFolder = secondProject.getFolder(archiveName);
+		IFolder newFolder = ZipFileSystemTestSetup.secondProject.getFolder(archiveName);
 		ensureExists(newFolder);
-		ensureDoesNotExist(virtualFolder);
-		secondProject.delete(false, getMonitor());
+		ensureDoesNotExist(archiveFolder);
 	}
 
 	@Test
 	public void testMoveArchiveToOtherProjectFolder() throws CoreException, IOException {
-		IFolder destinationFolder = secondProject.getFolder("destinationFolder");
+		IFolder archiveFolder = ZipFileSystemTestSetup.firstProject.getFolder(archiveName);
+		IFolder destinationFolder = ZipFileSystemTestSetup.secondProject.getFolder("destinationFolder");
 		destinationFolder.create(false, true, getMonitor());
-		IFolder destination = secondProject
+		IFolder destination = ZipFileSystemTestSetup.secondProject
 				.getFolder("destinationFolder/" + archiveName);
-		IFolder virtualFolder = ZipFileSystemTestSetup.project
-				.getFolder(archiveName);
-		virtualFolder.move(destination.getFullPath(), false, getMonitor());
+		archiveFolder.move(destination.getFullPath(), false, getMonitor());
 
 		// Verify that the folder exists at the new location and not at the old location
 		// anymore
-		IFolder newFolder = secondProject
+		IFolder newFolder = ZipFileSystemTestSetup.secondProject
 				.getFolder(destinationFolder.getName() + "/" + archiveName);
 		ensureExists(newFolder);
-		ensureDoesNotExist(virtualFolder);
-		secondProject.delete(false, getMonitor());
+		ensureDoesNotExist(archiveFolder);
 	}
 
 	@Test
 	public void testMoveFileIntoArchive() throws Exception {
-		IFile textFile = ZipFileSystemTestSetup.project.getFile("NewFile.txt");
+		IFile textFile = ZipFileSystemTestSetup.firstProject.getFile("NewFile.txt");
 		ensureDoesNotExist(textFile);
 		String text = "Foo";
 		InputStream stream = new ByteArrayInputStream(text.getBytes());
 		textFile.create(stream, false, getMonitor());
 		stream.close();
 		ensureExists(textFile);
-		IFile destinationFile = ZipFileSystemTestSetup.project
+		IFile destinationFile = ZipFileSystemTestSetup.firstProject
 				.getFile(archiveName + "/" + "NewFile.txt");
 		textFile.move(destinationFile.getFullPath(), false, getMonitor());
 
@@ -169,10 +138,10 @@ public class MoveTest {
 
 	@Test
 	public void testMoveFileFromArchive() throws Exception {
-		IFile textFile = ZipFileSystemTestSetup.project.getFile(
+		IFile textFile = ZipFileSystemTestSetup.firstProject.getFile(
 				archiveName + "/" + ZipFileSystemTestSetup.TEXT_FILE_NAME);
 		ensureExists(textFile);
-		IFile destinationFile = ZipFileSystemTestSetup.project.getFile(ZipFileSystemTestSetup.TEXT_FILE_NAME);
+		IFile destinationFile = ZipFileSystemTestSetup.firstProject.getFile(ZipFileSystemTestSetup.TEXT_FILE_NAME);
 		textFile.move(destinationFile.getFullPath(), false, getMonitor());
 
 		// Verify that the file exists at the new location
@@ -191,12 +160,12 @@ public class MoveTest {
 
 	@Test
 	public void testMoveFileInsideOfArchive() throws Exception {
-		IFolder virtualFolder = ZipFileSystemTestSetup.project.getFolder(archiveName);
-		IFolder destinationFolder = virtualFolder.getFolder("destinationFolder");
+		IFolder archiveFolder = ZipFileSystemTestSetup.firstProject.getFolder(archiveName);
+		IFolder destinationFolder = archiveFolder.getFolder("destinationFolder");
 		ensureDoesNotExist(destinationFolder);
 		destinationFolder.create(false, true, getMonitor());
 		ensureExists(destinationFolder);
-		IFile textFile = virtualFolder.getFile(ZipFileSystemTestSetup.TEXT_FILE_NAME);
+		IFile textFile = archiveFolder.getFile(ZipFileSystemTestSetup.TEXT_FILE_NAME);
 		ensureExists(textFile);
 		IFile fileDestination = destinationFolder.getFile(ZipFileSystemTestSetup.TEXT_FILE_NAME);
 		ensureDoesNotExist(fileDestination);
@@ -207,84 +176,20 @@ public class MoveTest {
 
 	@Test
 	public void testMoveArchiveIntoArchive() throws Exception {
-		// create and expand first archive
-		IFile archiveFile = secondProject.getFile(archiveName);
-		ensureDoesNotExist(archiveFile);
-		copyZipIntoJavaProject(archiveName);
-		ensureExists(archiveFile);
-		ZipExpander.expandZip(archiveFile);
-		IFolder archiveFolder = secondProject.getFolder(archiveName);
-		ensureExists(archiveFolder);
+		IFolder archiveFolder = ZipFileSystemTestSetup.firstProject.getFolder(archiveName);
 		// create and expand second archive
 		String newArchiveName = archiveName.replace(".", "New.");
-		IFile newArchiveFile = secondProject.getFile(newArchiveName);
+		IFile newArchiveFile = ZipFileSystemTestSetup.firstProject.getFile(newArchiveName);
 		ensureDoesNotExist(newArchiveFile);
-		copyZipIntoJavaProject(newArchiveName);
+		ZipFileSystemTestSetup.copyZipIntoJavaProject(ZipFileSystemTestSetup.firstProject, newArchiveName);
 		ensureExists(newArchiveFile);
 		ZipExpander.expandZip(newArchiveFile);
-		IFolder newArchiveFolder = secondProject.getFolder(newArchiveName);
+		IFolder newArchiveFolder = ZipFileSystemTestSetup.firstProject.getFolder(newArchiveName);
 		ensureExists(newArchiveFolder);
 		// move second archive into first archive
 		IFolder newArchiveFolderDestination = archiveFolder.getFolder(newArchiveName);
 		newArchiveFolder.move(newArchiveFolderDestination.getFullPath(), false, getMonitor());
 		ensureExists(newArchiveFolderDestination);
 		ensureDoesNotExist(newArchiveFolder);
-	}
-
-	private IProject initializeSecondProject() throws CoreException, JavaModelException {
-		IWorkspace workspace = ResourcesPlugin.getWorkspace();
-		secondProject = workspace.getRoot().getProject(SECOND_PROJECT_NAME);
-		secondProject.create(getMonitor());
-		secondProject.open(getMonitor());
-		IProjectDescription description = secondProject.getDescription();
-		description.setNatureIds(new String[] { JavaCore.NATURE_ID });
-		secondProject.setDescription(description, getMonitor());
-		IJavaProject secondJavaProject = JavaCore.create(secondProject);
-		IFolder srcFolder = secondProject.getFolder("src");
-		if (!srcFolder.exists()) {
-			srcFolder.create(false, true, getMonitor());
-		}
-		IFolder binFolder = secondProject.getFolder("bin");
-		if (!binFolder.exists()) {
-			binFolder.create(false, true, getMonitor());
-		}
-		secondJavaProject.setOutputLocation(binFolder.getFullPath(), getMonitor());
-		// Set Java compliance level and JRE container
-		secondJavaProject.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_8);
-		secondJavaProject.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_8);
-		secondJavaProject.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_8);
-		// Add the JRE container to the classpath
-		IClasspathEntry jreContainerEntry = JavaCore.newContainerEntry(new Path(JavaRuntime.JRE_CONTAINER),
-				new IAccessRule[0],
-				new IClasspathAttribute[] { JavaCore.newClasspathAttribute("owner.project.facets", "java") }, false);
-		IClasspathEntry srcEntry = JavaCore.newSourceEntry(srcFolder.getFullPath());
-		secondJavaProject.setRawClasspath(new IClasspathEntry[] { jreContainerEntry, srcEntry }, getMonitor());
-		secondProject.refreshLocal(IResource.DEPTH_INFINITE, getMonitor());
-		return secondProject;
-	}
-
-	private static void copyZipIntoJavaProject(String zipFileName) throws Exception {
-		// Resolve the source file URL from the plugin bundle
-		URL zipFileUrl = Platform.getBundle("org.eclipse.core.tests.resources")
-				.getEntry("resources/ZipFileSystem/" + zipFileName);
-		// Ensure proper conversion from URL to URI to Path
-		URL resolvedURL = FileLocator.resolve(zipFileUrl); // Resolves any redirection or bundling
-		java.nio.file.Path sourcePath;
-		try {
-			// Convert URL to URI to Path correctly handling spaces and special characters
-			URI resolvedURI = resolvedURL.toURI();
-			sourcePath = Paths.get(resolvedURI);
-		} catch (URISyntaxException e) {
-			throw new IOException("Failed to resolve URI for the ZIP file", e);
-		}
-
-		// Determine the target location within the project
-		java.nio.file.Path targetPath = Paths.get(secondProject.getLocation().toOSString(), zipFileName);
-
-		// Copy the file using java.nio.file.Files
-		Files.copy(sourcePath, targetPath, StandardCopyOption.REPLACE_EXISTING);
-
-		// Refresh the project to make Eclipse aware of the new file
-		secondProject.refreshLocal(IResource.DEPTH_INFINITE, null);
 	}
 }
