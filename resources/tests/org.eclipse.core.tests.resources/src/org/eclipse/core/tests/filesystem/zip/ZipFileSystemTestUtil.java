@@ -103,13 +103,13 @@ final class ZipFileSystemTestUtil {
 
 	static void expandZipFile(IFile file) throws URISyntaxException, CoreException, IOException {
 		ZipExpander.expandZip(file);
-		IFolder virtualFolder = ZipFileSystemTestSetup.project.getFolder(file.getName());
+		IFolder virtualFolder = ZipFileSystemTestSetup.firstProject.getFolder(file.getName());
 		Assert.assertTrue(virtualFolder.exists());
 	}
 
 	static void collapseZipFile(IFolder folder) throws Exception {
 		ZipCollapser.collapseZip(folder);
-		IFile zipFile = ZipFileSystemTestSetup.project.getFile(folder.getName());
+		IFile zipFile = ZipFileSystemTestSetup.firstProject.getFile(folder.getName());
 		ensureExists(zipFile);
 	}
 

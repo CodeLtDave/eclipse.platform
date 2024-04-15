@@ -45,20 +45,20 @@ public class DeleteTest {
 
 	@Test
 	public void testDeleteArchiveFile() throws Exception {
-		IFolder virtualFolder = ZipFileSystemTestSetup.project
+		IFolder archiveFolder = ZipFileSystemTestSetup.firstProject
 				.getFolder(archiveName);
-		ensureExists(virtualFolder);
-		virtualFolder.delete(false, false, getMonitor());
-		ensureDoesNotExist(virtualFolder);
-		IFile zipFile = ZipFileSystemTestSetup.project.getFile(archiveName);
+		ensureExists(archiveFolder);
+		archiveFolder.delete(false, false, getMonitor());
+		ensureDoesNotExist(archiveFolder);
+		IFile zipFile = ZipFileSystemTestSetup.firstProject.getFile(archiveName);
 		ensureDoesNotExist(zipFile);
 	}
 
 	@Test
 	public void testDeleteFileInsideOfArchive() throws Exception {
-		IFolder virtualFolder = ZipFileSystemTestSetup.project
+		IFolder archiveFolder = ZipFileSystemTestSetup.firstProject
 				.getFolder(archiveName);
-		IFile textFile = virtualFolder.getFile(ZipFileSystemTestSetup.TEXT_FILE_NAME);
+		IFile textFile = archiveFolder.getFile(ZipFileSystemTestSetup.TEXT_FILE_NAME);
 		ensureExists(textFile);
 		textFile.delete(true, getMonitor());
 		ensureDoesNotExist(textFile);
