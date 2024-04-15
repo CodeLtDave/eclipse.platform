@@ -13,7 +13,6 @@
  *******************************************************************************/
 package org.eclipse.core.tests.filesystem.zip;
 
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.After;
@@ -51,12 +50,12 @@ public class ExpandZipPerformanceTest {
 		long duration = endTime - startTime; // Calculate the duration
 		assertTrue("Expand zip operation took longer than expected: " + duration + "Millis",
 				duration <= expectedMaxDuration);
-		assertFalse("Expand zip operation took: " + duration + "Millis", duration <= expectedMaxDuration);
+		printDuration(duration, ZipFileSystemTestSetup.ZIP_FILE_VIRTUAL_FOLDER_NAME);
 	}
 
 	@Test
 	public void testPerformanceExpandZip() throws Exception {
-		long expectedMaxDuration = 1000;
+		long expectedMaxDuration = 100;
 		long startTime = System.currentTimeMillis();
 
 		ZipFileSystemTestUtil.expandZipFile(
@@ -66,12 +65,12 @@ public class ExpandZipPerformanceTest {
 		long duration = endTime - startTime; // Calculate the duration
 		assertTrue("Expand zip operation took longer than expected: " + duration + "Millis",
 				duration <= expectedMaxDuration);
-		assertFalse("Expand zip operation took: " + duration + "Millis", duration <= expectedMaxDuration);
+		printDuration(duration, ZipFileSystemTestSetup.PERFORMANCE_ZIP_FILE_NAME);
 	}
 
 	@Test
 	public void testPerformanceExpandBigZip() throws Exception {
-		long expectedMaxDuration = 10000;
+		long expectedMaxDuration = 1000;
 		long startTime = System.currentTimeMillis();
 
 		ZipFileSystemTestUtil.expandZipFile(ZipFileSystemTestSetup.firstProject
@@ -81,12 +80,12 @@ public class ExpandZipPerformanceTest {
 		long duration = endTime - startTime; // Calculate the duration
 		assertTrue("Expand zip operation took longer than expected: " + duration + "Millis",
 				duration <= expectedMaxDuration);
-		assertFalse("Expand zip operation took: " + duration + "Millis", duration <= expectedMaxDuration);
+		printDuration(duration, ZipFileSystemTestSetup.BIG_PERFORMANCE_ZIP_FILE_NAME);
 	}
 
 	@Test
 	public void testPerformanceExpandLargeZip() throws Exception {
-		long expectedMaxDuration = 100000;
+		long expectedMaxDuration = 10000;
 		long startTime = System.currentTimeMillis();
 
 		ZipFileSystemTestUtil.expandZipFile(
@@ -96,12 +95,12 @@ public class ExpandZipPerformanceTest {
 		long duration = endTime - startTime; // Calculate the duration
 		assertTrue("Expand zip operation took longer than expected: " + duration + "Millis",
 				duration <= expectedMaxDuration);
-		assertFalse("Expand zip operation took: " + duration + "Millis", duration <= expectedMaxDuration);
+		printDuration(duration, ZipFileSystemTestSetup.LARGE_PERFORMANCE_ZIP_FILE_NAME);
 	}
 
 	@Test
 	public void testPerformanceExpandHugeZip() throws Exception {
-		long expectedMaxDuration = 1000000;
+		long expectedMaxDuration = 20000;
 		long startTime = System.currentTimeMillis();
 
 		ZipFileSystemTestUtil.expandZipFile(
@@ -111,6 +110,10 @@ public class ExpandZipPerformanceTest {
 		long duration = endTime - startTime; // Calculate the duration
 		assertTrue("Expand zip operation took longer than expected: " + duration + "Millis",
 				duration <= expectedMaxDuration);
-		assertFalse("Expand zip operation took: " + duration + "Millis", duration <= expectedMaxDuration);
+		printDuration(duration, ZipFileSystemTestSetup.HUGE_PERFORMANCE_ZIP_FILE_NAME);
+	}
+
+	public void printDuration(long duration, String archiveName) {
+		System.out.println("Expand zip operation for " + archiveName + " took: " + duration + "ms");
 	}
 }
