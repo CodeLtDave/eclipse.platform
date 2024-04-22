@@ -20,6 +20,7 @@ import org.eclipse.core.filesystem.IFileInfo;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.filesystem.IFileSystem;
 import org.eclipse.core.filesystem.URIUtil;
+import org.eclipse.core.filesystem.zip.ZipFileUtil;
 import org.eclipse.core.internal.localstore.FileSystemResourceManager;
 import org.eclipse.core.internal.properties.IPropertyManager;
 import org.eclipse.core.internal.utils.BitMask;
@@ -369,8 +370,7 @@ class ResourceTree implements IResourceTree {
 		boolean shouldCollapse = (flags & (IResource.COLLAPSE)) != 0;
 
 		// Folder is expanded archive
-		if (folder.getFileExtension() != null
-				&& (folder.getFileExtension().equals("zip") || folder.getFileExtension().equals("jar"))) { //$NON-NLS-1$ //$NON-NLS-2$
+		if (ZipFileUtil.isArchive(folder.getFullPath())) {
 			try {
 				deletedFolder(folder);
 				if (shouldCollapse) {
@@ -1042,8 +1042,7 @@ class ResourceTree implements IResourceTree {
 			}
 			monitor.worked(20);
 
-			if (source.getFullPath().getFileExtension().equals("zip") //$NON-NLS-1$
-					|| source.getFullPath().getFileExtension().equals("jar")) { //$NON-NLS-1$
+			if (ZipFileUtil.isArchive(source.getFullPath())) {
 				try {
 					ZipCollapser.collapseZip(source);
 					IFile newSource = source.getParent().getFile(IPath.fromOSString(source.getName()));
