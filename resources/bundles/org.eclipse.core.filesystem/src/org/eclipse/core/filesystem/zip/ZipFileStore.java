@@ -9,7 +9,7 @@
  *
  * Contributors: IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.core.internal.filesystem.zip;
+package org.eclipse.core.filesystem.zip;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -48,6 +48,7 @@ import org.eclipse.core.runtime.Status;
 
 /**
  * File store implementation representing a file or directory inside a zip file.
+ * @since 1.11
  */
 public class ZipFileStore extends FileStore {
 	/**
@@ -189,7 +190,7 @@ public class ZipFileStore extends FileStore {
 				Files.delete(fileToDelete);
 			}
 		} catch (IOException | URISyntaxException e) {
-			throw new CoreException(new Status(IStatus.ERROR, "org.eclipse.core.internal.filesystem.zip", "Error deleting file from zip", e)); //$NON-NLS-1$ //$NON-NLS-2$
+			throw new CoreException(new Status(IStatus.ERROR, "org.eclipse.core.filesystem.zip", "Error deleting file from zip", e)); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	}
 
@@ -278,7 +279,7 @@ public class ZipFileStore extends FileStore {
 		try {
 			zipUri = new URI("jar:" + rootStore.toURI().toString() + "!/"); //$NON-NLS-1$ //$NON-NLS-2$
 		} catch (URISyntaxException e) {
-			throw new CoreException(new Status(IStatus.ERROR, "org.eclipse.core.internal.filesystem.zip", "Invalid ZIP file URI", e)); //$NON-NLS-1$ //$NON-NLS-2$
+			throw new CoreException(new Status(IStatus.ERROR, "org.eclipse.core.filesystem.zip", "Invalid ZIP file URI", e)); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 
 		Map<String, String> env = new HashMap<>();
@@ -302,7 +303,7 @@ public class ZipFileStore extends FileStore {
 				Files.delete(tempFileInDir);
 			}
 		} catch (IOException e) {
-			throw new CoreException(new Status(IStatus.ERROR, "org.eclipse.core.internal.filesystem.zip", "Error creating directory in ZIP file", e)); //$NON-NLS-1$ //$NON-NLS-2$
+			throw new CoreException(new Status(IStatus.ERROR, "org.eclipse.core.filesystem.zip", "Error creating directory in ZIP file", e)); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 
 		// Return a file store representing the newly created directory.
@@ -332,7 +333,7 @@ public class ZipFileStore extends FileStore {
 			// Note: This conceptual code does not account for the actual limitations of ZIP FileSystem.
 			Files.move(srcPath, destPath, StandardCopyOption.REPLACE_EXISTING);
 		} catch (IOException | URISyntaxException e) {
-			throw new CoreException(new Status(IStatus.ERROR, "org.eclipse.core.internal.filesystem.zip", "Error moving entry within ZIP", e)); //$NON-NLS-1$ //$NON-NLS-2$
+			throw new CoreException(new Status(IStatus.ERROR, "org.eclipse.core.filesystem.zip", "Error moving entry within ZIP", e)); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	}
 
@@ -434,7 +435,7 @@ public class ZipFileStore extends FileStore {
 			}
 
 		} catch (Exception e) {
-			throw new CoreException(new Status(IStatus.ERROR, "org.eclipse.core.internal.filesystem.zip", "Error updating ZIP file entry information", e)); //$NON-NLS-1$ //$NON-NLS-2$
+			throw new CoreException(new Status(IStatus.ERROR, "org.eclipse.core.filesystem.zip", "Error updating ZIP file entry information", e)); //$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
 			if (monitor != null) {
 				monitor.done();

@@ -11,7 +11,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.core.internal.filesystem.zip;
+package org.eclipse.core.filesystem.zip;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -21,6 +21,9 @@ import org.eclipse.core.filesystem.provider.FileSystem;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 
+/**
+ * @since 1.11
+ */
 public class ZipFileSystem extends FileSystem {
 	/**
 	 * Scheme constant (value "zip") indicating the zip file system scheme.
