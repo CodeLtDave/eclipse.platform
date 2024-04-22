@@ -18,13 +18,15 @@ import org.eclipse.core.runtime.Platform;
  */
 public class ZipFileUtil {
 
-    private static final Set<Integer> ZIP_MAGIC_NUMBERS = new HashSet<>();
+    private static final Set<Integer> ARCHIVE_FILE_SIGNATURES = new HashSet<>();
 
     static {
-        // Common ZIP file headers
-        ZIP_MAGIC_NUMBERS.add(0x504B0304); // Standard ZIP file
-        ZIP_MAGIC_NUMBERS.add(0x504B0506); // End of central directory signature (empty ZIP)
-        ZIP_MAGIC_NUMBERS.add(0x504B0708); // Spanned ZIP
+		// https://en.wikipedia.org/wiki/List_of_file_signatures
+
+		// zip file format and formats based on it, such as EPUB, JAR, ODF, OOXML
+        ARCHIVE_FILE_SIGNATURES.add(0x504B0304); // Standard ZIP file
+		ARCHIVE_FILE_SIGNATURES.add(0x504B0506); // empty archive
+		ARCHIVE_FILE_SIGNATURES.add(0x504B0708); // spanned archive
     }
 
 	public static boolean isArchive(IPath workspaceFolderPath) {
@@ -48,7 +50,7 @@ public class ZipFileUtil {
 				ByteBuffer buffer = ByteBuffer.wrap(bytes).order(ByteOrder.BIG_ENDIAN);
 				int header = buffer.getInt();
 
-				return ZIP_MAGIC_NUMBERS.contains(header);
+				return ARCHIVE_FILE_SIGNATURES.contains(header);
 			}
 		} catch (IOException e) {
 			e.printStackTrace(); // Log or handle the exception as needed
