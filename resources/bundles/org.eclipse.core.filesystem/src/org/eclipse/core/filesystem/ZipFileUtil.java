@@ -1,4 +1,4 @@
-package org.eclipse.core.filesystem.zip;
+package org.eclipse.core.filesystem;
 
 import java.io.File;
 import java.io.FileInputStream;
