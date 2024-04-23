@@ -139,11 +139,6 @@ public class ZipFileStore extends FileStore {
 	 * Computes the simple file name for a given zip entry.
 	 */
 	private String computeName(ZipEntry entry) {
-		// the entry name is a relative path, with an optional trailing
-		// separator
-		// We need to strip off the trailing slash, and then take everything
-		// after the
-		// last separator as the name
 		String name = entry.getName();
 		int end = name.length() - 1;
 		if (name.charAt(end) == '/') {
