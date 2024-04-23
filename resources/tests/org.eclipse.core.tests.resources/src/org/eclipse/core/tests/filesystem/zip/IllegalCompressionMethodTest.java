@@ -21,7 +21,6 @@ import java.net.URISyntaxException;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.ArchiveTransformer;
 import org.eclipse.core.runtime.CoreException;
 import org.junit.After;
 import org.junit.Before;
@@ -51,7 +50,7 @@ public class IllegalCompressionMethodTest {
 		IFile archiveFile = project.getFile(ARCHIVE_NAME);
 
 		ensureExists(archiveFile);
-		ArchiveTransformer.expandArchive(archiveFile);
+		ZipFileSystemTestUtil.expandArchive(archiveFile);
 
 		ensureExists(archiveFile);
 		IFolder archiveFolder = project.getFolder(ARCHIVE_NAME);
