@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -145,6 +145,7 @@ import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.accessibility.AccessibleAdapter;
 import org.eclipse.swt.accessibility.AccessibleEvent;
+import org.eclipse.swt.custom.ST;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.DisposeEvent;
@@ -174,11 +175,9 @@ import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.ToolBar;
-import org.eclipse.swt.widgets.TypedListener;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IKeyBindingService;
@@ -498,7 +497,7 @@ public class TextMergeViewer extends ContentMergeViewer implements IAdaptable {
 				return null;
 			final Viewer v = CompareUI.findStructureViewer(oldViewer, input, parent, configuration);
 			if (v != null) {
-				v.getControl().addDisposeListener(e -> v.removeSelectionChangedListener(InternalOutlineViewerCreator.this));
+				v.getControl().addDisposeListener(event -> v.removeSelectionChangedListener(InternalOutlineViewerCreator.this));
 				v.addSelectionChangedListener(this);
 			}
 
@@ -2060,14 +2059,7 @@ public class TextMergeViewer extends ContentMergeViewer implements IAdaptable {
 		// 1st row
 		if (fMarginWidth > 0) {
 			fAncestorCanvas = new Canvas(composite, SWT.DOUBLE_BUFFERED);
-			fAncestorCanvas.addPaintListener(new PaintListener() {
-
-				@Override
-				public void paintControl(PaintEvent e) {
-					paintSides(e.gc, fAncestor, fAncestorCanvas, false);
-
-				}
-			});
+			fAncestorCanvas.addPaintListener(event -> paintSides(event.gc, fAncestor, fAncestorCanvas, false));
 			fAncestorCanvas.addMouseListener(
 				new MouseAdapter() {
 					@Override
@@ -2096,14 +2088,7 @@ public class TextMergeViewer extends ContentMergeViewer implements IAdaptable {
 		// 2nd row
 		if (fMarginWidth > 0) {
 			fLeftCanvas = new Canvas(composite, SWT.DOUBLE_BUFFERED);
-			fLeftCanvas.addPaintListener(new PaintListener() {
-
-				@Override
-				public void paintControl(PaintEvent e) {
-					paintSides(e.gc, fLeft, fLeftCanvas, false);
-
-				}
-			});
+			fLeftCanvas.addPaintListener(event -> paintSides(event.gc, fLeft, fLeftCanvas, false));
 			fLeftCanvas.addMouseListener(
 				new MouseAdapter() {
 					@Override
@@ -2159,14 +2144,7 @@ public class TextMergeViewer extends ContentMergeViewer implements IAdaptable {
 
 		if (fMarginWidth > 0) {
 			fRightCanvas = new Canvas(composite, SWT.DOUBLE_BUFFERED);
-			fRightCanvas.addPaintListener(new PaintListener() {
-
-				@Override
-				public void paintControl(PaintEvent e) {
-					paintSides(e.gc, fRight, fRightCanvas, fSynchronizedScrolling);
-
-				}
-			});
+			fRightCanvas.addPaintListener(event -> paintSides(event.gc, fRight, fRightCanvas, fSynchronizedScrolling));
 			fRightCanvas.addMouseListener(
 				new MouseAdapter() {
 					@Override
@@ -2185,21 +2163,16 @@ public class TextMergeViewer extends ContentMergeViewer implements IAdaptable {
 		fVScrollBar.setIncrement(1);
 		fVScrollBar.setVisible(true);
 		fVScrollBar.addListener(SWT.Selection,
-			e -> {
-				int vpos= ((ScrollBar) e.widget).getSelection();
+			event -> {
+				int vpos= ((ScrollBar) event.widget).getSelection();
 				synchronizedScrollVertical(vpos);
 			}
 		);
 
 		fBirdsEyeCanvas = new Canvas(composite, SWT.DOUBLE_BUFFERED);
-		fBirdsEyeCanvas.addPaintListener(new PaintListener() {
-
-			@Override
-			public void paintControl(PaintEvent e) {
-				updateVScrollBar(); // Update scroll bar here as initially viewport height is wrong
-				paintBirdsEyeView((Canvas) e.widget, e.gc);
-
-			}
+		fBirdsEyeCanvas.addPaintListener(event -> {
+			updateVScrollBar(); // Update scroll bar here as initially viewport height is wrong
+			paintBirdsEyeView((Canvas) event.widget, event.gc);
 		});
 
 		fBirdsEyeCanvas.addMouseListener(
@@ -2481,14 +2454,7 @@ public class TextMergeViewer extends ContentMergeViewer implements IAdaptable {
 
 			final Canvas canvas = new Canvas(parent, SWT.DOUBLE_BUFFERED);
 
-			canvas.addPaintListener(new PaintListener() {
-
-				@Override
-				public void paintControl(PaintEvent e) {
-					paintCenter((Canvas) e.widget, e.gc);
-
-				}
-			});
+			canvas.addPaintListener(event -> paintCenter((Canvas) event.widget, event.gc));
 			new HoverResizer(canvas, HORIZONTAL);
 
 			Cursor normalCursor= canvas.getDisplay().getSystemCursor(SWT.CURSOR_ARROW);
@@ -2674,9 +2640,7 @@ public class TextMergeViewer extends ContentMergeViewer implements IAdaptable {
 		if (!fConfirmSave)
 			viewer.hideSaveAction();
 
-		te.addPaintListener(
-			e -> paint(e, viewer)
-		);
+		te.addPaintListener(event -> paint(event, viewer));
 		te.addKeyListener(
 			new KeyAdapter() {
 				@Override
@@ -3107,15 +3071,8 @@ public class TextMergeViewer extends ContentMergeViewer implements IAdaptable {
 	}
 
 	private boolean isCursorLinePainterInstalled(SourceViewer viewer) {
-		Listener[] listeners = viewer.getTextWidget().getListeners(3001/*StyledText.LineGetBackground*/);
-		for (Listener l : listeners) {
-			if (l instanceof TypedListener) {
-				TypedListener listener = (TypedListener) l;
-				if (listener.getEventListener() instanceof CursorLinePainter)
-					return true;
-			}
-		}
-		return false;
+		return viewer.getTextWidget().getTypedListeners(ST.LineGetBackground, CursorLinePainter.class) //
+				.findFirst().isPresent();
 	}
 
 	/**
@@ -4010,11 +3967,7 @@ public class TextMergeViewer extends ContentMergeViewer implements IAdaptable {
 	}
 
 	private void disposeCompareFilterActions(boolean updateActionBars) {
-		Iterator<ChangeCompareFilterPropertyAction> compareFilterActionsIterator = fCompareFilterActions
-				.iterator();
-		while (compareFilterActionsIterator.hasNext()) {
-			ChangeCompareFilterPropertyAction compareFilterAction = compareFilterActionsIterator
-					.next();
+		for (ChangeCompareFilterPropertyAction compareFilterAction : fCompareFilterActions) {
 			fLeft.removeTextAction(compareFilterAction);
 			fRight.removeTextAction(compareFilterAction);
 			fAncestor.removeTextAction(compareFilterAction);
@@ -5416,28 +5369,30 @@ public class TextMergeViewer extends ContentMergeViewer implements IAdaptable {
 
 	private void updateToolbarLabel() {
 		final String DIFF_COUNT_ID = "DiffCount"; //$NON-NLS-1$
-		ToolBarManager tbm =
-				(ToolBarManager) getToolBarManager(fComposite.getParent());
+		boolean isUpdateNeeded = false;
+		ToolBarManager tbm = (ToolBarManager) getToolBarManager(fComposite.getParent());
 		int differenceCount = fMerger.changesCount();
-		if (tbm != null) {
+		if (tbm != null && tbm.getItems().length > 0) {
 
-			String label = differenceCount > 1 ? differenceCount + " Differences" //$NON-NLS-1$
-					: differenceCount == 1 ? differenceCount + " Difference" : "No Difference"; //$NON-NLS-1$ //$NON-NLS-2$
-			LabelContributionItem labelContributionItem = new LabelContributionItem(DIFF_COUNT_ID,
-					label);
+			String label = MessageFormat.format(CompareMessages.TextMergeViewer_differences, differenceCount);
+			LabelContributionItem labelContributionItem = new LabelContributionItem(DIFF_COUNT_ID, label);
 
 			if (tbm.find(DIFF_COUNT_ID) != null) {
 				tbm.replaceItem(DIFF_COUNT_ID, labelContributionItem);
-			} else {
+				isUpdateNeeded = true;
+			} else if (tbm.find("diffLabel") != null) { //$NON-NLS-1$
 				tbm.appendToGroup("diffLabel", labelContributionItem); //$NON-NLS-1$
+				isUpdateNeeded = true;
 			}
-			fComposite.getDisplay().asyncExec(() -> {
-				// relayout in next tick
-				ToolBar control = tbm.getControl();
-				if (control != null && !control.isDisposed()) {
-					tbm.update(true);
-				}
-			});
+			if (isUpdateNeeded) {
+				fComposite.getDisplay().asyncExec(() -> {
+					// relayout in next tick
+					ToolBar control = tbm.getControl();
+					if (control != null && !control.isDisposed()) {
+						tbm.update(true);
+					}
+				});
+			}
 		}
 	}
 
