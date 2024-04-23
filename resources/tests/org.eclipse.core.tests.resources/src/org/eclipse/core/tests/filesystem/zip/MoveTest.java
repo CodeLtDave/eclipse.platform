@@ -26,7 +26,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.ZipExpander;
+import org.eclipse.core.resources.ZipTransformer;
 import org.eclipse.core.runtime.CoreException;
 import org.junit.After;
 import org.junit.Assert;
@@ -183,7 +183,7 @@ public class MoveTest {
 		ensureDoesNotExist(newArchiveFile);
 		ZipFileSystemTestSetup.copyZipIntoJavaProject(ZipFileSystemTestSetup.firstProject, newArchiveName);
 		ensureExists(newArchiveFile);
-		ZipExpander.expandZip(newArchiveFile);
+		ZipTransformer.expandZip(newArchiveFile);
 		IFolder newArchiveFolder = ZipFileSystemTestSetup.firstProject.getFolder(newArchiveName);
 		ensureExists(newArchiveFolder);
 		// move second archive into first archive
