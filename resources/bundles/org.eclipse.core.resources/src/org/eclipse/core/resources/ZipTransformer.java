@@ -68,6 +68,8 @@ public class ZipTransformer {
 		// Roleback if Folder "link" is empty
 		if (link.exists() && link.members().length == 0) {
 			collapseZip(link);
+			throw new CoreException(new Status(IStatus.ERROR, ResourcesPlugin.PI_RESOURCES,
+					"Archive could not be expanded or has no children")); //$NON-NLS-1$
 		}
 	}
 }
