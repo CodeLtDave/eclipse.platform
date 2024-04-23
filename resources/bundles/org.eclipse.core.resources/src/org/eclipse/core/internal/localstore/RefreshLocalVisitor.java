@@ -14,7 +14,7 @@
  *******************************************************************************/
 package org.eclipse.core.internal.localstore;
 
-import org.eclipse.core.filesystem.zip.ZipFileUtil;
+import org.eclipse.core.filesystem.ZipFileUtil;
 import org.eclipse.core.internal.resources.Container;
 import org.eclipse.core.internal.resources.File;
 import org.eclipse.core.internal.resources.Folder;

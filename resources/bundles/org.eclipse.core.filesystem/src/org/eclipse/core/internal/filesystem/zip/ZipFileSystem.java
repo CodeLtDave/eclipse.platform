@@ -11,7 +11,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.core.filesystem.zip;
+package org.eclipse.core.internal.filesystem.zip;
 
 import java.net.URI;
 import java.net.URISyntaxException;

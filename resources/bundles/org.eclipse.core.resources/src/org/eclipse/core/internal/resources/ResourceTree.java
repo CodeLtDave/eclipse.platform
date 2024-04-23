@@ -20,7 +20,7 @@ import org.eclipse.core.filesystem.IFileInfo;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.filesystem.IFileSystem;
 import org.eclipse.core.filesystem.URIUtil;
-import org.eclipse.core.filesystem.zip.ZipFileUtil;
+import org.eclipse.core.filesystem.ZipFileUtil;
 import org.eclipse.core.internal.localstore.FileSystemResourceManager;
 import org.eclipse.core.internal.properties.IPropertyManager;
 import org.eclipse.core.internal.utils.BitMask;
