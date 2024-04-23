@@ -15,7 +15,7 @@ import org.eclipse.core.runtime.Status;
  *
  * @since 3.21
  */
-public class ZipTransformer {
+public class ArchiveTransformer {
 
 	/**
 	 * Collapses an expanded archive file represented as a linked folder in the
@@ -28,7 +28,7 @@ public class ZipTransformer {
 	 * @param folder The folder representing the archive file to collapse.
 	 *
 	 */
-	public static void collapseZip(IFolder folder) throws URISyntaxException, CoreException {
+	public static void collapseArchive(IFolder folder) throws URISyntaxException, CoreException {
 		URI zipURI = new URI(folder.getLocationURI().getQuery());
 		IFileStore parentStore = EFS.getStore(folder.getParent().getLocationURI());
 		URI childURI = parentStore.getChild(folder.getName()).toURI();
@@ -56,7 +56,7 @@ public class ZipTransformer {
 	 * @param file The file representing the archive file to expand.
 	 *
 	 */
-	public static void expandZip(IFile file) throws URISyntaxException, CoreException {
+	public static void expandArchive(IFile file) throws URISyntaxException, CoreException {
 		if (file.isLinked()) {
 			throw new CoreException(new Status(IStatus.ERROR, ResourcesPlugin.PI_RESOURCES,
 					"The file " + file.getName() + " is a linked resource and thus can not be expanded")); //$NON-NLS-1$ //$NON-NLS-2$
@@ -67,7 +67,7 @@ public class ZipTransformer {
 
 		// Roleback if Folder "link" is empty
 		if (link.exists() && link.members().length == 0) {
-			collapseZip(link);
+			collapseArchive(link);
 			throw new CoreException(new Status(IStatus.ERROR, ResourcesPlugin.PI_RESOURCES,
 					"Archive could not be expanded or has no children")); //$NON-NLS-1$
 		}

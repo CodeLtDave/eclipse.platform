@@ -59,7 +59,7 @@ public class CollapseTest {
 		IFolder archiveFolder = ZipFileSystemTestSetup.firstProject
 				.getFolder(archiveName);
 		ensureExists(archiveFolder);
-		ZipFileSystemTestUtil.collapseZipFile(archiveFolder);
+		ZipFileSystemTestUtil.collapseArchive(archiveFolder);
 		IFile zipFile = ZipFileSystemTestSetup.firstProject.getFile(archiveName);
 		// Don't use Utility method ensureDoesNotExist because the fileStore is still
 		// available after collapse. The fileStore is the File itself in the local file
