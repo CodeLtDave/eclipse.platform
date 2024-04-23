@@ -22,7 +22,7 @@ import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.ZipTransformer;
+import org.eclipse.core.resources.ArchiveTransformer;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.tests.harness.FussyProgressMonitor;
@@ -100,14 +100,14 @@ final class ZipFileSystemTestUtil {
 		return new FussyProgressMonitor();
 	}
 
-	static void expandZipFile(IFile file) throws URISyntaxException, CoreException, IOException {
-		ZipTransformer.expandZip(file);
+	static void expandArchive(IFile file) throws URISyntaxException, CoreException, IOException {
+		ArchiveTransformer.expandArchive(file);
 		IFolder virtualFolder = ZipFileSystemTestSetup.firstProject.getFolder(file.getName());
 		Assert.assertTrue(virtualFolder.exists());
 	}
 
-	static void collapseZipFile(IFolder folder) throws Exception {
-		ZipTransformer.collapseZip(folder);
+	static void collapseArchive(IFolder folder) throws Exception {
+		ArchiveTransformer.collapseArchive(folder);
 		IFile zipFile = ZipFileSystemTestSetup.firstProject.getFile(folder.getName());
 		ensureExists(zipFile);
 	}
