@@ -37,13 +37,13 @@ public class ExpandZipPerformanceTest {
 	@Test
 	public void testPerformanceExpandSmallZip() throws Exception {
 		ZipFileSystemTestUtil
-				.collapseZipFile(ZipFileSystemTestSetup.firstProject
+				.collapseArchive(ZipFileSystemTestSetup.firstProject
 						.getFolder(ZipFileSystemTestSetup.ZIP_FILE_VIRTUAL_FOLDER_NAME));
 
 		long expectedMaxDuration = 100;
 		long startTime = System.currentTimeMillis();
 
-		ZipFileSystemTestUtil.expandZipFile(ZipFileSystemTestSetup.firstProject
+		ZipFileSystemTestUtil.expandArchive(ZipFileSystemTestSetup.firstProject
 				.getFile(ZipFileSystemTestSetup.ZIP_FILE_VIRTUAL_FOLDER_NAME));
 
 		long endTime = System.currentTimeMillis();
@@ -58,7 +58,7 @@ public class ExpandZipPerformanceTest {
 		long expectedMaxDuration = 100;
 		long startTime = System.currentTimeMillis();
 
-		ZipFileSystemTestUtil.expandZipFile(
+		ZipFileSystemTestUtil.expandArchive(
 				ZipFileSystemTestSetup.firstProject.getFile(ZipFileSystemTestSetup.PERFORMANCE_ZIP_FILE_NAME));
 
 		long endTime = System.currentTimeMillis();
@@ -73,7 +73,7 @@ public class ExpandZipPerformanceTest {
 		long expectedMaxDuration = 1000;
 		long startTime = System.currentTimeMillis();
 
-		ZipFileSystemTestUtil.expandZipFile(ZipFileSystemTestSetup.firstProject
+		ZipFileSystemTestUtil.expandArchive(ZipFileSystemTestSetup.firstProject
 				.getFile(ZipFileSystemTestSetup.BIG_PERFORMANCE_ZIP_FILE_NAME));
 
 		long endTime = System.currentTimeMillis();
@@ -88,7 +88,7 @@ public class ExpandZipPerformanceTest {
 		long expectedMaxDuration = 10000;
 		long startTime = System.currentTimeMillis();
 
-		ZipFileSystemTestUtil.expandZipFile(
+		ZipFileSystemTestUtil.expandArchive(
 				ZipFileSystemTestSetup.firstProject.getFile(ZipFileSystemTestSetup.LARGE_PERFORMANCE_ZIP_FILE_NAME));
 
 		long endTime = System.currentTimeMillis();
@@ -103,7 +103,7 @@ public class ExpandZipPerformanceTest {
 		long expectedMaxDuration = 20000;
 		long startTime = System.currentTimeMillis();
 
-		ZipFileSystemTestUtil.expandZipFile(
+		ZipFileSystemTestUtil.expandArchive(
 				ZipFileSystemTestSetup.firstProject.getFile(ZipFileSystemTestSetup.HUGE_PERFORMANCE_ZIP_FILE_NAME));
 
 		long endTime = System.currentTimeMillis();

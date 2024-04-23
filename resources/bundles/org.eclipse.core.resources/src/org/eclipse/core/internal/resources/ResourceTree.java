@@ -35,7 +35,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceStatus;
 import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.resources.ZipTransformer;
+import org.eclipse.core.resources.ArchiveTransformer;
 import org.eclipse.core.resources.team.IResourceTree;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
@@ -1043,11 +1043,11 @@ class ResourceTree implements IResourceTree {
 
 			if (ZipFileUtil.isArchive(source.getFullPath())) {
 				try {
-					ZipTransformer.collapseZip(source);
+					ArchiveTransformer.collapseArchive(source);
 					IFile newSource = source.getParent().getFile(IPath.fromOSString(source.getName()));
 					IFile newDestination = destination.getParent().getFile(IPath.fromOSString(destination.getName()));
 					newSource.move(newDestination.getFullPath(), false, null);
-					ZipTransformer.expandZip(newDestination);
+					ArchiveTransformer.expandArchive(newDestination);
 					return;
 				} catch (Exception e) {
 					e.printStackTrace();
