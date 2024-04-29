@@ -26,6 +26,7 @@ import org.eclipse.core.internal.properties.IPropertyManager;
 import org.eclipse.core.internal.utils.BitMask;
 import org.eclipse.core.internal.utils.Messages;
 import org.eclipse.core.internal.utils.Policy;
+import org.eclipse.core.resources.ArchiveTransformer;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -35,7 +36,6 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceStatus;
 import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.resources.ArchiveTransformer;
 import org.eclipse.core.resources.team.IResourceTree;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
@@ -1047,7 +1047,7 @@ class ResourceTree implements IResourceTree {
 					IFile newSource = source.getParent().getFile(IPath.fromOSString(source.getName()));
 					IFile newDestination = destination.getParent().getFile(IPath.fromOSString(destination.getName()));
 					newSource.move(newDestination.getFullPath(), false, null);
-					ArchiveTransformer.expandArchive(newDestination);
+					ArchiveTransformer.expandArchive(newDestination, monitor.slice(4));
 					return;
 				} catch (Exception e) {
 					e.printStackTrace();
