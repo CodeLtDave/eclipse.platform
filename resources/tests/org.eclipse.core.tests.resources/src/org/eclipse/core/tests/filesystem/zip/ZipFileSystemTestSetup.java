@@ -79,6 +79,7 @@ public class ZipFileSystemTestSetup {
 		secondProject = createProject(SECOND_PROJECT_NAME);
 		createJavaProject(secondProject);
 		refreshProject(secondProject);
+		refreshEntireWorkspace();
 	}
 
 	static void performanceSetup() throws Exception {
@@ -152,6 +153,17 @@ public class ZipFileSystemTestSetup {
 				// Refreshing the specific project
 				project.refreshLocal(IResource.DEPTH_INFINITE, null);
 			}
+		} catch (CoreException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static void refreshEntireWorkspace() {
+		IWorkspace workspace = ResourcesPlugin.getWorkspace();
+		try {
+			// IResource.DEPTH_INFINITE will cause all resources in the workspace to be
+			// refreshed.
+			workspace.getRoot().refreshLocal(IResource.DEPTH_INFINITE, null);
 		} catch (CoreException e) {
 			e.printStackTrace();
 		}
