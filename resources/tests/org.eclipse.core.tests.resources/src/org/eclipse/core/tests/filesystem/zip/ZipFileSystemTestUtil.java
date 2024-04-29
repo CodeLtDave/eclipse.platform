@@ -18,13 +18,14 @@ import java.net.URISyntaxException;
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileInfo;
 import org.eclipse.core.filesystem.IFileStore;
+import org.eclipse.core.resources.ArchiveTransformer;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.ArchiveTransformer;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.tests.harness.FussyProgressMonitor;
 import org.junit.Assert;
 
@@ -101,7 +102,7 @@ final class ZipFileSystemTestUtil {
 	}
 
 	static void expandArchive(IFile file) throws URISyntaxException, CoreException, IOException {
-		ArchiveTransformer.expandArchive(file);
+		ArchiveTransformer.expandArchive(file, new NullProgressMonitor());
 		IFolder virtualFolder = ZipFileSystemTestSetup.firstProject.getFolder(file.getName());
 		Assert.assertTrue(virtualFolder.exists());
 	}

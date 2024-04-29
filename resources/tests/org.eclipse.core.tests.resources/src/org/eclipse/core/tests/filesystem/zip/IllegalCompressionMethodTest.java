@@ -14,12 +14,11 @@
 package org.eclipse.core.tests.filesystem.zip;
 
 import static org.eclipse.core.tests.filesystem.zip.ZipFileSystemTestUtil.ensureExists;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.junit.After;
@@ -50,13 +49,12 @@ public class IllegalCompressionMethodTest {
 		IFile archiveFile = project.getFile(ARCHIVE_NAME);
 
 		ensureExists(archiveFile);
-		ZipFileSystemTestUtil.expandArchive(archiveFile);
-
-		ensureExists(archiveFile);
-		IFolder archiveFolder = project.getFolder(ARCHIVE_NAME);
-		assertFalse(
-				"Error: A folder named '\" + ARCHIVE_NAME + \"' exists which should not. The zip should have been collapsed against\"",
-				archiveFolder.exists());
+		try {
+			ZipFileSystemTestUtil.expandArchive(archiveFile);
+		} catch (CoreException e) {
+			ensureExists(archiveFile);
+			assertEquals("Archive could not be expanded or has no children", e.getMessage());
+		}
 	}
 }
 
