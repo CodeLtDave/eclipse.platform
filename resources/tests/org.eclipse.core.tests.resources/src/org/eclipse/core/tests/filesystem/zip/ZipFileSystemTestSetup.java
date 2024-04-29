@@ -54,14 +54,6 @@ public class ZipFileSystemTestSetup {
 	static final String SECOND_PROJECT_NAME = "SecondProject";
 	static final String ZIP_FILE_VIRTUAL_FOLDER_NAME = "BasicText.zip"; // Assuming the ZIP is represented as this
 																		// folder
-	static final String JAR_FILE_VIRTUAL_FOLDER_NAME = "BasicText.jar";
-	static final String PERFORMANCE_ZIP_FILE_NAME = "Performance.zip";
-	static final String BIG_PERFORMANCE_ZIP_FILE_NAME = "BigPerformance.zip";
-	static final String LARGE_PERFORMANCE_ZIP_FILE_NAME = "LargePerformance.zip";
-	static final String HUGE_PERFORMANCE_ZIP_FILE_NAME = "HugePerformance.zip";
-	static final String EMPTY_ZIP_FILE_NAME = "Empty.zip";
-	static final String NESTED_ZIP_FILE_PARENT_NAME = "NestedZipFileParent.zip";
-	static final String NESTED_ZIP_FILE_CHILD_NAME = "NestedZipFileChild.zip";
 	static final String TEXT_FILE_NAME = "Text.txt";
 	static final String DEEP_NESTED_ZIP_FILE_NAME = "DeepNested.zip";
 	static IProject firstProject;
@@ -91,16 +83,6 @@ public class ZipFileSystemTestSetup {
 		createJavaProject(secondProject);
 		refreshProject(secondProject);
 		refreshEntireWorkspace();
-	}
-
-	static void performanceSetup() throws Exception {
-		defaultSetup();
-		copyZipFileIntoJavaProject(firstProject, ZIP_FILE_VIRTUAL_FOLDER_NAME);
-		copyZipFileIntoJavaProject(firstProject, PERFORMANCE_ZIP_FILE_NAME);
-		copyZipFileIntoJavaProject(firstProject, BIG_PERFORMANCE_ZIP_FILE_NAME);
-		copyZipFileIntoJavaProject(firstProject, LARGE_PERFORMANCE_ZIP_FILE_NAME);
-		copyZipFileIntoJavaProject(firstProject, HUGE_PERFORMANCE_ZIP_FILE_NAME);
-		refreshProject(firstProject);
 	}
 
 	static void teardown() throws Exception {
