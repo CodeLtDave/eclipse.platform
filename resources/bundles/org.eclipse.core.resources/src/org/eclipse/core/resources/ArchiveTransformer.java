@@ -10,6 +10,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.SubMonitor;
 
 /**
  * Utility class for collapsing and expanding archive files.
@@ -59,15 +60,15 @@ public class ArchiveTransformer {
 	 *
 	 */
 	public static void expandArchive(IFile file, IProgressMonitor monitor) throws URISyntaxException, CoreException {
+		SubMonitor subMonitor = SubMonitor.convert(monitor, 20);
 		if (file.isLinked()) {
 			throw new CoreException(new Status(IStatus.ERROR, ResourcesPlugin.PI_RESOURCES,
 					"The file " + file.getName() + " is a linked resource and thus can not be expanded")); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		URI zipURI = new URI("zip", null, "/", file.getLocationURI().toString(), null); //$NON-NLS-1$ //$NON-NLS-2$
 		IFolder link = file.getParent().getFolder(IPath.fromOSString(file.getName()));
-		monitor.worked(1);
-		link.createLink(zipURI, IResource.REPLACE, null);
-		monitor.worked(3);
+		subMonitor.split(1);
+		link.createLink(zipURI, IResource.REPLACE, subMonitor.split(19));
 
 		// Roleback if Folder "link" is empty
 		if (link.exists() && link.members().length == 0) {
