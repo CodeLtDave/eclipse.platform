@@ -296,7 +296,7 @@ public class RefreshLocalVisitor implements IUnifiedTreeVisitor, ILocalStoreCons
 				}
 			} else {
 				if (node.existsInFileSystem() && !IPath.EMPTY.isValidSegment(node.getLocalName())
-						&& !ZipFileUtil.isArchive(target.getFullPath())) { // TODO is not covered by tests
+						&& !ZipFileUtil.isInsideOfZipFile(target.getFullPath())) {
 					String message = NLS.bind(Messages.resources_invalidResourceName, node.getLocalName());
 					errors.merge(new ResourceStatus(IResourceStatus.INVALID_RESOURCE_NAME, message));
 					return false;
