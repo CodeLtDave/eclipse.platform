@@ -26,15 +26,15 @@ import org.junit.runners.Parameterized;
 public class CreateTest {
 
 	@Parameterized.Parameters
-	public static Collection<String[]> archiveNames() {
+	public static Collection<String[]> zipFileNames() {
 		return Arrays.asList(new String[][] { { ZipFileSystemTestSetup.ZIP_FILE_VIRTUAL_FOLDER_NAME },
 				{ ZipFileSystemTestSetup.JAR_FILE_VIRTUAL_FOLDER_NAME } });
 	}
 
-	private String archiveName;
+	private String zipFileName;
 
-	public CreateTest(String archiveName) {
-		this.archiveName = archiveName;
+	public CreateTest(String zipFileName) {
+		this.zipFileName = zipFileName;
 	}
 
 	@Before
@@ -48,9 +48,9 @@ public class CreateTest {
 	}
 
 	@Test
-	public void testCreateFileInsideOfArchive() throws Exception {
-		IFolder archiveFolder = ZipFileSystemTestSetup.firstProject.getFolder(archiveName);
-		IFile textFile = archiveFolder.getFile("NewFile.txt");
+	public void testCreateFileInsideOfZipFile() throws Exception {
+		IFolder openedZipFile = ZipFileSystemTestSetup.firstProject.getFolder(zipFileName);
+		IFile textFile = openedZipFile.getFile("NewFile.txt");
 		ensureDoesNotExist(textFile);
 		String text = "Foo";
 		InputStream stream = new ByteArrayInputStream(text.getBytes());
@@ -65,9 +65,9 @@ public class CreateTest {
 	}
 
 	@Test
-	public void testCreateFolderInsideOfArchive() throws Exception {
-		IFolder archiveFolder = ZipFileSystemTestSetup.firstProject.getFolder(archiveName);
-		IFolder newFolder = archiveFolder.getFolder("NewFolder");
+	public void testCreateFolderInsideOfZipFile() throws Exception {
+		IFolder openedZipFile = ZipFileSystemTestSetup.firstProject.getFolder(zipFileName);
+		IFolder newFolder = openedZipFile.getFolder("NewFolder");
 		ensureDoesNotExist(newFolder);
 		newFolder.create(false, true, getMonitor());
 		ensureExists(newFolder);

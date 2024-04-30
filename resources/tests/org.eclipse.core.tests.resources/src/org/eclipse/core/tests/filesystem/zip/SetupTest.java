@@ -35,15 +35,15 @@ import org.junit.runners.Parameterized;
 public class SetupTest {
 
 	@Parameterized.Parameters
-	public static Collection<String[]> archiveNames() {
+	public static Collection<String[]> zipFileNames() {
 		return Arrays.asList(new String[][] { { ZipFileSystemTestSetup.ZIP_FILE_VIRTUAL_FOLDER_NAME },
 				{ ZipFileSystemTestSetup.JAR_FILE_VIRTUAL_FOLDER_NAME } });
 	}
 
-	private String archiveName;
+	private String zipFileName;
 
-	public SetupTest(String archiveName) {
-		this.archiveName = archiveName;
+	public SetupTest(String zipFileName) {
+		this.zipFileName = zipFileName;
 	}
 
 	@Before
@@ -57,18 +57,18 @@ public class SetupTest {
 	}
 
 	@Test
-	public void testArchiveInProject() throws Exception {
-		IFolder archiveFolder = ZipFileSystemTestSetup.firstProject
-				.getFolder(archiveName);
-		ensureExists(archiveFolder);
+	public void testZipFileInProject() throws Exception {
+		IFolder openedZipFile = ZipFileSystemTestSetup.firstProject
+				.getFolder(zipFileName);
+		ensureExists(openedZipFile);
 	}
 
 	@Test
-	public void testTextFileInArchive() throws Exception {
-		IFolder archiveFolder = ZipFileSystemTestSetup.firstProject
-				.getFolder(archiveName);
+	public void testTextFileInZipFile() throws Exception {
+		IFolder openedZipFile = ZipFileSystemTestSetup.firstProject
+				.getFolder(zipFileName);
 
-		IFile textFile = archiveFolder.getFile(ZipFileSystemTestSetup.TEXT_FILE_NAME);
+		IFile textFile = openedZipFile.getFile(ZipFileSystemTestSetup.TEXT_FILE_NAME);
 		ensureExists(textFile);
 
 		// Read and verify the content of Text.txt

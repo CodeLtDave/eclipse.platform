@@ -26,15 +26,15 @@ import org.junit.runners.Parameterized;
 public class CopyTest {
 
 	@Parameterized.Parameters
-	public static Collection<String[]> archiveNames() {
+	public static Collection<String[]> zipFileNames() {
 		return Arrays.asList(new String[][] { { ZipFileSystemTestSetup.ZIP_FILE_VIRTUAL_FOLDER_NAME },
 				{ ZipFileSystemTestSetup.JAR_FILE_VIRTUAL_FOLDER_NAME } });
 	}
 
-	private String archiveName;
+	private String zipFileName;
 
-	public CopyTest(String archiveName) {
-		this.archiveName = archiveName;
+	public CopyTest(String zipFileName) {
+		this.zipFileName = zipFileName;
 	}
 
 	@Before
@@ -48,24 +48,24 @@ public class CopyTest {
 	}
 
 	@Test
-	public void testCopyArchive() throws Exception {
-		IFolder archiveFolder = ZipFileSystemTestSetup.firstProject
-				.getFolder(archiveName);
-		ensureExists(archiveFolder);
+	public void testCopyZipFile() throws Exception {
+		IFolder openedZipFile = ZipFileSystemTestSetup.firstProject
+				.getFolder(zipFileName);
+		ensureExists(openedZipFile);
 		IFolder destinationFolder = ZipFileSystemTestSetup.firstProject.getFolder("Folder");
 		destinationFolder.create(true, true, getMonitor());
 		ensureExists(destinationFolder);
 		IFolder copyDestination = ZipFileSystemTestSetup.firstProject
-				.getFolder("Folder" + "/" + archiveName);
-		archiveFolder.copy(copyDestination.getFullPath(), true, getMonitor());
+				.getFolder("Folder" + "/" + zipFileName);
+		openedZipFile.copy(copyDestination.getFullPath(), true, getMonitor());
 		ensureExists(copyDestination);
-		ensureExists(archiveFolder);
+		ensureExists(openedZipFile);
 	}
 
 	@Test
-	public void testCopyFileInsideOfArchive() throws Exception {
+	public void testCopyFileInsideOfZipFile() throws Exception {
 		IFile textFile = ZipFileSystemTestSetup.firstProject.getFile(
-				archiveName + "/" + ZipFileSystemTestSetup.TEXT_FILE_NAME);
+				zipFileName + "/" + ZipFileSystemTestSetup.TEXT_FILE_NAME);
 		ensureExists(textFile);
 		IFolder destinationFolder = ZipFileSystemTestSetup.firstProject.getFolder("Folder");
 		destinationFolder.create(true, true, getMonitor());
@@ -78,7 +78,7 @@ public class CopyTest {
 	}
 
 	@Test
-	public void testCopyFileIntoArchive() throws Exception {
+	public void testCopyFileIntoZipFile() throws Exception {
 		IFile textFile = ZipFileSystemTestSetup.firstProject.getFile("NewFile.txt");
 		ensureDoesNotExist(textFile);
 		String text = "Foo";
@@ -87,7 +87,7 @@ public class CopyTest {
 		stream.close();
 		ensureExists(textFile);
 		IFile copyDestination = ZipFileSystemTestSetup.firstProject
-				.getFile(archiveName + "/" + "NewFile.txt");
+				.getFile(zipFileName + "/" + "NewFile.txt");
 		textFile.copy(copyDestination.getFullPath(), true, getMonitor());
 		ensureExists(copyDestination);
 		ensureExists(textFile);

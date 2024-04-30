@@ -875,7 +875,7 @@ class ViewerStateTracker {
 		}
 		if ((flags & ~(IModelDelta.SELECT | IModelDelta.REVEAL)) != 0) {
 			final int mask = flags & ~(IModelDelta.SELECT | IModelDelta.REVEAL);
-			// For other flags (EXPAND/COLLAPSE), cancel only from the matching path.
+			// For other flags (EXPAND/CLOSE_ZIP_FILE), cancel only from the matching path.
 			fPendingState.accept((delta, depth) -> {
 				if (depth < path.getSegmentCount()) {
 					// Descend until we reach a matching depth.
@@ -1105,7 +1105,7 @@ class ViewerStateTracker {
 			}
 			if ((delta.getFlags() & IModelDelta.COLLAPSE) != 0) {
 				if (DebugUIPlugin.DEBUG_STATE_SAVE_RESTORE && DebugUIPlugin.DEBUG_TEST_PRESENTATION_ID(fContentProvider.getPresentationContext())) {
-					DebugUIPlugin.trace("\tRESTORE COLLAPSE: " + treePath.getLastSegment()); //$NON-NLS-1$
+					DebugUIPlugin.trace("\tRESTORE CLOSE_ZIP_FILE: " + treePath.getLastSegment()); //$NON-NLS-1$
 				}
 				// Check auto-expand before collapsing an element (bug 335734)
 				int autoexpand = fContentProvider.getViewer().getAutoExpandLevel();

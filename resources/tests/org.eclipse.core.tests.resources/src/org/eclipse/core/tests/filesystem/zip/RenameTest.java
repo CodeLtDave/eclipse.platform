@@ -34,15 +34,15 @@ import org.junit.runners.Parameterized;
 public class RenameTest {
 
 	@Parameterized.Parameters
-	public static Collection<String[]> archiveNames() {
+	public static Collection<String[]> zipFileNames() {
 		return Arrays.asList(new String[][] { { ZipFileSystemTestSetup.ZIP_FILE_VIRTUAL_FOLDER_NAME },
 				{ ZipFileSystemTestSetup.JAR_FILE_VIRTUAL_FOLDER_NAME } });
 	}
 
-	private String archiveName;
+	private String zipFileName;
 
-	public RenameTest(String archiveName) {
-		this.archiveName = archiveName;
+	public RenameTest(String zipFileName) {
+		this.zipFileName = zipFileName;
 	}
 
 	@Before
@@ -56,24 +56,22 @@ public class RenameTest {
 	}
 
 	@Test
-	public void testRenameArchive() throws Exception {
+	public void testRenameZipFile() throws Exception {
 		// IFolder is renamed by moving with the new path
-		IFolder archiveFolder = ZipFileSystemTestSetup.firstProject
-				.getFolder(archiveName);
-		IFolder archiveFolderWithNewName = ZipFileSystemTestSetup.firstProject
-				.getFolder(archiveName + "Renamed");
-		archiveFolder.move(archiveFolderWithNewName.getFullPath(), false, getMonitor());
-		ensureExists(archiveFolderWithNewName);
-		ensureDoesNotExist(archiveFolder);
+		IFolder openedZipFile = ZipFileSystemTestSetup.firstProject.getFolder(zipFileName);
+		IFolder openedZipFileWithNewName = ZipFileSystemTestSetup.firstProject.getFolder(zipFileName + "Renamed");
+		openedZipFile.move(openedZipFileWithNewName.getFullPath(), false, getMonitor());
+		ensureExists(openedZipFileWithNewName);
+		ensureDoesNotExist(openedZipFile);
 	}
 
 	@Test
-	public void testRenameFileInsideOfArchive() throws Exception {
+	public void testRenameFileInsideOfZipFile() throws Exception {
 		// IFolder is renamed by moving with the new path
 		IFile textFile = ZipFileSystemTestSetup.firstProject.getFile(
-				archiveName + "/" + ZipFileSystemTestSetup.TEXT_FILE_NAME);
+				zipFileName + "/" + ZipFileSystemTestSetup.TEXT_FILE_NAME);
 		IFile newTextFile = ZipFileSystemTestSetup.firstProject
-				.getFile(archiveName
+				.getFile(zipFileName
 				+ "/" + ZipFileSystemTestSetup.TEXT_FILE_NAME + "Renamed");
 		textFile.move(newTextFile.getFullPath(), false, getMonitor());
 		ensureExists(newTextFile);
