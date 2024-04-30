@@ -41,15 +41,15 @@ import org.junit.runners.Parameterized;
 public class MoveTest {
 
 	@Parameterized.Parameters
-	public static Collection<String[]> archiveNames() {
+	public static Collection<String[]> zipFileNames() {
 		return Arrays.asList(new String[][] { { ZipFileSystemTestSetup.ZIP_FILE_VIRTUAL_FOLDER_NAME },
 				{ ZipFileSystemTestSetup.JAR_FILE_VIRTUAL_FOLDER_NAME } });
 	}
 
-	private String archiveName;
+	private String zipFileName;
 
-	public MoveTest(String archiveName) {
-		this.archiveName = archiveName;
+	public MoveTest(String zipFileName) {
+		this.zipFileName = zipFileName;
 	}
 
 	@Before
@@ -63,55 +63,55 @@ public class MoveTest {
 	}
 
 	@Test
-	public void testMoveArchiveWithinProject() throws CoreException, IOException {
-		IFolder archiveFolder = ZipFileSystemTestSetup.firstProject.getFolder(archiveName);
+	public void testMoveZipFileWithinProject() throws CoreException, IOException {
+		IFolder openedZipFile = ZipFileSystemTestSetup.firstProject.getFolder(zipFileName);
 		IFolder destinationFolder = ZipFileSystemTestSetup.firstProject.getFolder("destinationFolder");
 		destinationFolder.create(false, true, getMonitor());
 		IFolder destination = ZipFileSystemTestSetup.firstProject
-				.getFolder("destinationFolder/" + archiveName);
+				.getFolder("destinationFolder/" + zipFileName);
 
-		archiveFolder.move(destination.getFullPath(), false, getMonitor());
+		openedZipFile.move(destination.getFullPath(), false, getMonitor());
 
 		// Verify that the folder exists at the new location and not at the old location
 		// anymore
 		IFolder newFolder = ZipFileSystemTestSetup.firstProject
-				.getFolder(destinationFolder.getName() + "/" + archiveName);
+				.getFolder(destinationFolder.getName() + "/" + zipFileName);
 		ensureExists(newFolder);
-		ensureDoesNotExist(archiveFolder);
+		ensureDoesNotExist(openedZipFile);
 	}
 
 	@Test
-	public void testMoveArchiveToOtherProject() throws CoreException, IOException {
-		IFolder archiveFolder = ZipFileSystemTestSetup.firstProject.getFolder(archiveName);
-		IFolder destination = ZipFileSystemTestSetup.secondProject.getFolder(archiveName);
-		archiveFolder.move(destination.getFullPath(), false, getMonitor());
+	public void testMoveZipFileToOtherProject() throws CoreException, IOException {
+		IFolder openedZipFile = ZipFileSystemTestSetup.firstProject.getFolder(zipFileName);
+		IFolder destination = ZipFileSystemTestSetup.secondProject.getFolder(zipFileName);
+		openedZipFile.move(destination.getFullPath(), false, getMonitor());
 
 		// Verify that the folder exists at the new location and not at the old location
 		// anymore
-		IFolder newFolder = ZipFileSystemTestSetup.secondProject.getFolder(archiveName);
+		IFolder newFolder = ZipFileSystemTestSetup.secondProject.getFolder(zipFileName);
 		ensureExists(newFolder);
-		ensureDoesNotExist(archiveFolder);
+		ensureDoesNotExist(openedZipFile);
 	}
 
 	@Test
-	public void testMoveArchiveToOtherProjectFolder() throws CoreException, IOException {
-		IFolder archiveFolder = ZipFileSystemTestSetup.firstProject.getFolder(archiveName);
+	public void testMoveZipFileToOtherProjectFolder() throws CoreException, IOException {
+		IFolder openedZipFile = ZipFileSystemTestSetup.firstProject.getFolder(zipFileName);
 		IFolder destinationFolder = ZipFileSystemTestSetup.secondProject.getFolder("destinationFolder");
 		destinationFolder.create(false, true, getMonitor());
 		IFolder destination = ZipFileSystemTestSetup.secondProject
-				.getFolder("destinationFolder/" + archiveName);
-		archiveFolder.move(destination.getFullPath(), false, getMonitor());
+				.getFolder("destinationFolder/" + zipFileName);
+		openedZipFile.move(destination.getFullPath(), false, getMonitor());
 
 		// Verify that the folder exists at the new location and not at the old location
 		// anymore
 		IFolder newFolder = ZipFileSystemTestSetup.secondProject
-				.getFolder(destinationFolder.getName() + "/" + archiveName);
+				.getFolder(destinationFolder.getName() + "/" + zipFileName);
 		ensureExists(newFolder);
-		ensureDoesNotExist(archiveFolder);
+		ensureDoesNotExist(openedZipFile);
 	}
 
 	@Test
-	public void testMoveFileIntoArchive() throws Exception {
+	public void testMoveFileIntoZipFile() throws Exception {
 		IFile textFile = ZipFileSystemTestSetup.firstProject.getFile("NewFile.txt");
 		ensureDoesNotExist(textFile);
 		String text = "Foo";
@@ -120,7 +120,7 @@ public class MoveTest {
 		stream.close();
 		ensureExists(textFile);
 		IFile destinationFile = ZipFileSystemTestSetup.firstProject
-				.getFile(archiveName + "/" + "NewFile.txt");
+				.getFile(zipFileName + "/" + "NewFile.txt");
 		textFile.move(destinationFile.getFullPath(), false, getMonitor());
 
 		// Verify that the file exists at the new location
@@ -136,9 +136,9 @@ public class MoveTest {
 	}
 
 	@Test
-	public void testMoveFileFromArchive() throws Exception {
+	public void testMoveFileFromZipFile() throws Exception {
 		IFile textFile = ZipFileSystemTestSetup.firstProject.getFile(
-				archiveName + "/" + ZipFileSystemTestSetup.TEXT_FILE_NAME);
+				zipFileName + "/" + ZipFileSystemTestSetup.TEXT_FILE_NAME);
 		ensureExists(textFile);
 		IFile destinationFile = ZipFileSystemTestSetup.firstProject.getFile(ZipFileSystemTestSetup.TEXT_FILE_NAME);
 		textFile.move(destinationFile.getFullPath(), false, getMonitor());
@@ -158,13 +158,13 @@ public class MoveTest {
 	}
 
 	@Test
-	public void testMoveFileInsideOfArchive() throws Exception {
-		IFolder archiveFolder = ZipFileSystemTestSetup.firstProject.getFolder(archiveName);
-		IFolder destinationFolder = archiveFolder.getFolder("destinationFolder");
+	public void testMoveFileInsideOfZipFile() throws Exception {
+		IFolder openedZipFile = ZipFileSystemTestSetup.firstProject.getFolder(zipFileName);
+		IFolder destinationFolder = openedZipFile.getFolder("destinationFolder");
 		ensureDoesNotExist(destinationFolder);
 		destinationFolder.create(false, true, getMonitor());
 		ensureExists(destinationFolder);
-		IFile textFile = archiveFolder.getFile(ZipFileSystemTestSetup.TEXT_FILE_NAME);
+		IFile textFile = openedZipFile.getFile(ZipFileSystemTestSetup.TEXT_FILE_NAME);
 		ensureExists(textFile);
 		IFile fileDestination = destinationFolder.getFile(ZipFileSystemTestSetup.TEXT_FILE_NAME);
 		ensureDoesNotExist(fileDestination);
@@ -174,21 +174,21 @@ public class MoveTest {
 	}
 
 	@Test
-	public void testMoveArchiveIntoArchive() throws Exception {
-		IFolder archiveFolder = ZipFileSystemTestSetup.firstProject.getFolder(archiveName);
-		// create and expand second archive
-		String newArchiveName = archiveName.replace(".", "New.");
-		IFile newArchiveFile = ZipFileSystemTestSetup.firstProject.getFile(newArchiveName);
-		ensureDoesNotExist(newArchiveFile);
-		ZipFileSystemTestSetup.copyArchiveIntoJavaProject(ZipFileSystemTestSetup.firstProject, newArchiveName);
-		ensureExists(newArchiveFile);
-		ZipFileSystemTestUtil.expandArchive(newArchiveFile);
-		IFolder newArchiveFolder = ZipFileSystemTestSetup.firstProject.getFolder(newArchiveName);
-		ensureExists(newArchiveFolder);
-		// move second archive into first archive
-		IFolder newArchiveFolderDestination = archiveFolder.getFolder(newArchiveName);
-		newArchiveFolder.move(newArchiveFolderDestination.getFullPath(), false, getMonitor());
-		ensureExists(newArchiveFolderDestination);
-		ensureDoesNotExist(newArchiveFolder);
+	public void testMoveZipFileIntoZipFile() throws Exception {
+		IFolder openedZipFile = ZipFileSystemTestSetup.firstProject.getFolder(zipFileName);
+		// create and expand second ZipFile
+		String newZipFileName = zipFileName.replace(".", "New.");
+		IFile newZipFile = ZipFileSystemTestSetup.firstProject.getFile(newZipFileName);
+		ensureDoesNotExist(newZipFile);
+		ZipFileSystemTestSetup.copyZipFileIntoJavaProject(ZipFileSystemTestSetup.firstProject, newZipFileName);
+		ensureExists(newZipFile);
+		ZipFileSystemTestUtil.openZipFile(newZipFile);
+		IFolder newOpenedZipFile = ZipFileSystemTestSetup.firstProject.getFolder(newZipFileName);
+		ensureExists(newOpenedZipFile);
+		// move second ZipFile into first ZipFile
+		IFolder newOpenedZipFileDestination = openedZipFile.getFolder(newZipFileName);
+		newOpenedZipFile.move(newOpenedZipFileDestination.getFullPath(), false, getMonitor());
+		ensureExists(newOpenedZipFileDestination);
+		ensureDoesNotExist(newOpenedZipFile);
 	}
 }

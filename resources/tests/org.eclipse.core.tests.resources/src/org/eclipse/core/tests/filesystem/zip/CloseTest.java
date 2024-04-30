@@ -30,18 +30,18 @@ import org.junit.runners.Parameterized;
  *
  */
 @RunWith(Parameterized.class)
-public class CollapseTest {
+public class CloseTest {
 
 	@Parameterized.Parameters
-	public static Collection<String[]> archiveNames() {
+	public static Collection<String[]> zipFileNames() {
 		return Arrays.asList(new String[][] { { ZipFileSystemTestSetup.ZIP_FILE_VIRTUAL_FOLDER_NAME },
 				{ ZipFileSystemTestSetup.JAR_FILE_VIRTUAL_FOLDER_NAME } });
 	}
 
-	private String archiveName;
+	private String zipFileName;
 
-	public CollapseTest(String archiveName) {
-		this.archiveName = archiveName;
+	public CloseTest(String zipFileName) {
+		this.zipFileName = zipFileName;
 	}
 
 	@Before
@@ -55,16 +55,16 @@ public class CollapseTest {
 	}
 
 	@Test
-	public void testCollapseArchive() throws Exception {
-		IFolder archiveFolder = ZipFileSystemTestSetup.firstProject
-				.getFolder(archiveName);
-		ensureExists(archiveFolder);
-		ZipFileSystemTestUtil.collapseArchive(archiveFolder);
-		IFile zipFile = ZipFileSystemTestSetup.firstProject.getFile(archiveName);
+	public void testCloseZipFile() throws Exception {
+		IFolder openedZipFile = ZipFileSystemTestSetup.firstProject
+				.getFolder(zipFileName);
+		ensureExists(openedZipFile);
+		ZipFileSystemTestUtil.closeZipFile(openedZipFile);
+		IFile zipFile = ZipFileSystemTestSetup.firstProject.getFile(zipFileName);
 		// Don't use Utility method ensureDoesNotExist because the fileStore is still
 		// available after collapse. The fileStore is the File itself in the local file
 		// system that still exists after collapse.
-		assertTrue("folder was not properly deleted: " + archiveFolder, !archiveFolder.exists());
+		assertTrue("folder was not properly deleted: " + openedZipFile, !openedZipFile.exists());
 		ensureExists(zipFile);
 	}
 }

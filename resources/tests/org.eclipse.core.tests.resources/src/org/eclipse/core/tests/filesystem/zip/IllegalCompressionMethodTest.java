@@ -30,12 +30,12 @@ import org.junit.Test;
  */
 public class IllegalCompressionMethodTest {
 
-	private static final String ARCHIVE_NAME = "EnhancedDeflated.zip";
+	private static final String ZIP_FILE_NAME = "EnhancedDeflated.zip";
 
 	@Before
 	public void setup() throws Exception {
 		ZipFileSystemTestSetup.setup();
-		ZipFileSystemTestSetup.copyArchiveIntoJavaProject(ZipFileSystemTestSetup.firstProject, ARCHIVE_NAME);
+		ZipFileSystemTestSetup.copyZipFileIntoJavaProject(ZipFileSystemTestSetup.firstProject, ZIP_FILE_NAME);
 	}
 
 	@After
@@ -44,16 +44,16 @@ public class IllegalCompressionMethodTest {
 	}
 
 	@Test
-	public void testExpandEnhancedDeflatedArchive() throws CoreException, URISyntaxException, IOException {
+	public void testOpenEnhancedDeflatedZipFile() throws CoreException, URISyntaxException, IOException {
 		IProject project = ZipFileSystemTestSetup.firstProject;
-		IFile archiveFile = project.getFile(ARCHIVE_NAME);
+		IFile zipFile = project.getFile(ZIP_FILE_NAME);
 
-		ensureExists(archiveFile);
+		ensureExists(zipFile);
 		try {
-			ZipFileSystemTestUtil.expandArchive(archiveFile);
+			ZipFileSystemTestUtil.openZipFile(zipFile);
 		} catch (CoreException e) {
-			ensureExists(archiveFile);
-			assertEquals("Archive could not be expanded or has no children", e.getMessage());
+			ensureExists(zipFile);
+			assertEquals("Zip File could not be expanded or has no children", e.getMessage());
 		}
 	}
 }

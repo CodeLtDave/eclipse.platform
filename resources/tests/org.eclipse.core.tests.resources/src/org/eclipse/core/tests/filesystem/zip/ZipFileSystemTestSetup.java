@@ -67,11 +67,11 @@ public class ZipFileSystemTestSetup {
 		firstProject = createProject(FIRST_PROJECT_NAME);
 		createJavaProject(firstProject);
 		refreshProject(firstProject);
-		copyArchiveIntoJavaProject(firstProject, ZIP_FILE_VIRTUAL_FOLDER_NAME);
-		copyArchiveIntoJavaProject(firstProject, JAR_FILE_VIRTUAL_FOLDER_NAME);
+		copyZipFileIntoJavaProject(firstProject, ZIP_FILE_VIRTUAL_FOLDER_NAME);
+		copyZipFileIntoJavaProject(firstProject, JAR_FILE_VIRTUAL_FOLDER_NAME);
 		refreshProject(firstProject);
-		ZipFileSystemTestUtil.expandArchive(firstProject.getFile(ZIP_FILE_VIRTUAL_FOLDER_NAME));
-		ZipFileSystemTestUtil.expandArchive(firstProject.getFile(JAR_FILE_VIRTUAL_FOLDER_NAME));
+		ZipFileSystemTestUtil.openZipFile(firstProject.getFile(ZIP_FILE_VIRTUAL_FOLDER_NAME));
+		ZipFileSystemTestUtil.openZipFile(firstProject.getFile(JAR_FILE_VIRTUAL_FOLDER_NAME));
 	}
 
 	static void setupWithTwoProjects() throws Exception {
@@ -84,11 +84,11 @@ public class ZipFileSystemTestSetup {
 
 	static void performanceSetup() throws Exception {
 		setup();
-		copyArchiveIntoJavaProject(firstProject, ZIP_FILE_VIRTUAL_FOLDER_NAME);
-		copyArchiveIntoJavaProject(firstProject, PERFORMANCE_ZIP_FILE_NAME);
-		copyArchiveIntoJavaProject(firstProject, BIG_PERFORMANCE_ZIP_FILE_NAME);
-		copyArchiveIntoJavaProject(firstProject, LARGE_PERFORMANCE_ZIP_FILE_NAME);
-		copyArchiveIntoJavaProject(firstProject, HUGE_PERFORMANCE_ZIP_FILE_NAME);
+		copyZipFileIntoJavaProject(firstProject, ZIP_FILE_VIRTUAL_FOLDER_NAME);
+		copyZipFileIntoJavaProject(firstProject, PERFORMANCE_ZIP_FILE_NAME);
+		copyZipFileIntoJavaProject(firstProject, BIG_PERFORMANCE_ZIP_FILE_NAME);
+		copyZipFileIntoJavaProject(firstProject, LARGE_PERFORMANCE_ZIP_FILE_NAME);
+		copyZipFileIntoJavaProject(firstProject, HUGE_PERFORMANCE_ZIP_FILE_NAME);
 		refreshProject(firstProject);
 	}
 
@@ -169,7 +169,7 @@ public class ZipFileSystemTestSetup {
 		}
 	}
 
-	static void copyArchiveIntoJavaProject(IProject project, String zipFileName) throws Exception {
+	static void copyZipFileIntoJavaProject(IProject project, String zipFileName) throws Exception {
 		// Resolve the source file URL from the plugin bundle
 		URL zipFileUrl = Platform.getBundle("org.eclipse.core.tests.resources")
 				.getEntry("resources/ZipFileSystem/" + zipFileName);

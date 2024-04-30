@@ -13,53 +13,53 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
 
 /**
- * Utility class for collapsing and expanding archive files.
+ * Utility class for opening and closing zip files.
  *
  * @since 3.21
  */
-public class ArchiveTransformer {
+public class ZipFileTransformer {
 
 	/**
-	 * Collapses an expanded archive file represented as a linked folder in the
-	 * workspace. After collapsing the archive file in its unexpanded state is shown
-	 * in the workspace.
+	 * Closes an opened zip file represented as a linked folder in the workspace.
+	 * After closing, the zip file in its file state is shown in the workspace.
 	 *
-	 * This method can only be called when the archive file is local. Otherwise a
+	 * This method can only be called when the zip file is local. Otherwise a
 	 * CoreException is thrown.
 	 *
-	 * @param folder The folder representing the archive file to collapse.
+	 * @param folder The folder representing the zip file to close.
 	 *
 	 */
-	public static void collapseArchive(IFolder folder) throws URISyntaxException, CoreException {
+	public static void closeZipFile(IFolder folder) throws URISyntaxException, CoreException {
 		URI zipURI = new URI(folder.getLocationURI().getQuery());
 		IFileStore parentStore = EFS.getStore(folder.getParent().getLocationURI());
 		URI childURI = parentStore.getChild(folder.getName()).toURI();
 		if (URIUtil.equals(zipURI, childURI)) {
-			folder.delete(IResource.COLLAPSE, null);
+			folder.delete(IResource.CLOSE_ZIP_FILE, null);
 			folder.getProject().refreshLocal(IResource.DEPTH_INFINITE, null);
 		} else {
 			throw new CoreException(new Status(IStatus.ERROR, ResourcesPlugin.PI_RESOURCES,
 					"Collapsing of folder " + folder.getName() //$NON-NLS-1$
-							+ " failed because the corresponding archive file is not local.")); //$NON-NLS-1$
+							+ " failed because the corresponding zip file is not local.")); //$NON-NLS-1$
 		}
 	}
 
 	/**
-	 * Expands an archive file represented by a file into a linked folder. In the
-	 * expanded state the linked folder allows reading and manipulating the archives
-	 * children in the workspace and on the filesystem. If the folder has no
-	 * children after expanding, then it is collapsed immediately after. In this
-	 * case it could be that there should be no children, so no need for expanding
-	 * or an error occured that prevented the children from being loaded.
+	 * Opens a zip file represented by a file into a linked folder. The zip file
+	 * will not be extracted in this process. In the opened state the linked folder
+	 * allows reading and manipulating the children of the zip file in the workspace
+	 * and on the filesystem. If the folder has no children after opening, then it
+	 * is closed immediately after. In this case it could be that there should be no
+	 * children, so there is no need for opening or an error occured that prevented
+	 * the children from being loaded.
 	 *
-	 * This method prevents expanding linked archive files. Archive files must be
-	 * local to be expanded. Otherwise a CoreException is thrown.
+	 * This method prevents opening linked zip files. zip files must be local to be
+	 * opened. Otherwise a CoreException is thrown.
 	 *
-	 * @param file    The file representing the archive file to expand.
+	 * @param file    The file representing the zip file to open.
 	 * @param monitor monitor indicating the completion progress
 	 *
 	 */
-	public static void expandArchive(IFile file, IProgressMonitor monitor) throws URISyntaxException, CoreException {
+	public static void openZipFile(IFile file, IProgressMonitor monitor) throws URISyntaxException, CoreException {
 		SubMonitor subMonitor = SubMonitor.convert(monitor, 20);
 		if (file.isLinked()) {
 			throw new CoreException(new Status(IStatus.ERROR, ResourcesPlugin.PI_RESOURCES,
@@ -72,9 +72,9 @@ public class ArchiveTransformer {
 
 		// Roleback if Folder "link" is empty
 		if (link.exists() && link.members().length == 0) {
-			collapseArchive(link);
+			closeZipFile(link);
 			throw new CoreException(new Status(IStatus.ERROR, ResourcesPlugin.PI_RESOURCES,
-					"Archive could not be expanded or has no children")); //$NON-NLS-1$
+					"Zip File could not be expanded or has no children")); //$NON-NLS-1$
 		}
 	}
 }
