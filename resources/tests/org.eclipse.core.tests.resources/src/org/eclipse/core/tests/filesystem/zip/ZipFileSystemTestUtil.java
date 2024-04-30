@@ -18,11 +18,11 @@ import java.net.URISyntaxException;
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileInfo;
 import org.eclipse.core.filesystem.IFileStore;
-import org.eclipse.core.resources.ArchiveTransformer;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.ZipFileTransformer;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -101,14 +101,14 @@ final class ZipFileSystemTestUtil {
 		return new FussyProgressMonitor();
 	}
 
-	static void expandArchive(IFile file) throws URISyntaxException, CoreException, IOException {
-		ArchiveTransformer.expandArchive(file, new NullProgressMonitor());
+	static void openZipFile(IFile file) throws URISyntaxException, CoreException, IOException {
+		ZipFileTransformer.openZipFile(file, new NullProgressMonitor());
 		IFolder virtualFolder = ZipFileSystemTestSetup.firstProject.getFolder(file.getName());
 		Assert.assertTrue(virtualFolder.exists());
 	}
 
-	static void collapseArchive(IFolder folder) throws Exception {
-		ArchiveTransformer.collapseArchive(folder);
+	static void closeZipFile(IFolder folder) throws Exception {
+		ZipFileTransformer.closeZipFile(folder);
 		IFile zipFile = ZipFileSystemTestSetup.firstProject.getFile(folder.getName());
 		ensureExists(zipFile);
 	}

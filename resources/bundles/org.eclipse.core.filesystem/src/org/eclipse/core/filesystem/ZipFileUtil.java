@@ -29,7 +29,7 @@ public class ZipFileUtil {
 		ARCHIVE_FILE_SIGNATURES.add(0x504B0708); // spanned archive
     }
 
-	public static boolean isArchive(IPath workspaceFolderPath) {
+	public static boolean isZipFile(IPath workspaceFolderPath) {
 		// Get the actual file system path for the workspace folder
 		IPath workspaceRoot = new Path(Platform.getInstanceLocation().getURL().getPath());
 		IPath filePath = workspaceRoot.append(workspaceFolderPath);

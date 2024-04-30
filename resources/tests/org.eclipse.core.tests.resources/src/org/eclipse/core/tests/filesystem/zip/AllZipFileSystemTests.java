@@ -20,7 +20,7 @@ import org.junit.runners.Suite;
  * Class for collecting all test classes that deal with the file system API.
  */
 @RunWith(Suite.class)
-@Suite.SuiteClasses({ CollapseTest.class, CopyTest.class, CreateTest.class, DeleteTest.class, MoveTest.class,
+@Suite.SuiteClasses({ CloseTest.class, CopyTest.class, CreateTest.class, DeleteTest.class, MoveTest.class,
 		RenameTest.class, SetupTest.class, IllegalCompressionMethodTest.class })
 public class AllZipFileSystemTests {
 }

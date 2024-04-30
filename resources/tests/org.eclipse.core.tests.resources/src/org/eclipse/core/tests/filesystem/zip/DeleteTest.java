@@ -22,15 +22,15 @@ import org.junit.runners.Parameterized;
 public class DeleteTest {
 
 	@Parameterized.Parameters
-	public static Collection<String[]> archiveNames() {
+	public static Collection<String[]> zipFileNames() {
 		return Arrays.asList(new String[][] { { ZipFileSystemTestSetup.ZIP_FILE_VIRTUAL_FOLDER_NAME },
 				{ ZipFileSystemTestSetup.JAR_FILE_VIRTUAL_FOLDER_NAME } });
 	}
 
-	private String archiveName;
+	private String zipFileName;
 
-	public DeleteTest(String archiveName) {
-		this.archiveName = archiveName;
+	public DeleteTest(String zipFileName) {
+		this.zipFileName = zipFileName;
 	}
 
 	@Before
@@ -44,21 +44,21 @@ public class DeleteTest {
 	}
 
 	@Test
-	public void testDeleteArchiveFile() throws Exception {
-		IFolder archiveFolder = ZipFileSystemTestSetup.firstProject
-				.getFolder(archiveName);
-		ensureExists(archiveFolder);
-		archiveFolder.delete(false, false, getMonitor());
-		ensureDoesNotExist(archiveFolder);
-		IFile zipFile = ZipFileSystemTestSetup.firstProject.getFile(archiveName);
+	public void testDeleteZipFile() throws Exception {
+		IFolder openedZipFile = ZipFileSystemTestSetup.firstProject
+				.getFolder(zipFileName);
+		ensureExists(openedZipFile);
+		openedZipFile.delete(false, false, getMonitor());
+		ensureDoesNotExist(openedZipFile);
+		IFile zipFile = ZipFileSystemTestSetup.firstProject.getFile(zipFileName);
 		ensureDoesNotExist(zipFile);
 	}
 
 	@Test
-	public void testDeleteFileInsideOfArchive() throws Exception {
-		IFolder archiveFolder = ZipFileSystemTestSetup.firstProject
-				.getFolder(archiveName);
-		IFile textFile = archiveFolder.getFile(ZipFileSystemTestSetup.TEXT_FILE_NAME);
+	public void testDeleteFileInsideOfZipFile() throws Exception {
+		IFolder openedZipFile = ZipFileSystemTestSetup.firstProject
+				.getFolder(zipFileName);
+		IFile textFile = openedZipFile.getFile(ZipFileSystemTestSetup.TEXT_FILE_NAME);
 		ensureExists(textFile);
 		textFile.delete(true, getMonitor());
 		ensureDoesNotExist(textFile);
