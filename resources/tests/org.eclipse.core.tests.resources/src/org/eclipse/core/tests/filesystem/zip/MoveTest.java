@@ -191,4 +191,35 @@ public class MoveTest {
 		ensureExists(newOpenedZipFileDestination);
 		ensureDoesNotExist(newOpenedZipFile);
 	}
+
+	/**
+	 * When moving or expanding an opened zip file that contains a folder with
+	 * content. errors can occur. This is because the local name of the resources
+	 * inside the folder contains "\" seperators that are not allowed when
+	 * refreshing the Workspace. This test checks if this specific error is handeled
+	 * correctly in RefreshLocalVisitor#visit()
+	 */
+	@Test
+	public void testMoveZipFileWithFolder() throws Exception {
+		IFolder openedZipFile = ZipFileSystemTestSetup.firstProject.getFolder(zipFileName);
+		String contentFolderPath = zipFileName + "/" + "Folder";
+		IFolder contentFolder = ZipFileSystemTestSetup.firstProject.getFolder(contentFolderPath);
+		ensureDoesNotExist(contentFolder);
+		contentFolder.create(false, true, getMonitor());
+		ensureExists(contentFolder);
+		String text = "Foo";
+		InputStream stream = new ByteArrayInputStream(text.getBytes());
+		IFile textFile = ZipFileSystemTestSetup.firstProject.getFile(contentFolderPath + "/" + "textFile");
+		ensureDoesNotExist(textFile);
+		textFile.create(stream, false, getMonitor());
+		ensureExists(textFile);
+		IFolder destinationFolder = ZipFileSystemTestSetup.firstProject.getFolder("destinationFolder");
+		ensureDoesNotExist(destinationFolder);
+		destinationFolder.create(false, true, getMonitor());
+		ensureExists(destinationFolder);
+		IFolder zipFileDestination = ZipFileSystemTestSetup.firstProject.getFolder("destinationFolder/" + zipFileName);
+		ensureDoesNotExist(zipFileDestination);
+		openedZipFile.move(zipFileDestination.getFullPath(), false, getMonitor());
+		ensureExists(zipFileDestination);
+	}
 }

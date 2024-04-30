@@ -57,4 +57,8 @@ public class ZipFileUtil {
 		}
 		return false; // Ensure this is the only place that returns false when no other conditions are met
 	}
+
+	public static boolean isInsideOfZipFile(IPath fullPath) {
+		return false;
+	}
 }
