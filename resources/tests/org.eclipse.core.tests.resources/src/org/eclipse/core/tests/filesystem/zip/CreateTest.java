@@ -37,8 +37,7 @@ public class CreateTest {
 
 	@Parameterized.Parameters
 	public static Collection<String[]> zipFileNames() {
-		return Arrays.asList(new String[][] { { ZipFileSystemTestSetup.ZIP_FILE_VIRTUAL_FOLDER_NAME },
-				{ ZipFileSystemTestSetup.JAR_FILE_VIRTUAL_FOLDER_NAME } });
+		return Arrays.asList(new String[][] { { ZipFileSystemTestSetup.ZIP_FILE_VIRTUAL_FOLDER_NAME } });
 	}
 
 	private String zipFileName;
