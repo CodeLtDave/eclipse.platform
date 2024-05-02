@@ -19,7 +19,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystemAlreadyExistsException;
-import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -355,35 +354,34 @@ public class ZipFileStore extends FileStore {
 		return baos;
 	}
 
-	private FileSystem openZipFileSystem() throws IOException, URISyntaxException {
-	    Map<String, Object> env = new HashMap<>();
+	private FileSystem openZipFileSystem() throws URISyntaxException, IOException {
+		Map<String, Object> env = new HashMap<>();
 		env.put("create", "false"); //$NON-NLS-1$ //$NON-NLS-2$
+		URI nioURI = toNioURI();
+		Path innerArchivePath = null;
 
-	    if (!isNested()) {
-			URI nioURI = toNioURI();
-	        try {
-				return FileSystems.getFileSystem(nioURI);
-	        } catch (FileSystemNotFoundException e) {
-				return FileSystems.newFileSystem(nioURI, env);
-	        }
-	    }
-		ZipFileStore outerZipFileStore = (ZipFileStore) this.rootStore;
-		URI outerNioURI = outerZipFileStore.toNioURI();
-		FileSystem outerFs;
-		try {
-			outerFs = FileSystems.newFileSystem(outerNioURI, env);
-		} catch (FileSystemAlreadyExistsException e) {
-			outerFs = FileSystems.getFileSystem(outerNioURI);
+		if (isNested()) {
+			ZipFileStore outerZipFileStore = (ZipFileStore) this.rootStore;
+			try {
+				FileSystem outerFs = outerZipFileStore.openZipFileSystem();
+				innerArchivePath = outerFs.getPath(outerZipFileStore.path.toString());
+				nioURI = innerArchivePath.toUri();
+			} catch (Exception e) {
+				// TODO: handle exception
+			}
 		}
 
-		Path innerArchivePath = outerFs.getPath(outerZipFileStore.path.toString());
 		try {
-			return FileSystems.newFileSystem(innerArchivePath, env);
+			if (innerArchivePath != null) {
+				return FileSystems.newFileSystem(innerArchivePath, env);
+			}
+			return FileSystems.newFileSystem(nioURI, env);
 		} catch (FileSystemAlreadyExistsException e) {
-			return FileSystems.getFileSystem(innerArchivePath.toUri());
+			return FileSystems.getFileSystem(nioURI);
 		}
-
 	}
+
+
 
 
 	@Override
