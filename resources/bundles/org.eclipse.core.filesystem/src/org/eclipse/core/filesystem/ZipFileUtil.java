@@ -2,11 +2,13 @@ package org.eclipse.core.filesystem;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.HashSet;
 import java.util.Set;
 import org.eclipse.core.internal.filesystem.zip.ZipFileStore;
+import org.eclipse.core.runtime.CoreException;
 
 /**
  * Utility class to determine if a file is an archive based on file header information.
@@ -20,7 +22,7 @@ public class ZipFileUtil {
     private static final Set<Integer> ARCHIVE_FILE_SIGNATURES = new HashSet<>();
 
     static {
-		// Initializes known archive file signatures from Wikipedia's list of file signatures 
+		// Initializes known archive file signatures from Wikipedia's list of file signatures
 		// (https://en.wikipedia.org/wiki/List_of_file_signatures)
         ARCHIVE_FILE_SIGNATURES.add(0x504B0304); // Standard ZIP file
 		ARCHIVE_FILE_SIGNATURES.add(0x504B0506); // Empty archive
@@ -36,6 +38,16 @@ public class ZipFileUtil {
 	 */
 	public static boolean isInsideOpenZipFile(IFileStore store) {
 		return store instanceof ZipFileStore;
+	}
+
+	public static boolean isInsideOpenZipFile(URI locationURI) {
+		IFileStore store;
+		try {
+			store = EFS.getStore(locationURI);
+		} catch (CoreException e) {
+			return false;
+		}
+		return isInsideOpenZipFile(store);
 	}
 
 	/**
