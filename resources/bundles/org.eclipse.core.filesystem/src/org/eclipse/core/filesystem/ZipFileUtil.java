@@ -7,6 +7,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.HashSet;
 import java.util.Set;
+import org.eclipse.core.internal.filesystem.zip.ZipFileStore;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
@@ -58,7 +59,10 @@ public class ZipFileUtil {
 		return false; // Ensure this is the only place that returns false when no other conditions are met
 	}
 
-	public static boolean isInsideOfZipFile(IPath fullPath) {
+	public static boolean isInsideZipFile(IFileStore fileStore) {
+		if (fileStore instanceof ZipFileStore) {
+			return true;
+		}
 		return false;
 	}
 }
