@@ -147,6 +147,17 @@ public class ZipFileStore extends FileStore {
 		return name.substring(0, end + 1);
 	}
 
+	private IFileInfo convertToIFileInfo(Path zipEntryPath, BasicFileAttributes attrs) {
+		Path namePath = zipEntryPath.getFileName();
+		String name = namePath != null ? namePath.toString() : ""; //$NON-NLS-1$
+		FileInfo info = new FileInfo(name);
+	    info.setExists(true);
+	    info.setDirectory(attrs.isDirectory());
+	    info.setLastModified(attrs.lastModifiedTime().toMillis());
+	    info.setLength(attrs.size());
+	    return info;
+	}
+
 	/**
 	 * Creates a file info object corresponding to a given zip entry
 	 *
@@ -167,16 +178,6 @@ public class ZipFileStore extends FileStore {
 		return info;
 	}
 
-	/**
-	 * @return A directory info for this file store
-	 */
-	private IFileInfo createDirectoryInfo(String name) {
-		FileInfo result = new FileInfo(name);
-		result.setExists(true);
-		result.setDirectory(true);
-		return result;
-	}
-
 	@Override
 	public void delete(int options, IProgressMonitor monitor) throws CoreException {
 		try (FileSystem zipFs = openZipFileSystem()) {
@@ -191,25 +192,20 @@ public class ZipFileStore extends FileStore {
 
 	@Override
 	public IFileInfo fetchInfo(int options, IProgressMonitor monitor) throws CoreException {
-		try (ZipInputStream in = new ZipInputStream(rootStore.openInputStream(EFS.NONE, monitor))) {
-			String myPath = path.toString();
-			ZipEntry current;
-			while ((current = in.getNextEntry()) != null) {
-				String currentPath = current.getName();
-				if (myPath.equals(currentPath)) {
-					return convertZipEntryToFileInfo(current);
-				}
-				// directories don't always have their own entry, but it is
-				// implied by the existence of a child
-				if (isAncestor(myPath, currentPath)) {
-					return createDirectoryInfo(getName());
-				}
+		try (FileSystem zipFs = openZipFileSystem()) {
+			Path zipEntryPath = zipFs.getPath(path.toString());
+			if (Files.exists(zipEntryPath)) {
+				BasicFileAttributes attrs = Files.readAttributes(zipEntryPath, BasicFileAttributes.class);
+				return convertToIFileInfo(zipEntryPath, attrs);
 			}
-		} catch (IOException e) {
-			throw new CoreException(Status.error("Could not read file: " + rootStore.toString(), e)); //$NON-NLS-1$
+		} catch (IOException | URISyntaxException e) {
+			throw new CoreException(new Status(IStatus.ERROR, "org.eclipse.core.filesystem.zip", "Error accessing ZIP file", e)); //$NON-NLS-1$//$NON-NLS-2$
 		}
-		// does not exist
-		return new FileInfo(getName());
+
+		// Correctly set up FileInfo before returning
+		FileInfo notFoundInfo = new FileInfo(path.lastSegment());
+		notFoundInfo.setExists(false);
+		return notFoundInfo;
 	}
 
 	/**
@@ -245,23 +241,6 @@ public class ZipFileStore extends FileStore {
 		}
 		// the root entry has no parent
 		return null;
-	}
-
-	/**
-	 * Returns whether ancestor is a parent of child.
-	 *
-	 * @param ancestor the potential ancestor
-	 * @param child the potential child
-	 * @return <code>true</code> or <code>false</code>
-	 */
-
-	private boolean isAncestor(String ancestor, String child) {
-		// children will start with myName and have no child path
-		int ancestorLength = ancestor.length();
-		if (ancestorLength == 0) {
-			return true;
-		}
-		return child.startsWith(ancestor) && child.length() > ancestorLength && child.charAt(ancestorLength) == '/';
 	}
 
 	private boolean isNested() {
