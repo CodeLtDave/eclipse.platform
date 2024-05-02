@@ -61,6 +61,7 @@ public class ZipFileTransformer {
 	 */
 	public static void openZipFile(IFile file, IProgressMonitor monitor) throws URISyntaxException, CoreException {
 		SubMonitor subMonitor = SubMonitor.convert(monitor, 20);
+		// if (file.)
 		if (file.isLinked()) {
 			throw new CoreException(new Status(IStatus.ERROR, ResourcesPlugin.PI_RESOURCES,
 					"The file " + file.getName() + " is a linked resource and thus can not be expanded")); //$NON-NLS-1$ //$NON-NLS-2$
