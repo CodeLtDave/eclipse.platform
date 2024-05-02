@@ -69,6 +69,8 @@ public class ZipFileStore extends FileStore {
 	}
 
 	private ZipEntry[] childEntries(IProgressMonitor monitor) throws CoreException {
+
+		long startTime = System.currentTimeMillis();
 		List<ZipEntry> entryList = new ArrayList<>();
 		String myName = path.toString();
 
@@ -107,6 +109,15 @@ public class ZipFileStore extends FileStore {
 			throw new CoreException(new Status(IStatus.ERROR, "YourPluginID", "Error reading ZIP file", e)); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 
+
+		try {
+			wait(100);
+		} catch (Exception e) {
+
+		}
+		long endTime = System.currentTimeMillis();
+		long duration = endTime - startTime; // Calculate the duration
+		System.out.println(rootStore.toString() + path + ": " + duration); //$NON-NLS-1$
 		return entryList.toArray(new ZipEntry[0]);
 	}
 
@@ -360,6 +371,7 @@ public class ZipFileStore extends FileStore {
 		env.put("create", "false"); //$NON-NLS-1$ //$NON-NLS-2$
 		URI nioURI = toNioURI();
 		Path innerArchivePath = null;
+		FileSystem ret = null;
 
 		if (isNested()) {
 			ZipFileStore outerZipFileStore = (ZipFileStore) this.rootStore;
@@ -374,12 +386,15 @@ public class ZipFileStore extends FileStore {
 
 		try {
 			if (innerArchivePath != null) {
-				return FileSystems.newFileSystem(innerArchivePath, env);
+				ret = FileSystems.newFileSystem(innerArchivePath, env);
 			}
-			return FileSystems.newFileSystem(nioURI, env);
+			ret = FileSystems.newFileSystem(nioURI, env);
 		} catch (FileSystemAlreadyExistsException e) {
-			return FileSystems.getFileSystem(nioURI);
+			ret = FileSystems.getFileSystem(nioURI);
 		}
+
+
+		return ret;
 	}
 
 

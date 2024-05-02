@@ -705,7 +705,7 @@ public abstract class Resource extends PlatformObject implements IResource, ICor
 					workspace.refreshManager.refresh(this);
 					progress.split(90);
 				} else {
-					refreshLocal(DEPTH_INFINITE, progress.split(90));
+					refreshLocal(DEPTH_ONE, progress.split(90));
 				}
 			} else {
 				progress.split(90);
