@@ -40,6 +40,10 @@ public class ZipFileUtil {
 		return checkZipHeaders(file);
 	}
 
+	public static boolean isInsideOpenZipFile(IFileStore store) {
+		return store instanceof ZipFileStore;
+	}
+
 	public static boolean checkZipHeaders(File file) {
 		if (!file.exists() || !file.isFile() || !file.canRead()) {
 			return false;
@@ -54,15 +58,8 @@ public class ZipFileUtil {
 				return ARCHIVE_FILE_SIGNATURES.contains(header);
 			}
 		} catch (IOException e) {
-			e.printStackTrace(); // Log or handle the exception as needed
+			return false; //TODO exception handling
 		}
 		return false; // Ensure this is the only place that returns false when no other conditions are met
-	}
-
-	public static boolean isInsideZipFile(IFileStore fileStore) {
-		if (fileStore instanceof ZipFileStore) {
-			return true;
-		}
-		return false;
 	}
 }
