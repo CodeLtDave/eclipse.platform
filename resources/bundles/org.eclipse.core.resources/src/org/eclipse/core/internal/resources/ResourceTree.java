@@ -369,15 +369,16 @@ class ResourceTree implements IResourceTree {
 		boolean shouldCollapse = (flags & (IResource.CLOSE_ZIP_FILE)) != 0;
 
 		// Folder is expanded archive
-		if (ZipFileUtil.isZipFile(folder.getFullPath())) {
+		IFileStore fileStore = localManager.getStore(folder);
+		if (ZipFileUtil.isInsideOpenZipFile(fileStore)) {
 			try {
 				deletedFolder(folder);
 				if (shouldCollapse) {
 					return true;
 				}
 				IFile file = folder.getParent().getFile(IPath.fromOSString(folder.getName()));
-				IFileStore fileStore = localManager.getStore(file);
-				fileStore.delete(EFS.NONE, Policy.subMonitorFor(monitor, Policy.totalWork / 4));
+				IFileStore parentStore = localManager.getStore(file);
+				parentStore.delete(EFS.NONE, Policy.subMonitorFor(monitor, Policy.totalWork / 4));
 				return true;
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -390,7 +391,7 @@ class ResourceTree implements IResourceTree {
 			}
 
 			// If the folder doesn't exist on disk then update the tree and return.
-			IFileStore fileStore = localManager.getStore(folder);
+
 			if (!fileStore.fetchInfo().exists()) {
 				deletedFolder(folder);
 				return true;
@@ -1041,7 +1042,8 @@ class ResourceTree implements IResourceTree {
 			}
 			monitor.worked(20);
 
-			if (ZipFileUtil.isZipFile(source.getFullPath())) {
+			IFileStore fileStore = localManager.getStore(source);
+			if (ZipFileUtil.isInsideOpenZipFile(fileStore)) {
 				try {
 					ZipFileTransformer.closeZipFile(source);
 					IFile newSource = source.getParent().getFile(IPath.fromOSString(source.getName()));

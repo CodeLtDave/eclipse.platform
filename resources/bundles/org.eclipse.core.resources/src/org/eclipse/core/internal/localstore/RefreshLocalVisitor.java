@@ -248,7 +248,7 @@ public class RefreshLocalVisitor implements IUnifiedTreeVisitor, ILocalStoreCons
 				return false;
 			}
 		} else {
-			if (!node.isFolder() && !ZipFileUtil.isZipFile(target.getFullPath())) {
+			if (!node.isFolder() && !ZipFileUtil.isInsideOpenZipFile(target.getStore())) {
 				folderToFile(node, target);
 				resourceChanged = true;
 				return false;
@@ -296,7 +296,7 @@ public class RefreshLocalVisitor implements IUnifiedTreeVisitor, ILocalStoreCons
 				}
 			} else {
 				if (node.existsInFileSystem() && !IPath.EMPTY.isValidSegment(node.getLocalName())
-						&& !ZipFileUtil.isInsideZipFile(target.getStore())) {
+						&& !ZipFileUtil.isInsideOpenZipFile(target.getStore())) {
 					String message = NLS.bind(Messages.resources_invalidResourceName, node.getLocalName());
 					errors.merge(new ResourceStatus(IResourceStatus.INVALID_RESOURCE_NAME, message));
 					return false;
