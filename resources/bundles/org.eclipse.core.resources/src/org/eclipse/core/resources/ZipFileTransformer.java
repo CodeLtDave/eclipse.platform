@@ -1,10 +1,13 @@
 package org.eclipse.core.resources;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.filesystem.URIUtil;
+import org.eclipse.core.filesystem.ZipFileUtil;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -61,7 +64,13 @@ public class ZipFileTransformer {
 	 */
 	public static void openZipFile(IFile file, IProgressMonitor monitor) throws URISyntaxException, CoreException {
 		SubMonitor subMonitor = SubMonitor.convert(monitor, 20);
-		// if (file.)
+		try (InputStream fis = file.getContents()) {
+			ZipFileUtil.checkFileForZipHeader(fis);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 		if (file.isLinked()) {
 			throw new CoreException(new Status(IStatus.ERROR, ResourcesPlugin.PI_RESOURCES,
 					"The file " + file.getName() + " is a linked resource and thus can not be expanded")); //$NON-NLS-1$ //$NON-NLS-2$
