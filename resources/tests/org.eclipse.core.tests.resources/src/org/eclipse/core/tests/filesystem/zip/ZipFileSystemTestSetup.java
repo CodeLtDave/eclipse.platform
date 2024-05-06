@@ -175,7 +175,7 @@ public class ZipFileSystemTestSetup {
 		}
 	}
 
-	static void copyZipFileIntoJavaProject(IProject project, String zipFileName) throws Exception {
+	static void copyZipFileIntoJavaProject(IProject project, String zipFileName) throws IOException, CoreException {
 		// Resolve the source file URL from the plugin bundle
 		URL zipFileUrl = Platform.getBundle("org.eclipse.core.tests.resources")
 				.getEntry("resources/ZipFileSystem/" + zipFileName);
