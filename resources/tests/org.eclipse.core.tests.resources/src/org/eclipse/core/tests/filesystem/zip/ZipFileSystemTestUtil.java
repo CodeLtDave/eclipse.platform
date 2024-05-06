@@ -13,7 +13,9 @@ package org.eclipse.core.tests.filesystem.zip;
 
 import static org.junit.Assert.assertTrue;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URISyntaxException;
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileInfo;
@@ -72,30 +74,39 @@ final class ZipFileSystemTestUtil {
 		}
 	}
 
+	static void assertTextFileContent(IFile textFile, String expectedContent) throws IOException, CoreException {
+		try (InputStreamReader isr = new InputStreamReader(textFile.getContents());
+				BufferedReader reader = new BufferedReader(isr)) {
+			String content = reader.readLine(); // Assuming the file has a single line with "Hello World!"
+			Assert.assertEquals("The content of " + textFile.getName() + " should be '" + expectedContent + "'",
+					expectedContent, content);
+		}
+	}
+
 	private static void ensureDoesNotExistInFileSystem(IFileStore store) throws CoreException {
 		assertTrue("store was not properly deleted: " + store, !store.fetchInfo().exists());
 	}
 
 	private static void ensureExistsInFileSystem(IFileStore store) throws CoreException, IOException {
-			final IFileInfo info = store.fetchInfo();
-			assertTrue("file info for store does not exist: " + store, info.exists());
-		}
+		final IFileInfo info = store.fetchInfo();
+		assertTrue("file info for store does not exist: " + store, info.exists());
+	}
 
-		private static void ensureDoesNotExistInWorkspace(IFile file) throws CoreException {
-			assertTrue("file was not properly deleted: " + file, !file.exists());
-		}
+	private static void ensureDoesNotExistInWorkspace(IFile file) throws CoreException {
+		assertTrue("file was not properly deleted: " + file, !file.exists());
+	}
 
-		private static void ensureDoesNotExistInWorkspace(IFolder folder) throws CoreException {
-			assertTrue("folder was not properly deleted: " + folder, !folder.exists());
-		}
+	private static void ensureDoesNotExistInWorkspace(IFolder folder) throws CoreException {
+		assertTrue("folder was not properly deleted: " + folder, !folder.exists());
+	}
 
-		private static void ensureExistsInWorkspace(IFile file) throws CoreException, IOException {
-			assertTrue("file does not exist in workspace: " + file, file.exists());
-		}
+	private static void ensureExistsInWorkspace(IFile file) throws CoreException, IOException {
+		assertTrue("file does not exist in workspace: " + file, file.exists());
+	}
 
-		private static void ensureExistsInWorkspace(IFolder folder) throws CoreException, IOException {
-			assertTrue("folder does not exist in workspace: " + folder, folder.exists());
-		}
+	private static void ensureExistsInWorkspace(IFolder folder) throws CoreException, IOException {
+		assertTrue("folder does not exist in workspace: " + folder, folder.exists());
+	}
 
 	static IProgressMonitor getMonitor() {
 		return new FussyProgressMonitor();
