@@ -13,16 +13,14 @@
  *******************************************************************************/
 package org.eclipse.core.tests.filesystem.zip;
 
+import static org.eclipse.core.tests.filesystem.zip.ZipFileSystemTestUtil.assertTextFileContent;
 import static org.eclipse.core.tests.filesystem.zip.ZipFileSystemTestUtil.ensureExists;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.Collection;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -70,12 +68,6 @@ public class SetupTest {
 
 		IFile textFile = openedZipFile.getFile(ZipFileSystemTestSetup.TEXT_FILE_NAME);
 		ensureExists(textFile);
-
-		// Read and verify the content of Text.txt
-		try (InputStreamReader isr = new InputStreamReader(textFile.getContents());
-				BufferedReader reader = new BufferedReader(isr)) {
-			String content = reader.readLine(); // Assuming the file has a single line with "Hello World!"
-			Assert.assertEquals("The content of Text.txt should be 'Hello World!'", "Hello World!", content);
-		}
+		assertTextFileContent(textFile, "Hello World!");
 	}
 }

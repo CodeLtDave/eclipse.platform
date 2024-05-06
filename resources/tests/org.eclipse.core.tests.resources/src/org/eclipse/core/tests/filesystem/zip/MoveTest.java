@@ -13,22 +13,20 @@
  *******************************************************************************/
 package org.eclipse.core.tests.filesystem.zip;
 
+import static org.eclipse.core.tests.filesystem.zip.ZipFileSystemTestUtil.assertTextFileContent;
 import static org.eclipse.core.tests.filesystem.zip.ZipFileSystemTestUtil.ensureDoesNotExist;
 import static org.eclipse.core.tests.filesystem.zip.ZipFileSystemTestUtil.ensureExists;
 import static org.eclipse.core.tests.filesystem.zip.ZipFileSystemTestUtil.getMonitor;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.Collection;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.runtime.CoreException;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -125,11 +123,7 @@ public class MoveTest {
 
 		// Verify that the file exists at the new location
 		ensureExists(destinationFile);
-		try (InputStreamReader isr = new InputStreamReader(destinationFile.getContents());
-				BufferedReader reader = new BufferedReader(isr)) {
-			String content = reader.readLine();
-			Assert.assertEquals("The content of NewFile.txt should be 'Foo'", "Foo", content);
-		}
+		assertTextFileContent(destinationFile, text);
 
 		// Verify that the file does not exist at the old location
 		ensureDoesNotExist(textFile);
@@ -145,13 +139,7 @@ public class MoveTest {
 
 		// Verify that the file exists at the new location
 		ensureExists(destinationFile);
-		try (InputStreamReader isr = new InputStreamReader(destinationFile.getContents());
-				BufferedReader reader = new BufferedReader(isr)) {
-			String content = reader.readLine();
-			Assert.assertEquals("The content of " + ZipFileSystemTestSetup.TEXT_FILE_NAME + " should be 'Hello World!'",
-					"Hello World!",
-					content);
-		}
+		assertTextFileContent(destinationFile, "Hello World!");
 
 		// Verify that the file does not exist at the old location
 		ensureDoesNotExist(textFile);
