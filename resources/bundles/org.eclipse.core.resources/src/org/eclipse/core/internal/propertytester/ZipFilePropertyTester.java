@@ -24,8 +24,7 @@ public class ZipFilePropertyTester extends ResourcePropertyTester {
 
 	/** Enum representing allowed file extensions for zip files. */
 	private enum ZipFileExtensions {
-		ZIP("zip"), //$NON-NLS-1$
-		JAR("jar"); //$NON-NLS-1$
+		ZIP("zip"); //$NON-NLS-1$
 
 		private final String value;
 
