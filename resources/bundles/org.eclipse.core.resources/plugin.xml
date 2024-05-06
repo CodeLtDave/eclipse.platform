@@ -204,10 +204,10 @@
             properties="projectPersistentProperty"
             id="org.eclipse.core.resources.mappingPropertyTester"/>
    	  <propertyTester
-   	 		id="org.eclipse.core.resources.linkPropertyTester"
-   	 		class="org.eclipse.core.internal.propertytester.LinkPropertyTester"
+   	 		id="org.eclipse.core.resources.zipFilePropertyTester"
+   	 		class="org.eclipse.core.internal.propertytester.ZipFilePropertyTester"
    	 		namespace="org.eclipse.core.resources"
-   	 		properties="linked"
+   	 		properties="zipFile"
             type="org.eclipse.core.resources.IFile"/>   
    </extension>
 <!-- Filter Matchers-->
