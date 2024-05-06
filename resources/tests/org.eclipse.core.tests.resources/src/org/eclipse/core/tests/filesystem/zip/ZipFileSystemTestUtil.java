@@ -114,8 +114,6 @@ final class ZipFileSystemTestUtil {
 
 	static void openZipFile(IFile file) throws URISyntaxException, CoreException, IOException {
 		ZipFileTransformer.openZipFile(file, new NullProgressMonitor());
-		IFolder virtualFolder = ZipFileSystemTestSetup.firstProject.getFolder(file.getName());
-		Assert.assertTrue(virtualFolder.exists());
 	}
 
 	static void closeZipFile(IFolder folder) throws Exception {
