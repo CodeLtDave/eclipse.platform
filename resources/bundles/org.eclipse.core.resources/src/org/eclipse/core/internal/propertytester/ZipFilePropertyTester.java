@@ -18,15 +18,43 @@ import org.eclipse.core.resources.IFile;
 /**
  *
  */
-public class LinkPropertyTester extends ResourcePropertyTester {
+public class ZipFilePropertyTester extends ResourcePropertyTester {
 
-	private static final String PROPERTY_IS_LINKED = "linked"; //$NON-NLS-1$
+	private static final String PROPERTY_IS_ZIP_FILE = "zipFile"; //$NON-NLS-1$
+
+	private enum ZipFileExtensions {
+		ZIP("zip"), //$NON-NLS-1$
+		JAR("jar"); //$NON-NLS-1$
+
+		private final String value;
+
+		ZipFileExtensions(String value) {
+			this.value = value;
+		}
+	}
 
 	@Override
 	public boolean test(Object receiver, String property, Object[] args, Object expectedValue) {
-		if (PROPERTY_IS_LINKED.equals(property) && receiver instanceof IFile) {
-			return ((IFile) receiver).isLinked();
+		if (!(receiver instanceof IFile))
+			return false;
+
+		IFile file = (IFile) receiver;
+
+		if (property.equals(PROPERTY_IS_ZIP_FILE)) {
+			String fileExtension = file.getFileExtension();
+			boolean isZipFile = false;
+
+			for (ZipFileExtensions allowedExtension : ZipFileExtensions.values()) {
+				if (fileExtension.equals(allowedExtension.value)) {
+					isZipFile = true;
+					break;
+				}
+			}
+
+			if (!file.isLinked() && isZipFile)
+				return true;
 		}
+
 		return false;
 	}
 
