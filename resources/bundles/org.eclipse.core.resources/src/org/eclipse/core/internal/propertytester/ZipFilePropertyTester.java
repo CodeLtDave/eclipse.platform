@@ -16,12 +16,14 @@ package org.eclipse.core.internal.propertytester;
 import org.eclipse.core.resources.IFile;
 
 /**
- *
+ * This class is a property tester for determining whether a given resource is a
+ * zip file.
  */
 public class ZipFilePropertyTester extends ResourcePropertyTester {
 
 	private static final String PROPERTY_IS_ZIP_FILE = "zipFile"; //$NON-NLS-1$
 
+	/** Enum representing allowed file extensions for zip files. */
 	private enum ZipFileExtensions {
 		ZIP("zip"), //$NON-NLS-1$
 		JAR("jar"); //$NON-NLS-1$
@@ -33,6 +35,19 @@ public class ZipFilePropertyTester extends ResourcePropertyTester {
 		}
 	}
 
+	/**
+	 * Tests whether the given receiver object satisfies the condition specified by
+	 * the given property.
+	 *
+	 * @param receiver      The object being tested.
+	 * @param property      The name of the property to test.
+	 * @param args          Additional arguments to evaluate the property. Not used
+	 *                      in this implementation.
+	 * @param expectedValue The expected value of the property. Not used in this
+	 *                      implementation.
+	 * @return true if the given file is a zip file and is not a linked resource;
+	 *         false otherwise.
+	 */
 	@Override
 	public boolean test(Object receiver, String property, Object[] args, Object expectedValue) {
 		if (!(receiver instanceof IFile))
@@ -57,5 +72,4 @@ public class ZipFilePropertyTester extends ResourcePropertyTester {
 
 		return false;
 	}
-
 }
