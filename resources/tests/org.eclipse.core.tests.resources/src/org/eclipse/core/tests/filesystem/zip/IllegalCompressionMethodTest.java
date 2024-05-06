@@ -34,7 +34,7 @@ public class IllegalCompressionMethodTest {
 
 	@Before
 	public void setup() throws Exception {
-		ZipFileSystemTestSetup.setup();
+		ZipFileSystemTestSetup.defaultSetup();
 		ZipFileSystemTestSetup.copyZipFileIntoJavaProject(ZipFileSystemTestSetup.firstProject, ZIP_FILE_NAME);
 	}
 

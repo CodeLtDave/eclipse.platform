@@ -46,7 +46,7 @@ public class CloseTest {
 
 	@Before
 	public void setup() throws Exception {
-		ZipFileSystemTestSetup.setup();
+		ZipFileSystemTestSetup.defaultSetup();
 	}
 
 	@After
