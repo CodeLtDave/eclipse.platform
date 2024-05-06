@@ -39,7 +39,7 @@ public class CopyTest {
 
 	@Before
 	public void setup() throws Exception {
-		ZipFileSystemTestSetup.setup();
+		ZipFileSystemTestSetup.defaultSetup();
 	}
 
 	@After

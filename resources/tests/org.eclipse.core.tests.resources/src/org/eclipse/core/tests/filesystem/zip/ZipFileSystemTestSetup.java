@@ -58,24 +58,30 @@ public class ZipFileSystemTestSetup {
 	static final String LARGE_PERFORMANCE_ZIP_FILE_NAME = "LargePerformance.zip";
 	static final String HUGE_PERFORMANCE_ZIP_FILE_NAME = "HugePerformance.zip";
 	static final String TEXT_FILE_NAME = "Text.txt";
+	static final String DEEP_NESTED_ZIP_FILE_NAME = "DeepNested.zip";
 	static IProject firstProject;
 	static IProject secondProject;
 	static IJavaProject javaProject;
 	static IProgressMonitor progressMonitor = new NullProgressMonitor();
 
-	static void setup() throws Exception {
+	static void defaultSetup() throws Exception {
+		String[] defaultZipFileNames = { ZIP_FILE_VIRTUAL_FOLDER_NAME, JAR_FILE_VIRTUAL_FOLDER_NAME };
+		setup(defaultZipFileNames);
+	}
+
+	static void setup(String[] zipFileNames) throws Exception {
 		firstProject = createProject(FIRST_PROJECT_NAME);
 		createJavaProject(firstProject);
 		refreshProject(firstProject);
-		copyZipFileIntoJavaProject(firstProject, ZIP_FILE_VIRTUAL_FOLDER_NAME);
-		copyZipFileIntoJavaProject(firstProject, JAR_FILE_VIRTUAL_FOLDER_NAME);
-		refreshProject(firstProject);
-		ZipFileSystemTestUtil.openZipFile(firstProject.getFile(ZIP_FILE_VIRTUAL_FOLDER_NAME));
-		ZipFileSystemTestUtil.openZipFile(firstProject.getFile(JAR_FILE_VIRTUAL_FOLDER_NAME));
+		for (String zipFileName : zipFileNames) {
+			copyZipFileIntoJavaProject(firstProject, zipFileName);
+			refreshProject(firstProject);
+			ZipFileSystemTestUtil.openZipFile(firstProject.getFile(zipFileName));
+		}
 	}
 
 	static void setupWithTwoProjects() throws Exception {
-		setup();
+		defaultSetup();
 		secondProject = createProject(SECOND_PROJECT_NAME);
 		createJavaProject(secondProject);
 		refreshProject(secondProject);
@@ -83,7 +89,7 @@ public class ZipFileSystemTestSetup {
 	}
 
 	static void performanceSetup() throws Exception {
-		setup();
+		defaultSetup();
 		copyZipFileIntoJavaProject(firstProject, ZIP_FILE_VIRTUAL_FOLDER_NAME);
 		copyZipFileIntoJavaProject(firstProject, PERFORMANCE_ZIP_FILE_NAME);
 		copyZipFileIntoJavaProject(firstProject, BIG_PERFORMANCE_ZIP_FILE_NAME);

@@ -35,7 +35,7 @@ public class DeleteTest {
 
 	@Before
 	public void setup() throws Exception {
-		ZipFileSystemTestSetup.setup();
+		ZipFileSystemTestSetup.defaultSetup();
 	}
 
 	@After
