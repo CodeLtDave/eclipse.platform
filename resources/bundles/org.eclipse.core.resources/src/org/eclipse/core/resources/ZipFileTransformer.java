@@ -62,7 +62,8 @@ public class ZipFileTransformer {
 	 * @param monitor monitor indicating the completion progress
 	 *
 	 */
-	public static void openZipFile(IFile file, IProgressMonitor monitor) throws URISyntaxException, CoreException {
+	public static void openZipFile(IFile file, IProgressMonitor monitor, boolean backgroundRefresh)
+			throws URISyntaxException, CoreException {
 		SubMonitor subMonitor = SubMonitor.convert(monitor, 20);
 		try (InputStream fis = file.getContents()) {
 			ZipFileUtil.checkFileForZipHeader(fis);
@@ -78,18 +79,20 @@ public class ZipFileTransformer {
 		URI zipURI = new URI("zip", null, "/", file.getLocationURI().toString(), null); //$NON-NLS-1$ //$NON-NLS-2$
 		IFolder link = file.getParent().getFolder(IPath.fromOSString(file.getName()));
 		subMonitor.split(1);
+		int flags = backgroundRefresh ? IResource.REPLACE | IResource.BACKGROUND_REFRESH : IResource.REPLACE;
+
 		try {
-			link.createLink(zipURI, IResource.REPLACE, subMonitor.split(19));
+			link.createLink(zipURI, flags, subMonitor.split(19));
 		} catch (CoreException e) {
 			throw new CoreException(
 					new Status(IStatus.ERROR, ResourcesPlugin.PI_RESOURCES, "Zip File could not be expanded")); //$NON-NLS-1$
 		}
 
 		// Roleback if Folder "link" is empty
-		if (link.exists() && link.members().length == 0) {
-			closeZipFile(link);
-			throw new CoreException(new Status(IStatus.ERROR, ResourcesPlugin.PI_RESOURCES,
-					"Zip File has no children")); //$NON-NLS-1$
-		}
+//		if (link.exists() && link.members().length == 0) {
+//			closeZipFile(link);
+//			throw new CoreException(new Status(IStatus.ERROR, ResourcesPlugin.PI_RESOURCES,
+//					"Zip File has no children")); //$NON-NLS-1$
+//		}
 	}
 }
