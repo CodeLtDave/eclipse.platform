@@ -113,7 +113,11 @@ final class ZipFileSystemTestUtil {
 	}
 
 	static void openZipFile(IFile file) throws URISyntaxException, CoreException, IOException {
-		ZipFileTransformer.openZipFile(file, new NullProgressMonitor());
+		ZipFileTransformer.openZipFile(file, new NullProgressMonitor(), false);
+	}
+
+	static void openZipFileBackground(IFile file) throws URISyntaxException, CoreException, IOException {
+		ZipFileTransformer.openZipFile(file, new NullProgressMonitor(), true);
 	}
 
 	static void closeZipFile(IFolder folder) throws Exception {
