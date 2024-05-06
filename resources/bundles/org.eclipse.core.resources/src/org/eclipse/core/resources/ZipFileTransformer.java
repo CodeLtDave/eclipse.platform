@@ -78,13 +78,18 @@ public class ZipFileTransformer {
 		URI zipURI = new URI("zip", null, "/", file.getLocationURI().toString(), null); //$NON-NLS-1$ //$NON-NLS-2$
 		IFolder link = file.getParent().getFolder(IPath.fromOSString(file.getName()));
 		subMonitor.split(1);
-		link.createLink(zipURI, IResource.REPLACE, subMonitor.split(19));
+		try {
+			link.createLink(zipURI, IResource.REPLACE, subMonitor.split(19));
+		} catch (CoreException e) {
+			throw new CoreException(
+					new Status(IStatus.ERROR, ResourcesPlugin.PI_RESOURCES, "Zip File could not be expanded")); //$NON-NLS-1$
+		}
 
 		// Roleback if Folder "link" is empty
 		if (link.exists() && link.members().length == 0) {
 			closeZipFile(link);
 			throw new CoreException(new Status(IStatus.ERROR, ResourcesPlugin.PI_RESOURCES,
-					"Zip File could not be expanded or has no children")); //$NON-NLS-1$
+					"Zip File has no children")); //$NON-NLS-1$
 		}
 	}
 }
