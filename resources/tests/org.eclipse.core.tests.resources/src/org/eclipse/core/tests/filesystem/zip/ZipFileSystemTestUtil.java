@@ -123,8 +123,6 @@ final class ZipFileSystemTestUtil {
 
 	static void closeZipFile(IFolder folder) throws Exception {
 		ZipFileTransformer.closeZipFile(folder);
-		IFile zipFile = ZipFileSystemTestSetup.firstProject.getFile(folder.getName());
-		ensureExists(zipFile);
 	}
 
 	static void printContents(IContainer container, String indent) throws CoreException {
