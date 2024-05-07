@@ -31,9 +31,6 @@ import org.junit.runners.Parameterized;
 @RunWith(Parameterized.class)
 public class CloseTest {
 
-	private static final String NESTED_ZIP_FILE_PARENT_NAME = "NestedZipFileParent.zip";
-	private static final String NESTED_ZIP_FILE_CHILD_NAME = "NestedZipFileChild.zip";
-
 	@Parameterized.Parameters
 	public static Collection<String[]> zipFileNames() {
 		return Arrays.asList(new String[][] { { ZipFileSystemTestSetup.ZIP_FILE_VIRTUAL_FOLDER_NAME },
@@ -72,18 +69,11 @@ public class CloseTest {
 
 	@Test
 	public void testCloseNestedZipFileParentWhenChildIsOpened() throws Exception {
-		ZipFileSystemTestSetup.copyZipFileIntoJavaProject(ZipFileSystemTestSetup.firstProject,
-				NESTED_ZIP_FILE_PARENT_NAME);
-		IFile nestedZipFileParent = ZipFileSystemTestSetup.firstProject.getFile(NESTED_ZIP_FILE_PARENT_NAME);
-		ensureExists(nestedZipFileParent);
-		ZipFileSystemTestUtil.openZipFile(nestedZipFileParent);
-		IFolder openedNestedZipFileParent = ZipFileSystemTestSetup.firstProject.getFolder(NESTED_ZIP_FILE_PARENT_NAME);
-		ensureExists(openedNestedZipFileParent);
-		IFile nestedZipFileChild = openedNestedZipFileParent.getFile(NESTED_ZIP_FILE_CHILD_NAME);
-		ensureExists(nestedZipFileChild);
-		ZipFileSystemTestUtil.openZipFile(nestedZipFileChild);
-		IFolder openedNestedZipFileChild = openedNestedZipFileParent.getFolder(NESTED_ZIP_FILE_CHILD_NAME);
-		ensureExists(openedNestedZipFileChild);
+		ZipFileSystemTestSetup.copyAndOpenNestedZipFileIntoJavaProject();
+		IFile nestedZipFileParent = ZipFileSystemTestSetup.firstProject
+				.getFile(ZipFileSystemTestSetup.NESTED_ZIP_FILE_PARENT_NAME);
+		IFolder openedNestedZipFileParent = ZipFileSystemTestSetup.firstProject
+				.getFolder(ZipFileSystemTestSetup.NESTED_ZIP_FILE_PARENT_NAME);
 		ZipFileSystemTestUtil.closeZipFile(openedNestedZipFileParent);
 		assertTrue("folder was not properly deleted: " + openedNestedZipFileParent,
 				!openedNestedZipFileParent.exists());
@@ -92,18 +82,12 @@ public class CloseTest {
 
 	@Test
 	public void testCloseNestedZipFileChild() throws Exception {
-		ZipFileSystemTestSetup.copyZipFileIntoJavaProject(ZipFileSystemTestSetup.firstProject,
-				NESTED_ZIP_FILE_PARENT_NAME);
-		IFile nestedZipFileParent = ZipFileSystemTestSetup.firstProject.getFile(NESTED_ZIP_FILE_PARENT_NAME);
-		ensureExists(nestedZipFileParent);
-		ZipFileSystemTestUtil.openZipFile(nestedZipFileParent);
-		IFolder openedNestedZipFileParent = ZipFileSystemTestSetup.firstProject.getFolder(NESTED_ZIP_FILE_PARENT_NAME);
-		ensureExists(openedNestedZipFileParent);
-		IFile nestedZipFileChild = openedNestedZipFileParent.getFile(NESTED_ZIP_FILE_CHILD_NAME);
-		ensureExists(nestedZipFileChild);
-		ZipFileSystemTestUtil.openZipFile(nestedZipFileChild);
-		IFolder openedNestedZipFileChild = openedNestedZipFileParent.getFolder(NESTED_ZIP_FILE_CHILD_NAME);
-		ensureExists(openedNestedZipFileChild);
+		ZipFileSystemTestSetup.copyAndOpenNestedZipFileIntoJavaProject();
+		IFolder openedNestedZipFileParent = ZipFileSystemTestSetup.firstProject
+				.getFolder(ZipFileSystemTestSetup.NESTED_ZIP_FILE_PARENT_NAME);
+		IFile nestedZipFileChild = openedNestedZipFileParent.getFile(ZipFileSystemTestSetup.NESTED_ZIP_FILE_CHILD_NAME);
+		IFolder openedNestedZipFileChild = openedNestedZipFileParent
+				.getFolder(ZipFileSystemTestSetup.NESTED_ZIP_FILE_CHILD_NAME);
 		ZipFileSystemTestUtil.closeZipFile(openedNestedZipFileChild);
 		assertTrue("folder was not properly deleted: " + openedNestedZipFileChild, !openedNestedZipFileChild.exists());
 		ensureExists(nestedZipFileChild);
