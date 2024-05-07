@@ -1,3 +1,4 @@
+@-1,155+1,91 @@
 package org.eclipse.core.tests.filesystem.zip;
 
 import static org.mockito.Mockito.mock;
@@ -153,9 +154,7 @@ public class ZipFileSystemTest {
 	}
 
 	@Test
-	public void testZipFileInProject() throws Exception {
-		// Check if the "virtual folder" (ZIP file) exists in the project
-		IFolder virtualFolder = project.getFolder(ZIP_FILE_VIRTUAL_FOLDER_NAME);
+@ -159,76 +95,28 @@ public class ZipFileSystemTest {
 		Assert.assertTrue("Virtual folder should exist in the project", virtualFolder.exists());
 	}
 
