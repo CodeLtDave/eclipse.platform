@@ -12,6 +12,8 @@
 
 package org.eclipse.core.tests.filesystem.zip;
 
+import static org.eclipse.core.tests.filesystem.zip.ZipFileSystemTestUtil.ensureExists;
+
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -19,6 +21,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
@@ -56,6 +59,9 @@ public class ZipFileSystemTestSetup {
 	static final String BIG_PERFORMANCE_ZIP_FILE_NAME = "BigPerformance.zip";
 	static final String LARGE_PERFORMANCE_ZIP_FILE_NAME = "LargePerformance.zip";
 	static final String HUGE_PERFORMANCE_ZIP_FILE_NAME = "HugePerformance.zip";
+	static final String EMPTY_ZIP_FILE_NAME = "Empty.zip";
+	static final String NESTED_ZIP_FILE_PARENT_NAME = "NestedZipFileParent.zip";
+	static final String NESTED_ZIP_FILE_CHILD_NAME = "NestedZipFileChild.zip";
 	static final String TEXT_FILE_NAME = "Text.txt";
 	static final String DEEP_NESTED_ZIP_FILE_NAME = "DeepNested.zip";
 	static IProject firstProject;
@@ -197,5 +203,20 @@ public class ZipFileSystemTestSetup {
 
 		// Refresh the project to make Eclipse aware of the new file
 		project.refreshLocal(IResource.DEPTH_INFINITE, null);
+	}
+
+	static void copyAndOpenNestedZipFileIntoJavaProject() throws IOException, CoreException, URISyntaxException {
+		copyZipFileIntoJavaProject(firstProject, NESTED_ZIP_FILE_PARENT_NAME);
+		IFile nestedZipFileParent = firstProject.getFile(NESTED_ZIP_FILE_PARENT_NAME);
+		ensureExists(nestedZipFileParent);
+		ZipFileSystemTestUtil.openZipFile(nestedZipFileParent);
+		IFolder openedNestedZipFileParent = firstProject.getFolder(NESTED_ZIP_FILE_PARENT_NAME);
+		ensureExists(openedNestedZipFileParent);
+		IFile nestedZipFileChild = openedNestedZipFileParent.getFile(NESTED_ZIP_FILE_CHILD_NAME);
+		ensureExists(nestedZipFileChild);
+		ZipFileSystemTestUtil.openZipFile(nestedZipFileChild);
+		IFolder openedNestedZipFileChild = openedNestedZipFileParent
+				.getFolder(NESTED_ZIP_FILE_CHILD_NAME);
+		ensureExists(openedNestedZipFileChild);
 	}
 }

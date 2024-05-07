@@ -35,9 +35,6 @@ import org.junit.runners.Parameterized;
 @RunWith(Parameterized.class)
 public class DeleteTest {
 
-	private static final String NESTED_ZIP_FILE_PARENT_NAME = "NestedZipFileParent.zip";
-	private static final String NESTED_ZIP_FILE_CHILD_NAME = "NestedZipFileChild.zip";
-
 	@Parameterized.Parameters
 	public static Collection<String[]> zipFileNames() {
 		return Arrays.asList(new String[][] { { ZipFileSystemTestSetup.ZIP_FILE_VIRTUAL_FOLDER_NAME },
@@ -83,13 +80,11 @@ public class DeleteTest {
 
 	@Test
 	public void testDeleteNestedZipFileParent() throws CoreException, IOException, URISyntaxException {
-		ZipFileSystemTestSetup.copyZipFileIntoJavaProject(ZipFileSystemTestSetup.firstProject,
-				NESTED_ZIP_FILE_PARENT_NAME);
-		IFile nestedZipFileParent = ZipFileSystemTestSetup.firstProject.getFile(NESTED_ZIP_FILE_PARENT_NAME);
-		ensureExists(nestedZipFileParent);
-		ZipFileSystemTestUtil.openZipFile(nestedZipFileParent);
-		IFolder openedNestedZipFileParent = ZipFileSystemTestSetup.firstProject.getFolder(NESTED_ZIP_FILE_PARENT_NAME);
-		ensureExists(openedNestedZipFileParent);
+		ZipFileSystemTestSetup.copyAndOpenNestedZipFileIntoJavaProject();
+		IFile nestedZipFileParent = ZipFileSystemTestSetup.firstProject
+				.getFile(ZipFileSystemTestSetup.NESTED_ZIP_FILE_PARENT_NAME);
+		IFolder openedNestedZipFileParent = ZipFileSystemTestSetup.firstProject
+				.getFolder(ZipFileSystemTestSetup.NESTED_ZIP_FILE_PARENT_NAME);
 		openedNestedZipFileParent.delete(true, getMonitor());
 		ensureDoesNotExist(openedNestedZipFileParent);
 		ensureDoesNotExist(nestedZipFileParent);
@@ -97,18 +92,12 @@ public class DeleteTest {
 
 	@Test
 	public void testDeleteNestedZipFileChild() throws CoreException, IOException, URISyntaxException {
-		ZipFileSystemTestSetup.copyZipFileIntoJavaProject(ZipFileSystemTestSetup.firstProject,
-				NESTED_ZIP_FILE_PARENT_NAME);
-		IFile nestedZipFileParent = ZipFileSystemTestSetup.firstProject.getFile(NESTED_ZIP_FILE_PARENT_NAME);
-		ensureExists(nestedZipFileParent);
-		ZipFileSystemTestUtil.openZipFile(nestedZipFileParent);
-		IFolder openedNestedZipFileParent = ZipFileSystemTestSetup.firstProject.getFolder(NESTED_ZIP_FILE_PARENT_NAME);
-		ensureExists(openedNestedZipFileParent);
-		IFile nestedZipFileChild = openedNestedZipFileParent.getFile(NESTED_ZIP_FILE_CHILD_NAME);
-		ensureExists(nestedZipFileChild);
-		ZipFileSystemTestUtil.openZipFile(nestedZipFileChild);
-		IFolder openedNestedZipFileChild = openedNestedZipFileParent.getFolder(NESTED_ZIP_FILE_CHILD_NAME);
-		ensureExists(openedNestedZipFileChild);
+		ZipFileSystemTestSetup.copyAndOpenNestedZipFileIntoJavaProject();
+		IFolder openedNestedZipFileParent = ZipFileSystemTestSetup.firstProject
+				.getFolder(ZipFileSystemTestSetup.NESTED_ZIP_FILE_PARENT_NAME);
+		IFile nestedZipFileChild = openedNestedZipFileParent.getFile(ZipFileSystemTestSetup.NESTED_ZIP_FILE_CHILD_NAME);
+		IFolder openedNestedZipFileChild = openedNestedZipFileParent
+				.getFolder(ZipFileSystemTestSetup.NESTED_ZIP_FILE_CHILD_NAME);
 		openedNestedZipFileChild.delete(true, getMonitor());
 		ensureDoesNotExist(openedNestedZipFileChild);
 		ensureDoesNotExist(nestedZipFileChild);
