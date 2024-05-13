@@ -19,6 +19,7 @@ package org.eclipse.ui.examples.filesystem;
 import java.net.URI;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
+import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -33,7 +34,7 @@ public class ExcludeResourceHandler extends AbstractHandler {
 
 	private void exclude(IResource resource, Shell shell) {
 		try {
-			URI nullURI = new URI(EFS.SCHEME_NULL, null, "/", null, null); //$NON-NLS-1$
+			URI nullURI = new URI(EFS.SCHEME_NULL, null, "/", null, null);
 			if (resource.getType() == IResource.FILE) {
 				IFile link = (IFile) resource;
 				link.createLink(nullURI, IResource.REPLACE | IResource.ALLOW_MISSING_LOCAL, null);
@@ -42,13 +43,13 @@ public class ExcludeResourceHandler extends AbstractHandler {
 				link.createLink(nullURI, IResource.REPLACE | IResource.ALLOW_MISSING_LOCAL, null);
 			}
 		} catch (Exception e) {
-			MessageDialog.openError(shell, "Error", "Error excluding resource"); //$NON-NLS-1$ //$NON-NLS-2$
+			MessageDialog.openError(shell, "Error", "Error excluding resource");
 			e.printStackTrace();
 		}
 	}
 
 	@Override
-	public Object execute(ExecutionEvent event) {
+	public Object execute(ExecutionEvent event) throws ExecutionException {
 		Shell shell = HandlerUtil.getActiveShell(event);
 		ISelection selection = HandlerUtil.getCurrentSelection(event);
 

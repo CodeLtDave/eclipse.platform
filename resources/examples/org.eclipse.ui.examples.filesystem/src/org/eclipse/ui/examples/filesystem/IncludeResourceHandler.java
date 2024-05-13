@@ -18,6 +18,7 @@ package org.eclipse.ui.examples.filesystem;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
+import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
@@ -32,13 +33,13 @@ public class IncludeResourceHandler extends AbstractHandler {
 			resource.delete(IResource.NONE, null);
 			resource.getParent().refreshLocal(IResource.DEPTH_INFINITE, null);
 		} catch (Exception e) {
-			MessageDialog.openError(shell, "Error", "Error including resource"); //$NON-NLS-1$ //$NON-NLS-2$
+			MessageDialog.openError(shell, "Error", "Error including resource");
 			e.printStackTrace();
 		}
 	}
 
 	@Override
-	public Object execute(ExecutionEvent event) {
+	public Object execute(ExecutionEvent event) throws ExecutionException {
 		Shell shell = HandlerUtil.getActiveShell(event);
 		ISelection selection = HandlerUtil.getCurrentSelection(event);
 

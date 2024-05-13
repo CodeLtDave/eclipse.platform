@@ -316,7 +316,7 @@ public class ModelDelta implements IModelDelta {
 				buf.append("CONTENT | "); //$NON-NLS-1$
 			}
 			if ((flags & IModelDelta.COLLAPSE) > 0) {
-				buf.append("CLOSE_ZIP_FILE | "); //$NON-NLS-1$
+				buf.append("COLLAPSE | "); //$NON-NLS-1$
 			}
 			if ((flags & IModelDelta.EXPAND) > 0) {
 				buf.append("EXPAND | "); //$NON-NLS-1$

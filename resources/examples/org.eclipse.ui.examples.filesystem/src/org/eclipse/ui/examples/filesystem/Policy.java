@@ -21,7 +21,7 @@ import org.osgi.framework.Bundle;
 
 public class Policy {
 	private static Bundle bundle;
-	public static final String PI_FILESYSTEM_EXAMPLE = "org.eclipse.ui.internal.ide.commands"; //$NON-NLS-1$
+	public static final String PI_FILESYSTEM_EXAMPLE = "org.eclipse.ui.examples.filesystem"; //$NON-NLS-1$
 
 	private static Bundle getBundle() {
 		if (bundle == null)
