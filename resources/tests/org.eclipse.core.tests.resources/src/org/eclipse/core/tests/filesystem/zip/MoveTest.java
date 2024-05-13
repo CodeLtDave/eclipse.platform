@@ -129,9 +129,50 @@ public class MoveTest {
 	}
 
 	@Test
+	public void testMoveFolderIntoZipFile() throws Exception {
+		IFolder openedZipFile = ZipFileSystemTestSetup.firstProject.getFolder(zipFileName);
+		IFolder destinationFolder = openedZipFile.getFolder("destinationFolder");
+		ensureDoesNotExist(destinationFolder);
+		destinationFolder.create(false, true, getMonitor());
+		ensureExists(destinationFolder);
+		IFolder newFolder = ZipFileSystemTestSetup.firstProject.getFolder("NewFolder");
+		ensureDoesNotExist(newFolder);
+		newFolder.create(false, true, getMonitor());
+		ensureExists(newFolder);
+		IFolder newFolderDestination = destinationFolder.getFolder("NewFolder");
+		newFolder.move(newFolderDestination.getFullPath(), false, getMonitor());
+		ensureDoesNotExist(newFolder);
+		ensureExists(newFolderDestination);
+	}
+
+	@Test
+	public void testMoveFolderWithContentIntoZipFile() throws Exception {
+		IFolder openedZipFile = ZipFileSystemTestSetup.firstProject.getFolder(zipFileName);
+		IFolder destinationFolder = openedZipFile.getFolder("destinationFolder");
+		ensureDoesNotExist(destinationFolder);
+		destinationFolder.create(false, true, getMonitor());
+		ensureExists(destinationFolder);
+		IFolder newFolder = ZipFileSystemTestSetup.firstProject.getFolder("NewFolder");
+		ensureDoesNotExist(newFolder);
+		newFolder.create(false, true, getMonitor());
+		ensureExists(newFolder);
+		IFile textFile = newFolder.getFile("NewFile.txt");
+		ensureDoesNotExist(textFile);
+		String text = "Foo";
+		InputStream stream = new ByteArrayInputStream(text.getBytes());
+		textFile.create(stream, false, getMonitor());
+		stream.close();
+		ensureExists(textFile);
+		IFolder newFolderDestination = destinationFolder.getFolder("NewFolder");
+		newFolder.move(newFolderDestination.getFullPath(), false, getMonitor());
+		ensureDoesNotExist(newFolder);
+		ensureExists(newFolderDestination);
+	}
+
+	@Test
 	public void testMoveFileFromZipFile() throws Exception {
-		IFile textFile = ZipFileSystemTestSetup.firstProject.getFile(
-				zipFileName + "/" + ZipFileSystemTestSetup.TEXT_FILE_NAME);
+		IFile textFile = ZipFileSystemTestSetup.firstProject
+				.getFile(zipFileName + "/" + ZipFileSystemTestSetup.TEXT_FILE_NAME);
 		ensureExists(textFile);
 		IFile destinationFile = ZipFileSystemTestSetup.firstProject.getFile(ZipFileSystemTestSetup.TEXT_FILE_NAME);
 		textFile.move(destinationFile.getFullPath(), false, getMonitor());
@@ -143,6 +184,40 @@ public class MoveTest {
 		// Verify that the file does not exist at the old location
 		ensureDoesNotExist(textFile);
 	}
+
+	@Test
+	public void testMoveFolderFromZipFile() throws Exception {
+		IFolder openedZipFile = ZipFileSystemTestSetup.firstProject.getFolder(zipFileName);
+		IFolder newFolder = openedZipFile.getFolder("NewFolder");
+		ensureDoesNotExist(newFolder);
+		newFolder.create(false, true, getMonitor());
+		ensureExists(newFolder);
+		IFolder folderDestination = ZipFileSystemTestSetup.firstProject.getFolder("NewFolder");
+		newFolder.move(folderDestination.getFullPath(), false, getMonitor());
+		ensureDoesNotExist(newFolder);
+		ensureExists(folderDestination);
+	}
+
+	@Test
+	public void testMoveFolderWithContentFromZipFile() throws Exception {
+		IFolder openedZipFile = ZipFileSystemTestSetup.firstProject.getFolder(zipFileName);
+		IFolder newFolder = openedZipFile.getFolder("NewFolder");
+		ensureDoesNotExist(newFolder);
+		newFolder.create(false, true, getMonitor());
+		ensureExists(newFolder);
+		IFile textFile = newFolder.getFile("NewFile.txt");
+		ensureDoesNotExist(textFile);
+		String text = "Foo";
+		InputStream stream = new ByteArrayInputStream(text.getBytes());
+		textFile.create(stream, false, getMonitor());
+		stream.close();
+		ensureExists(textFile);
+		IFolder folderDestination = ZipFileSystemTestSetup.firstProject.getFolder("NewFolder");
+		newFolder.move(folderDestination.getFullPath(), false, getMonitor());
+		ensureDoesNotExist(newFolder);
+		ensureExists(folderDestination);
+	}
+
 
 	@Test
 	public void testMoveFileInsideOfZipFile() throws Exception {
@@ -159,6 +234,8 @@ public class MoveTest {
 		ensureExists(fileDestination);
 		ensureDoesNotExist(textFile);
 	}
+
+
 
 	@Test
 	public void testMoveZipFileIntoZipFile() throws Exception {
