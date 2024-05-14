@@ -50,7 +50,7 @@ public class IllegalCompressionMethodTest {
 			ZipFileSystemTestUtil.openZipFile(zipFile);
 		} catch (CoreException e) {
 			ensureExists(zipFile);
-			assertEquals("Zip File could not be expanded", e.getMessage());
+			assertEquals("Zip File could not be opened", e.getMessage());
 		}
 	}
 }

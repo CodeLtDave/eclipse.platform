@@ -53,8 +53,8 @@ public class ZipFileTransformer {
 			folder.getProject().refreshLocal(IResource.DEPTH_INFINITE, null);
 		} else {
 			throw new CoreException(new Status(IStatus.ERROR, ResourcesPlugin.PI_RESOURCES,
-					"Collapsing of folder " + folder.getName() //$NON-NLS-1$
-							+ " failed because the corresponding zip file is not local.")); //$NON-NLS-1$
+					"Closing of Zip File " + folder.getName() //$NON-NLS-1$
+							+ " failed because the Zip File is not local.")); //$NON-NLS-1$
 		}
 	}
 
@@ -86,7 +86,7 @@ public class ZipFileTransformer {
 
 		if (file.isLinked()) {
 			throw new CoreException(new Status(IStatus.ERROR, ResourcesPlugin.PI_RESOURCES,
-					"The file " + file.getName() + " is a linked resource and thus can not be expanded")); //$NON-NLS-1$ //$NON-NLS-2$
+					"The file " + file.getName() + " is a linked resource and thus can not be opened")); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		URI zipURI = new URI("zip", null, "/", file.getLocationURI().toString(), null); //$NON-NLS-1$ //$NON-NLS-2$
 		IFolder link = file.getParent().getFolder(IPath.fromOSString(file.getName()));
@@ -97,14 +97,7 @@ public class ZipFileTransformer {
 			link.createLink(zipURI, flags, subMonitor.split(19));
 		} catch (CoreException e) {
 			throw new CoreException(
-					new Status(IStatus.ERROR, ResourcesPlugin.PI_RESOURCES, "Zip File could not be expanded")); //$NON-NLS-1$
+					new Status(IStatus.ERROR, ResourcesPlugin.PI_RESOURCES, "Zip File could not be opened")); //$NON-NLS-1$
 		}
-
-		// Roleback if Folder "link" is empty
-//		if (link.exists() && link.members().length == 0) {
-//			closeZipFile(link);
-//			throw new CoreException(new Status(IStatus.ERROR, ResourcesPlugin.PI_RESOURCES,
-//					"Zip File has no children")); //$NON-NLS-1$
-//		}
 	}
 }
