@@ -215,7 +215,7 @@ public interface ITreeModelContentProvider extends ILazyTreePathContentProvider 
 
 	/**
 	 * Instructs the content provider to cancel any pending state changes
-	 * (i.e. SELECT, REVEAL, EXPAND, CLOSE_ZIP_FILE) for the given path.  Pending
+	 * (i.e. SELECT, REVEAL, EXPAND, COLLAPSE) for the given path.  Pending
 	 * state changes are changes the the viewer plans to re-apply to the
 	 * viewer following a refresh.  If the user changes viewer state while
 	 * the viewer is being refreshed, user's change should override the
