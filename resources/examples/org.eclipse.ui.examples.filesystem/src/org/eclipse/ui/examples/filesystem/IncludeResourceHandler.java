@@ -16,9 +16,7 @@
  *******************************************************************************/
 package org.eclipse.ui.examples.filesystem;
 
-import org.eclipse.core.commands.AbstractHandler;
-import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.core.commands.*;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
@@ -42,23 +40,23 @@ public class IncludeResourceHandler extends AbstractHandler {
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		Shell shell = HandlerUtil.getActiveShell(event);
 		ISelection selection = HandlerUtil.getCurrentSelection(event);
-
+		
 		if (!(selection instanceof IStructuredSelection)) {
 			return null;
 		}
-
+		
 		Object element = ((IStructuredSelection) selection).getFirstElement();
 
 		if (!(element instanceof IResource)) {
 			return null;
 		}
-
+		
 		IResource resource = (IResource) element;
 
 		if (!resource.isLinked()) {
 			return null;
 		}
-
+		
 		include(resource, shell);
 		return null;
 	}

@@ -16,9 +16,7 @@
  *******************************************************************************/
 package org.eclipse.ui.examples.filesystem;
 
-import org.eclipse.core.commands.AbstractHandler;
-import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.core.commands.*;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -35,17 +33,17 @@ public class CreatedNestedProjectsHandler extends AbstractHandler {
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		Shell shell = HandlerUtil.getActiveShell(event);
 		ISelection selection = HandlerUtil.getCurrentSelection(event);
-
+		
 		if (!(selection instanceof IStructuredSelection)) {
 			return null;
 		}
-
+		
 		Object element = ((IStructuredSelection) selection).getFirstElement();
 
 		if (!(element instanceof IProject)) {
 			return null;
 		}
-
+		
 		new NestedProjectCreator().createNestedProjects(new IProject[] {((IProject) element)}, shell);
 		return null;
 	}

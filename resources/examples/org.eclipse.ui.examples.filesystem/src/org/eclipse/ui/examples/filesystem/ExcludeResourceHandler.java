@@ -17,13 +17,9 @@
 package org.eclipse.ui.examples.filesystem;
 
 import java.net.URI;
-import org.eclipse.core.commands.AbstractHandler;
-import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.core.commands.*;
 import org.eclipse.core.filesystem.EFS;
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.*;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -52,22 +48,22 @@ public class ExcludeResourceHandler extends AbstractHandler {
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		Shell shell = HandlerUtil.getActiveShell(event);
 		ISelection selection = HandlerUtil.getCurrentSelection(event);
-
+		
 		if (!(selection instanceof IStructuredSelection)) {
 			return null;
 		}
-
+		
 		Object element = ((IStructuredSelection) selection).getFirstElement();
-
+		
 		if (!(element instanceof IResource)) {
 			return null;
 		}
-
+		
 		IResource resource = (IResource) element;
 		if (resource.isLinked()) {
 			return null;
 		}
-
+		
 		exclude(resource, shell);
 		return null;
 	}
