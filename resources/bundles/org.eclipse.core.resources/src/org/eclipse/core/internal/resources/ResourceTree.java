@@ -366,14 +366,15 @@ class ResourceTree implements IResourceTree {
 		// Do nothing if the folder doesn't exist in the workspace.
 		if (!folder.exists())
 			return true;
-		boolean shouldCollapse = (flags & (IResource.CLOSE_ZIP_FILE)) != 0;
 
-		// Folder is expanded archive
 		IFileStore fileStore = localManager.getStore(folder);
 		if (ZipFileUtil.isInsideOpenZipFile(fileStore)) {
 			try {
+				// folder is opened zip file
 				deletedFolder(folder);
-				if (shouldCollapse) {
+				// if the IResource.CLOSE_ZIP_FILE flag is set, the file should not be deleted
+				// in the file system.
+				if ((flags & (IResource.CLOSE_ZIP_FILE)) != 0) {
 					return true;
 				}
 				IFile file = folder.getParent().getFile(IPath.fromOSString(folder.getName()));
