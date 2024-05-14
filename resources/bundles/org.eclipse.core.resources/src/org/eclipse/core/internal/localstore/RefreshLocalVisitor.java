@@ -248,6 +248,9 @@ public class RefreshLocalVisitor implements IUnifiedTreeVisitor, ILocalStoreCons
 				return false;
 			}
 		} else {
+			// if the target is an open zip file (linked folder), gender should not be
+			// synchronized because the folder state is needed to access the zip file
+			// content.
 			if (!node.isFolder() && !ZipFileUtil.isInsideOpenZipFile(target.getStore())) {
 				folderToFile(node, target);
 				resourceChanged = true;
@@ -295,6 +298,10 @@ public class RefreshLocalVisitor implements IUnifiedTreeVisitor, ILocalStoreCons
 						return true;
 				}
 			} else {
+				// if opened zip files contain directories with content, the local name of the
+				// node contains "/" characters which are needed to properly present the
+				// contents in the workspace. So this check should not be done when handling zip
+				// files.
 				if (node.existsInFileSystem() && !IPath.EMPTY.isValidSegment(node.getLocalName())
 						&& !ZipFileUtil.isInsideOpenZipFile(target.getStore())) {
 					String message = NLS.bind(Messages.resources_invalidResourceName, node.getLocalName());
