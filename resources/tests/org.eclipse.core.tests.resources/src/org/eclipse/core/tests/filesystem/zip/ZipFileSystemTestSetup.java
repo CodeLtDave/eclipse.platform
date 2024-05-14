@@ -42,9 +42,6 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.launching.JavaRuntime;
 
-/**
- *
- */
 public class ZipFileSystemTestSetup {
 
 	private ZipFileSystemTestSetup() {

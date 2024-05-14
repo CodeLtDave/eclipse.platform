@@ -12,14 +12,14 @@
 
 package org.eclipse.core.tests.filesystem.zip;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+import org.junit.platform.suite.api.SelectClasses;
+import org.junit.platform.suite.api.Suite;
 
 /**
  * Class for collecting all test classes that deal with the file system API.
  */
-@RunWith(Suite.class)
-@Suite.SuiteClasses({ CloseTest.class, CopyTest.class, CreateTest.class, DeleteTest.class, MoveTest.class,
+@Suite
+@SelectClasses({ CloseTest.class, CopyTest.class, CreateTest.class, DeleteTest.class, MoveTest.class,
 		RenameTest.class, SetupTest.class, IllegalCompressionMethodTest.class, OpenTest.class })
 public class AllZipFileSystemTests {
 }

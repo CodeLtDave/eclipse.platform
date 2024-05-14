@@ -18,47 +18,29 @@ import static org.eclipse.core.tests.filesystem.zip.ZipFileSystemTestUtil.getMon
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.Arrays;
-import java.util.Collection;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.runtime.CoreException;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
-/**
- *
- */
-@RunWith(Parameterized.class)
 public class DeleteTest {
 
-	@Parameterized.Parameters
-	public static Collection<String[]> zipFileNames() {
-		return Arrays.asList(new String[][] { { ZipFileSystemTestSetup.ZIP_FILE_VIRTUAL_FOLDER_NAME },
-				{ ZipFileSystemTestSetup.JAR_FILE_VIRTUAL_FOLDER_NAME } });
-	}
-
-	private String zipFileName;
-
-	public DeleteTest(String zipFileName) {
-		this.zipFileName = zipFileName;
-	}
-
-	@Before
+	@BeforeEach
 	public void setup() throws Exception {
 		ZipFileSystemTestSetup.defaultSetup();
 	}
 
-	@After
+	@AfterEach
 	public void teardown() throws Exception {
 		ZipFileSystemTestSetup.teardown();
 	}
 
-	@Test
-	public void testDeleteZipFile() throws CoreException, IOException {
+	@ParameterizedTest
+	@MethodSource("org.eclipse.core.tests.filesystem.zip.ZipFileSystemTestUtil#zipFileNames")
+	public void testDeleteZipFile(String zipFileName) throws CoreException, IOException {
 		IFolder openedZipFile = ZipFileSystemTestSetup.firstProject
 				.getFolder(zipFileName);
 		ensureExists(openedZipFile);
@@ -68,8 +50,9 @@ public class DeleteTest {
 		ensureDoesNotExist(zipFile);
 	}
 
-	@Test
-	public void testDeleteFileInsideOfZipFile() throws CoreException, IOException {
+	@ParameterizedTest
+	@MethodSource("org.eclipse.core.tests.filesystem.zip.ZipFileSystemTestUtil#zipFileNames")
+	public void testDeleteFileInsideOfZipFile(String zipFileName) throws CoreException, IOException {
 		IFolder openedZipFile = ZipFileSystemTestSetup.firstProject
 				.getFolder(zipFileName);
 		IFile textFile = openedZipFile.getFile(ZipFileSystemTestSetup.TEXT_FILE_NAME);
@@ -78,8 +61,10 @@ public class DeleteTest {
 		ensureDoesNotExist(textFile);
 	}
 
-	@Test
-	public void testDeleteNestedZipFileParent() throws CoreException, IOException, URISyntaxException {
+	@ParameterizedTest
+	@MethodSource("org.eclipse.core.tests.filesystem.zip.ZipFileSystemTestUtil#zipFileNames")
+	public void testDeleteNestedZipFileParent(String zipFileName)
+			throws CoreException, IOException, URISyntaxException {
 		ZipFileSystemTestSetup.copyAndOpenNestedZipFileIntoJavaProject();
 		IFile nestedZipFileParent = ZipFileSystemTestSetup.firstProject
 				.getFile(ZipFileSystemTestSetup.NESTED_ZIP_FILE_PARENT_NAME);
@@ -90,8 +75,9 @@ public class DeleteTest {
 		ensureDoesNotExist(nestedZipFileParent);
 	}
 
-	@Test
-	public void testDeleteNestedZipFileChild() throws CoreException, IOException, URISyntaxException {
+	@ParameterizedTest
+	@MethodSource("org.eclipse.core.tests.filesystem.zip.ZipFileSystemTestUtil#zipFileNames")
+	public void testDeleteNestedZipFileChild(String zipFileName) throws CoreException, IOException, URISyntaxException {
 		ZipFileSystemTestSetup.copyAndOpenNestedZipFileIntoJavaProject();
 		IFolder openedNestedZipFileParent = ZipFileSystemTestSetup.firstProject
 				.getFolder(ZipFileSystemTestSetup.NESTED_ZIP_FILE_PARENT_NAME);

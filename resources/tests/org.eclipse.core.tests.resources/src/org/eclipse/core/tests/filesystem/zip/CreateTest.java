@@ -19,46 +19,28 @@ import static org.eclipse.core.tests.filesystem.zip.ZipFileSystemTestUtil.getMon
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.util.Arrays;
-import java.util.Collection;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
-/**
- *
- */
-@RunWith(Parameterized.class)
 public class CreateTest {
 
-	@Parameterized.Parameters
-	public static Collection<String[]> zipFileNames() {
-		return Arrays.asList(new String[][] { { ZipFileSystemTestSetup.ZIP_FILE_VIRTUAL_FOLDER_NAME },
-				{ ZipFileSystemTestSetup.JAR_FILE_VIRTUAL_FOLDER_NAME } });
-	}
-
-	private String zipFileName;
-
-	public CreateTest(String zipFileName) {
-		this.zipFileName = zipFileName;
-	}
-
-	@Before
+	@BeforeEach
 	public void setup() throws Exception {
 		ZipFileSystemTestSetup.defaultSetup();
 	}
 
-	@After
+	@AfterEach
 	public void teardown() throws Exception {
 		ZipFileSystemTestSetup.teardown();
 	}
 
-	@Test
-	public void testCreateFileInsideOfZipFile() throws Exception {
+	@ParameterizedTest
+	@MethodSource("org.eclipse.core.tests.filesystem.zip.ZipFileSystemTestUtil#zipFileNames")
+	public void testCreateFileInsideOfZipFile(String zipFileName) throws Exception {
 		IFolder openedZipFile = ZipFileSystemTestSetup.firstProject.getFolder(zipFileName);
 		IFile textFile = openedZipFile.getFile("NewFile.txt");
 		ensureDoesNotExist(textFile);
@@ -70,8 +52,9 @@ public class CreateTest {
 		assertTextFileContent(textFile, "Foo");
 	}
 
-	@Test
-	public void testCreateFolderInsideOfZipFile() throws Exception {
+	@ParameterizedTest
+	@MethodSource("org.eclipse.core.tests.filesystem.zip.ZipFileSystemTestUtil#zipFileNames")
+	public void testCreateFolderInsideOfZipFile(String zipFileName) throws Exception {
 		IFolder openedZipFile = ZipFileSystemTestSetup.firstProject.getFolder(zipFileName);
 		IFolder newFolder = openedZipFile.getFolder("NewFolder");
 		ensureDoesNotExist(newFolder);

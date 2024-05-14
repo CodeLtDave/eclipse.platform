@@ -14,21 +14,18 @@ package org.eclipse.core.tests.filesystem.zip;
 
 import static org.junit.Assert.assertTrue;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-/**
- *
- */
 public class OpenZipPerformanceTest {
 
-	@Before
+	@BeforeEach
 	public void setup() throws Exception {
 		ZipFileSystemTestSetup.performanceSetup();
 	}
 
-	@After
+	@AfterEach
 	public void teardown() throws Exception {
 		ZipFileSystemTestSetup.teardown();
 	}

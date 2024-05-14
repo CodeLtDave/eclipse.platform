@@ -19,46 +19,31 @@ import static org.eclipse.core.tests.filesystem.zip.ZipFileSystemTestUtil.getMon
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.util.Arrays;
-import java.util.Collection;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 /**
  *
  */
-@RunWith(Parameterized.class)
 public class CopyTest {
 
-	@Parameterized.Parameters
-	public static Collection<String[]> zipFileNames() {
-		return Arrays.asList(new String[][] { { ZipFileSystemTestSetup.ZIP_FILE_VIRTUAL_FOLDER_NAME },
-				{ ZipFileSystemTestSetup.JAR_FILE_VIRTUAL_FOLDER_NAME } });
-	}
-
-	private String zipFileName;
-
-	public CopyTest(String zipFileName) {
-		this.zipFileName = zipFileName;
-	}
-
-	@Before
+	@BeforeEach
 	public void setup() throws Exception {
 		ZipFileSystemTestSetup.defaultSetup();
 	}
 
-	@After
+	@AfterEach
 	public void teardown() throws Exception {
 		ZipFileSystemTestSetup.teardown();
 	}
 
-	@Test
-	public void testCopyZipFile() throws Exception {
+	@ParameterizedTest
+	@MethodSource("org.eclipse.core.tests.filesystem.zip.ZipFileSystemTestUtil#zipFileNames")
+	public void testCopyZipFile(String zipFileName) throws Exception {
 		IFolder openedZipFile = ZipFileSystemTestSetup.firstProject
 				.getFolder(zipFileName);
 		ensureExists(openedZipFile);
@@ -72,8 +57,9 @@ public class CopyTest {
 		ensureExists(openedZipFile);
 	}
 
-	@Test
-	public void testCopyFileInsideOfZipFile() throws Exception {
+	@ParameterizedTest
+	@MethodSource("org.eclipse.core.tests.filesystem.zip.ZipFileSystemTestUtil#zipFileNames")
+	public void testCopyFileInsideOfZipFile(String zipFileName) throws Exception {
 		IFile textFile = ZipFileSystemTestSetup.firstProject.getFile(
 				zipFileName + "/" + ZipFileSystemTestSetup.TEXT_FILE_NAME);
 		ensureExists(textFile);
@@ -87,8 +73,9 @@ public class CopyTest {
 		ensureExists(textFile);
 	}
 
-	@Test
-	public void testCopyFileIntoZipFile() throws Exception {
+	@ParameterizedTest
+	@MethodSource("org.eclipse.core.tests.filesystem.zip.ZipFileSystemTestUtil#zipFileNames")
+	public void testCopyFileIntoZipFile(String zipFileName) throws Exception {
 		IFile textFile = ZipFileSystemTestSetup.firstProject.getFile("NewFile.txt");
 		ensureDoesNotExist(textFile);
 		String text = "Foo";

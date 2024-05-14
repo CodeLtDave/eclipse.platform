@@ -20,24 +20,22 @@ import java.net.URISyntaxException;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-/**
- *
- */
+
 public class IllegalCompressionMethodTest {
 
 	private static final String ZIP_FILE_NAME = "EnhancedDeflated.zip";
 
-	@Before
+	@BeforeEach
 	public void setup() throws Exception {
 		ZipFileSystemTestSetup.defaultSetup();
 		ZipFileSystemTestSetup.copyZipFileIntoJavaProject(ZipFileSystemTestSetup.firstProject, ZIP_FILE_NAME);
 	}
 
-	@After
+	@AfterEach
 	public void teardown() throws Exception {
 		ZipFileSystemTestSetup.teardown();
 	}

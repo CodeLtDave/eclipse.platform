@@ -16,46 +16,28 @@ import static org.eclipse.core.tests.filesystem.zip.ZipFileSystemTestUtil.ensure
 import static org.eclipse.core.tests.filesystem.zip.ZipFileSystemTestUtil.ensureExists;
 import static org.eclipse.core.tests.filesystem.zip.ZipFileSystemTestUtil.getMonitor;
 
-import java.util.Arrays;
-import java.util.Collection;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
-/**
- *
- */
-@RunWith(Parameterized.class)
 public class RenameTest {
 
-	@Parameterized.Parameters
-	public static Collection<String[]> zipFileNames() {
-		return Arrays.asList(new String[][] { { ZipFileSystemTestSetup.ZIP_FILE_VIRTUAL_FOLDER_NAME },
-				{ ZipFileSystemTestSetup.JAR_FILE_VIRTUAL_FOLDER_NAME } });
-	}
-
-	private String zipFileName;
-
-	public RenameTest(String zipFileName) {
-		this.zipFileName = zipFileName;
-	}
-
-	@Before
+	@BeforeEach
 	public void setup() throws Exception {
 		ZipFileSystemTestSetup.defaultSetup();
 	}
 
-	@After
+	@AfterEach
 	public void teardown() throws Exception {
 		ZipFileSystemTestSetup.teardown();
 	}
 
-	@Test
-	public void testRenameZipFile() throws Exception {
+	@ParameterizedTest
+	@MethodSource("org.eclipse.core.tests.filesystem.zip.ZipFileSystemTestUtil#zipFileNames")
+	public void testRenameZipFile(String zipFileName) throws Exception {
 		// IFolder is renamed by moving with the new path
 		IFolder openedZipFile = ZipFileSystemTestSetup.firstProject.getFolder(zipFileName);
 		IFolder openedZipFileWithNewName = ZipFileSystemTestSetup.firstProject.getFolder(zipFileName + "Renamed");
@@ -64,8 +46,9 @@ public class RenameTest {
 		ensureDoesNotExist(openedZipFile);
 	}
 
-	@Test
-	public void testRenameFileInsideOfZipFile() throws Exception {
+	@ParameterizedTest
+	@MethodSource("org.eclipse.core.tests.filesystem.zip.ZipFileSystemTestUtil#zipFileNames")
+	public void testRenameFileInsideOfZipFile(String zipFileName) throws Exception {
 		// IFolder is renamed by moving with the new path
 		IFile textFile = ZipFileSystemTestSetup.firstProject.getFile(
 				zipFileName + "/" + ZipFileSystemTestSetup.TEXT_FILE_NAME);
