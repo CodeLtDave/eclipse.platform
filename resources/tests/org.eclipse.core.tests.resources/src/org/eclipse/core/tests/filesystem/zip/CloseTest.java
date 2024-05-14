@@ -19,6 +19,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -49,8 +50,7 @@ public class CloseTest {
 		ensureExists(zipFile);
 	}
 
-	@ParameterizedTest
-	@MethodSource("org.eclipse.core.tests.filesystem.zip.ZipFileSystemTestUtil#zipFileNames")
+	@Test
 	public void testCloseNestedZipFileParentWhenChildIsOpened() throws Exception {
 		ZipFileSystemTestSetup.copyAndOpenNestedZipFileIntoJavaProject();
 		IFile nestedZipFileParent = ZipFileSystemTestSetup.firstProject
@@ -63,8 +63,7 @@ public class CloseTest {
 		ensureExists(nestedZipFileParent);
 	}
 
-	@ParameterizedTest
-	@MethodSource("org.eclipse.core.tests.filesystem.zip.ZipFileSystemTestUtil#zipFileNames")
+	@Test
 	public void testCloseNestedZipFileChild() throws Exception {
 		ZipFileSystemTestSetup.copyAndOpenNestedZipFileIntoJavaProject();
 		IFolder openedNestedZipFileParent = ZipFileSystemTestSetup.firstProject
