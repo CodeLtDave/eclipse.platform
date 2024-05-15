@@ -61,6 +61,7 @@ public class ZipFileSystemTestSetup {
 	static final String NESTED_ZIP_FILE_CHILD_NAME = "NestedZipFileChild.zip";
 	static final String TEXT_FILE_NAME = "Text.txt";
 	static final String DEEP_NESTED_ZIP_FILE_NAME = "DeepNested.zip";
+	static final String FAKE_ZIP_FILE_NAME = "Fake.zip";
 	static IProject firstProject;
 	static IProject secondProject;
 	static IJavaProject javaProject;

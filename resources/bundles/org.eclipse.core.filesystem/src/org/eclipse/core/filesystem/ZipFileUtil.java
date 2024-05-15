@@ -78,8 +78,11 @@ public class ZipFileUtil {
 			int header = buffer.getInt();
 
 			if (!ARCHIVE_FILE_SIGNATURES.contains(header)) {
-				throw new IOException("Invalid archive file signature."); //$NON-NLS-1$
+				throw new IOException("Invalid archive file signature."); // Throws IOException if header is not recognized //$NON-NLS-1$
 			}
+		} else {
+			// Handle the case where not enough bytes are read
+			throw new IOException("Could not read enough data to check ZIP file header."); //$NON-NLS-1$
 		}
 	}
 }

@@ -79,9 +79,11 @@ public class ZipFileTransformer {
 		SubMonitor subMonitor = SubMonitor.convert(monitor, 20);
 		try (InputStream fis = file.getContents()) {
 			ZipFileUtil.checkFileForZipHeader(fis);
+			// Additional operations can continue here if header is correct
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			// If the header is incorrect or there's an IO error, handle gracefully
+			throw new CoreException(new Status(IStatus.ERROR, "your.plugin.id", //$NON-NLS-1$
+					"Failed to open ZIP file due to incorrect file header: " + file.getName(), e)); //$NON-NLS-1$
 		}
 
 		if (file.isLinked()) {
