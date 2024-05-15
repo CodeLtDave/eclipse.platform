@@ -44,6 +44,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.osgi.framework.FrameworkUtil;
 
 /**
  * File store implementation representing a file or directory inside a zip file.
@@ -104,7 +105,7 @@ public class ZipFileStore extends FileStore {
 				}
 			});
 		} catch (IOException | URISyntaxException e) {
-			throw new CoreException(new Status(IStatus.ERROR, "YourPluginID", "Error reading ZIP file", e)); //$NON-NLS-1$ //$NON-NLS-2$
+			throw new CoreException(new Status(IStatus.ERROR, getPluginId(), "Error reading ZIP file", e)); //$NON-NLS-1$
 		}
 
 		return entryList.toArray(new ZipEntry[0]);
@@ -198,7 +199,7 @@ public class ZipFileStore extends FileStore {
 				return convertToIFileInfo(zipEntryPath, attrs);
 			}
 		} catch (IOException | URISyntaxException e) {
-			throw new CoreException(new Status(IStatus.ERROR, "org.eclipse.core.filesystem.zip", "Error accessing ZIP file", e)); //$NON-NLS-1$//$NON-NLS-2$
+			throw new CoreException(new Status(IStatus.ERROR, getPluginId(), "Error accessing ZIP file", e)); //$NON-NLS-1$
 		}
 
 		// Correctly set up FileInfo before returning
@@ -240,6 +241,10 @@ public class ZipFileStore extends FileStore {
 		}
 		// the root entry has no parent
 		return null;
+	}
+
+	private String getPluginId() {
+		return FrameworkUtil.getBundle(this.getClass()).getSymbolicName();
 	}
 
 	private boolean isNested() {
@@ -408,7 +413,7 @@ public class ZipFileStore extends FileStore {
 			}
 
 		} catch (Exception e) {
-			throw new CoreException(new Status(IStatus.ERROR, "org.eclipse.core.filesystem.zip", "Error updating ZIP file entry information", e)); //$NON-NLS-1$ //$NON-NLS-2$
+			throw new CoreException(new Status(IStatus.ERROR, getPluginId(), "Error updating ZIP file entry information", e)); //$NON-NLS-1$
 		} finally {
 			if (monitor != null) {
 				monitor.done();
