@@ -29,9 +29,12 @@ import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import org.eclipse.core.filesystem.EFS;
@@ -180,13 +183,29 @@ public class ZipFileStore extends FileStore {
 
 	@Override
 	public void delete(int options, IProgressMonitor monitor) throws CoreException {
+		Path toDelete = null;
 		try (FileSystem zipFs = openZipFileSystem()) {
-			Path fileToDelete = zipFs.getPath(path.toString());
-			if (Files.exists(fileToDelete)) {
-				Files.delete(fileToDelete);
+			toDelete = zipFs.getPath(path.toString());
+			if (Files.exists(toDelete)) {
+				deleteRecursive(toDelete);
 			}
 		} catch (IOException | URISyntaxException e) {
-			throw new CoreException(new Status(IStatus.ERROR, "org.eclipse.core.filesystem.zip", "Error deleting file from zip", e)); //$NON-NLS-1$ //$NON-NLS-2$
+			throw new CoreException(new Status(IStatus.ERROR, "org.eclipse.core.filesystem.zip", "Error deleting file from zip: " + toDelete, e)); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+	}
+
+	private void deleteRecursive(Path path) throws IOException {
+		if (Files.isDirectory(path)) {
+			// Use try-with-resources to close the directory stream automatically
+			try (Stream<Path> entries = Files.walk(path)) {
+				// We need to sort it in reverse order so directories come after their contents
+				List<Path> sortedPaths = entries.sorted(Comparator.reverseOrder()).collect(Collectors.toList());
+				for (Path entry : sortedPaths) {
+					Files.delete(entry);
+				}
+			}
+		} else {
+			Files.delete(path);
 		}
 	}
 
