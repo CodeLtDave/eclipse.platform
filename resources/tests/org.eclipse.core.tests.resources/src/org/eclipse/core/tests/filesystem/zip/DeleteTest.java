@@ -16,6 +16,7 @@ import static org.eclipse.core.tests.filesystem.zip.ZipFileSystemTestUtil.ensure
 import static org.eclipse.core.tests.filesystem.zip.ZipFileSystemTestUtil.ensureExists;
 import static org.eclipse.core.tests.filesystem.zip.ZipFileSystemTestUtil.getMonitor;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import org.eclipse.core.resources.IFile;
@@ -60,6 +61,36 @@ public class DeleteTest {
 		textFile.delete(true, getMonitor());
 		ensureDoesNotExist(textFile);
 	}
+
+	@ParameterizedTest
+	@MethodSource("org.eclipse.core.tests.filesystem.zip.ZipFileSystemTestUtil#zipFileNames")
+	public void testDeleteEmptyFolder(String zipFileName) throws CoreException, IOException {
+		IFolder openedZipFile = ZipFileSystemTestSetup.firstProject.getFolder(zipFileName);
+		IFolder folder = openedZipFile.getFolder("FolderToDelete");
+		ensureDoesNotExist(folder);
+		folder.create(true, true, getMonitor());
+		ensureExists(folder);
+		folder.delete(true, getMonitor());
+		ensureDoesNotExist(folder);
+	}
+
+
+	@ParameterizedTest
+	@MethodSource("org.eclipse.core.tests.filesystem.zip.ZipFileSystemTestUtil#zipFileNames")
+	public void testDeleteFolderWithChildren(String zipFileName) throws CoreException, IOException {
+		IFolder openedZipFile = ZipFileSystemTestSetup.firstProject.getFolder(zipFileName);
+		IFolder folder = openedZipFile.getFolder("FolderToDelete");
+		ensureDoesNotExist(folder);
+		folder.create(true, true, getMonitor());
+		ensureExists(folder);
+		IFile textFile = folder.getFile(ZipFileSystemTestSetup.TEXT_FILE_NAME);
+		textFile.create(new ByteArrayInputStream("Hello World!".getBytes()), true, getMonitor());
+		ensureExists(textFile);
+		folder.delete(true, getMonitor());
+		ensureDoesNotExist(folder);
+		ensureDoesNotExist(textFile);
+	}
+
 
 	@ParameterizedTest
 	@MethodSource("org.eclipse.core.tests.filesystem.zip.ZipFileSystemTestUtil#zipFileNames")
