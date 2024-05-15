@@ -1,3 +1,15 @@
+/*******************************************************************************
+ * Copyright (c) 2024 Vector Informatik GmbH and others.
+ *
+ * This program and the accompanying materials are made available under the terms of the Eclipse
+ * Public License 2.0 which accompanies this distribution, and is available at
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ * Contributors: Vector Informatik GmbH - initial API and implementation
+ *******************************************************************************/
+
 package org.eclipse.core.filesystem;
 
 import java.io.IOException;
@@ -19,15 +31,15 @@ import org.eclipse.core.runtime.CoreException;
  */
 public class ZipFileUtil {
 
-    private static final Set<Integer> ARCHIVE_FILE_SIGNATURES = new HashSet<>();
+	private static final Set<Integer> ARCHIVE_FILE_SIGNATURES = new HashSet<>();
 
-    static {
+	static {
 		// Initializes known archive file signatures from Wikipedia's list of file signatures
 		// (https://en.wikipedia.org/wiki/List_of_file_signatures)
-        ARCHIVE_FILE_SIGNATURES.add(0x504B0304); // Standard ZIP file
+		ARCHIVE_FILE_SIGNATURES.add(0x504B0304); // Standard ZIP file
 		ARCHIVE_FILE_SIGNATURES.add(0x504B0506); // Empty archive
 		ARCHIVE_FILE_SIGNATURES.add(0x504B0708); // Spanned archive
-    }
+	}
 
 	/**
 	 * Determines if the given {@link IFileStore} represents an open ZIP file.
