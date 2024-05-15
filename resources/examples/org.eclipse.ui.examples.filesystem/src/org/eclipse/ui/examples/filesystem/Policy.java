@@ -13,10 +13,7 @@
  *******************************************************************************/
 package org.eclipse.ui.examples.filesystem;
 
-import org.eclipse.core.runtime.ILog;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Platform;
-import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.*;
 import org.osgi.framework.Bundle;
 
 public class Policy {
