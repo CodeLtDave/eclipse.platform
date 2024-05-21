@@ -32,7 +32,7 @@ public class IllegalCompressionMethodTest {
 	@BeforeEach
 	public void setup() throws Exception {
 		ZipFileSystemTestSetup.defaultSetup();
-		ZipFileSystemTestSetup.copyZipFileIntoJavaProject(ZipFileSystemTestSetup.firstProject, ZIP_FILE_NAME);
+		ZipFileSystemTestSetup.copyZipFileIntoProject(ZipFileSystemTestSetup.firstProject, ZIP_FILE_NAME);
 	}
 
 	@AfterEach

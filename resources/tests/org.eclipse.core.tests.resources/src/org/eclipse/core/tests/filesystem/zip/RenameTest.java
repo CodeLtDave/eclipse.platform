@@ -40,23 +40,34 @@ public class RenameTest {
 	public void testRenameZipFile(String zipFileName) throws Exception {
 		// IFolder is renamed by moving with the new path
 		IFolder openedZipFile = ZipFileSystemTestSetup.firstProject.getFolder(zipFileName);
-		IFolder openedZipFileWithNewName = ZipFileSystemTestSetup.firstProject.getFolder(zipFileName + "Renamed");
-		openedZipFile.move(openedZipFileWithNewName.getFullPath(), false, getMonitor());
-		ensureExists(openedZipFileWithNewName);
+		IFolder renamedOpenZipFile = ZipFileSystemTestSetup.firstProject.getFolder(zipFileName + "Renamed");
+		openedZipFile.move(renamedOpenZipFile.getFullPath(), false, getMonitor());
+		ensureExists(renamedOpenZipFile);
 		ensureDoesNotExist(openedZipFile);
 	}
 
 	@ParameterizedTest
 	@MethodSource("org.eclipse.core.tests.filesystem.zip.ZipFileSystemTestUtil#zipFileNames")
 	public void testRenameFileInsideOfZipFile(String zipFileName) throws Exception {
-		// IFolder is renamed by moving with the new path
-		IFile textFile = ZipFileSystemTestSetup.firstProject.getFile(
-				zipFileName + "/" + ZipFileSystemTestSetup.TEXT_FILE_NAME);
-		IFile newTextFile = ZipFileSystemTestSetup.firstProject
-				.getFile(zipFileName
-				+ "/" + ZipFileSystemTestSetup.TEXT_FILE_NAME + "Renamed");
-		textFile.move(newTextFile.getFullPath(), false, getMonitor());
-		ensureExists(newTextFile);
+		IFolder openedZipFile = ZipFileSystemTestSetup.firstProject.getFolder(zipFileName);
+		IFile textFile = openedZipFile.getFile(ZipFileSystemTestSetup.TEXT_FILE_NAME);
+		IFile renamedTextFile = openedZipFile.getFile(textFile.getName() + "Renamed");
+		textFile.move(renamedTextFile.getFullPath(), false, getMonitor());
+		ensureExists(renamedTextFile);
 		ensureDoesNotExist(textFile);
+	}
+
+	@ParameterizedTest
+	@MethodSource("org.eclipse.core.tests.filesystem.zip.ZipFileSystemTestUtil#zipFileNames")
+	public void testRenameFolderInsideOfZipFile(String zipFileName) throws Exception {
+		IFolder openedZipFile = ZipFileSystemTestSetup.firstProject.getFolder(zipFileName);
+		IFolder folder = openedZipFile.getFolder("newFolder");
+		ensureDoesNotExist(folder);
+		folder.create(false, true, getMonitor());
+		ensureExists(folder);
+		IFolder renamedFolder = openedZipFile.getFolder(folder.getName() + "Renamed");
+		folder.move(renamedFolder.getFullPath(), false, getMonitor());
+		ensureExists(renamedFolder);
+		ensureDoesNotExist(folder);
 	}
 }

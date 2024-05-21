@@ -63,7 +63,7 @@ public class ZipFileSystemTestSetup {
 		firstProject = createProject(FIRST_PROJECT_NAME);
 		refreshProject(firstProject);
 		for (String zipFileName : zipFileNames) {
-			copyZipFileIntoJavaProject(firstProject, zipFileName);
+			copyZipFileIntoProject(firstProject, zipFileName);
 			refreshProject(firstProject);
 			ZipFileSystemTestUtil.openZipFile(firstProject.getFile(zipFileName));
 		}
@@ -78,11 +78,11 @@ public class ZipFileSystemTestSetup {
 
 	static void performanceSetup() throws Exception {
 		defaultSetup();
-		copyZipFileIntoJavaProject(firstProject, ZIP_FILE_VIRTUAL_FOLDER_NAME);
-		copyZipFileIntoJavaProject(firstProject, PERFORMANCE_ZIP_FILE_NAME);
-		copyZipFileIntoJavaProject(firstProject, BIG_PERFORMANCE_ZIP_FILE_NAME);
-		copyZipFileIntoJavaProject(firstProject, LARGE_PERFORMANCE_ZIP_FILE_NAME);
-		copyZipFileIntoJavaProject(firstProject, HUGE_PERFORMANCE_ZIP_FILE_NAME);
+		copyZipFileIntoProject(firstProject, ZIP_FILE_VIRTUAL_FOLDER_NAME);
+		copyZipFileIntoProject(firstProject, PERFORMANCE_ZIP_FILE_NAME);
+		copyZipFileIntoProject(firstProject, BIG_PERFORMANCE_ZIP_FILE_NAME);
+		copyZipFileIntoProject(firstProject, LARGE_PERFORMANCE_ZIP_FILE_NAME);
+		copyZipFileIntoProject(firstProject, HUGE_PERFORMANCE_ZIP_FILE_NAME);
 		refreshProject(firstProject);
 	}
 
@@ -131,7 +131,7 @@ public class ZipFileSystemTestSetup {
 		}
 	}
 
-	static void copyZipFileIntoJavaProject(IProject project, String zipFileName) throws IOException, CoreException {
+	static void copyZipFileIntoProject(IProject project, String zipFileName) throws IOException, CoreException {
 		// Resolve the source file URL from the plugin bundle
 		URL zipFileUrl = Platform.getBundle("org.eclipse.core.tests.resources")
 				.getEntry("resources/ZipFileSystem/" + zipFileName);
@@ -156,8 +156,8 @@ public class ZipFileSystemTestSetup {
 		project.refreshLocal(IResource.DEPTH_INFINITE, null);
 	}
 
-	static void copyAndOpenNestedZipFileIntoJavaProject() throws IOException, CoreException, URISyntaxException {
-		copyZipFileIntoJavaProject(firstProject, NESTED_ZIP_FILE_PARENT_NAME);
+	static void copyAndOpenNestedZipFileIntoProject() throws IOException, CoreException, URISyntaxException {
+		copyZipFileIntoProject(firstProject, NESTED_ZIP_FILE_PARENT_NAME);
 		IFile nestedZipFileParent = firstProject.getFile(NESTED_ZIP_FILE_PARENT_NAME);
 		ensureExists(nestedZipFileParent);
 		ZipFileSystemTestUtil.openZipFile(nestedZipFileParent);

@@ -49,11 +49,7 @@ public class MoveTest {
 		destinationFolder.create(false, true, getMonitor());
 		IFolder destination = ZipFileSystemTestSetup.firstProject
 				.getFolder("destinationFolder/" + zipFileName);
-
 		openedZipFile.move(destination.getFullPath(), false, getMonitor());
-
-		// Verify that the folder exists at the new location and not at the old location
-		// anymore
 		IFolder newFolder = ZipFileSystemTestSetup.firstProject
 				.getFolder(destinationFolder.getName() + "/" + zipFileName);
 		ensureExists(newFolder);
@@ -66,9 +62,6 @@ public class MoveTest {
 		IFolder openedZipFile = ZipFileSystemTestSetup.firstProject.getFolder(zipFileName);
 		IFolder destination = ZipFileSystemTestSetup.secondProject.getFolder(zipFileName);
 		openedZipFile.move(destination.getFullPath(), false, getMonitor());
-
-		// Verify that the folder exists at the new location and not at the old location
-		// anymore
 		IFolder newFolder = ZipFileSystemTestSetup.secondProject.getFolder(zipFileName);
 		ensureExists(newFolder);
 		ensureDoesNotExist(openedZipFile);
@@ -83,9 +76,6 @@ public class MoveTest {
 		IFolder destination = ZipFileSystemTestSetup.secondProject
 				.getFolder("destinationFolder/" + zipFileName);
 		openedZipFile.move(destination.getFullPath(), false, getMonitor());
-
-		// Verify that the folder exists at the new location and not at the old location
-		// anymore
 		IFolder newFolder = ZipFileSystemTestSetup.secondProject
 				.getFolder(destinationFolder.getName() + "/" + zipFileName);
 		ensureExists(newFolder);
@@ -105,12 +95,8 @@ public class MoveTest {
 		IFile destinationFile = ZipFileSystemTestSetup.firstProject
 				.getFile(zipFileName + "/" + "NewFile.txt");
 		textFile.move(destinationFile.getFullPath(), false, getMonitor());
-
-		// Verify that the file exists at the new location
 		ensureExists(destinationFile);
 		assertTextFileContent(destinationFile, text);
-
-		// Verify that the file does not exist at the old location
 		ensureDoesNotExist(textFile);
 	}
 
@@ -165,12 +151,8 @@ public class MoveTest {
 		ensureExists(textFile);
 		IFile destinationFile = ZipFileSystemTestSetup.firstProject.getFile(ZipFileSystemTestSetup.TEXT_FILE_NAME);
 		textFile.move(destinationFile.getFullPath(), false, getMonitor());
-
-		// Verify that the file exists at the new location
 		ensureExists(destinationFile);
 		assertTextFileContent(destinationFile, "Hello World!");
-
-		// Verify that the file does not exist at the old location
 		ensureDoesNotExist(textFile);
 	}
 
@@ -237,7 +219,7 @@ public class MoveTest {
 		String newZipFileName = zipFileName.replace(".", "New.");
 		IFile newZipFile = ZipFileSystemTestSetup.firstProject.getFile(newZipFileName);
 		ensureDoesNotExist(newZipFile);
-		ZipFileSystemTestSetup.copyZipFileIntoJavaProject(ZipFileSystemTestSetup.firstProject, newZipFileName);
+		ZipFileSystemTestSetup.copyZipFileIntoProject(ZipFileSystemTestSetup.firstProject, newZipFileName);
 		ensureExists(newZipFile);
 		ZipFileSystemTestUtil.openZipFile(newZipFile);
 		IFolder newOpenedZipFile = ZipFileSystemTestSetup.firstProject.getFolder(newZipFileName);

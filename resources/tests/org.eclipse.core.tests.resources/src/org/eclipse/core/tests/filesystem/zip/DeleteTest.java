@@ -96,7 +96,7 @@ public class DeleteTest {
 	@MethodSource("org.eclipse.core.tests.filesystem.zip.ZipFileSystemTestUtil#zipFileNames")
 	public void testDeleteNestedZipFileParent(String zipFileName)
 			throws CoreException, IOException, URISyntaxException {
-		ZipFileSystemTestSetup.copyAndOpenNestedZipFileIntoJavaProject();
+		ZipFileSystemTestSetup.copyAndOpenNestedZipFileIntoProject();
 		IFile nestedZipFileParent = ZipFileSystemTestSetup.firstProject
 				.getFile(ZipFileSystemTestSetup.NESTED_ZIP_FILE_PARENT_NAME);
 		IFolder openedNestedZipFileParent = ZipFileSystemTestSetup.firstProject
@@ -109,7 +109,7 @@ public class DeleteTest {
 	@ParameterizedTest
 	@MethodSource("org.eclipse.core.tests.filesystem.zip.ZipFileSystemTestUtil#zipFileNames")
 	public void testDeleteNestedZipFileChild(String zipFileName) throws CoreException, IOException, URISyntaxException {
-		ZipFileSystemTestSetup.copyAndOpenNestedZipFileIntoJavaProject();
+		ZipFileSystemTestSetup.copyAndOpenNestedZipFileIntoProject();
 		IFolder openedNestedZipFileParent = ZipFileSystemTestSetup.firstProject
 				.getFolder(ZipFileSystemTestSetup.NESTED_ZIP_FILE_PARENT_NAME);
 		IFile nestedZipFileChild = openedNestedZipFileParent.getFile(ZipFileSystemTestSetup.NESTED_ZIP_FILE_CHILD_NAME);

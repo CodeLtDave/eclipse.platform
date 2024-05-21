@@ -52,7 +52,7 @@ public class CloseTest {
 
 	@Test
 	public void testCloseNestedZipFileParentWhenChildIsOpened() throws Exception {
-		ZipFileSystemTestSetup.copyAndOpenNestedZipFileIntoJavaProject();
+		ZipFileSystemTestSetup.copyAndOpenNestedZipFileIntoProject();
 		IFile nestedZipFileParent = ZipFileSystemTestSetup.firstProject
 				.getFile(ZipFileSystemTestSetup.NESTED_ZIP_FILE_PARENT_NAME);
 		IFolder openedNestedZipFileParent = ZipFileSystemTestSetup.firstProject
@@ -65,7 +65,7 @@ public class CloseTest {
 
 	@Test
 	public void testCloseNestedZipFileChild() throws Exception {
-		ZipFileSystemTestSetup.copyAndOpenNestedZipFileIntoJavaProject();
+		ZipFileSystemTestSetup.copyAndOpenNestedZipFileIntoProject();
 		IFolder openedNestedZipFileParent = ZipFileSystemTestSetup.firstProject
 				.getFolder(ZipFileSystemTestSetup.NESTED_ZIP_FILE_PARENT_NAME);
 		IFile nestedZipFileChild = openedNestedZipFileParent.getFile(ZipFileSystemTestSetup.NESTED_ZIP_FILE_CHILD_NAME);

@@ -75,6 +75,30 @@ public class CopyTest {
 
 	@ParameterizedTest
 	@MethodSource("org.eclipse.core.tests.filesystem.zip.ZipFileSystemTestUtil#zipFileNames")
+	public void testCopyFolderInsideOfZipFile(String zipFileName) throws Exception {
+		IFolder openedZipFile = ZipFileSystemTestSetup.firstProject.getFolder(zipFileName);
+		ensureExists(openedZipFile);
+		IFolder newFolder = ZipFileSystemTestSetup.firstProject.getFolder("NewFolder");
+		ensureDoesNotExist(newFolder);
+		newFolder.create(false, true, getMonitor());
+		ensureExists(newFolder);
+		IFile textFile = newFolder.getFile("NewFile.txt");
+		ensureDoesNotExist(textFile);
+		String text = "Foo";
+		InputStream stream = new ByteArrayInputStream(text.getBytes());
+		textFile.create(stream, true, getMonitor());
+		stream.close();
+		ensureExists(textFile);
+		IFolder copyDestination = openedZipFile.getFolder("NewFolder");
+		ensureDoesNotExist(copyDestination);
+		newFolder.copy(copyDestination.getFullPath(), true, getMonitor());
+		ensureExists(copyDestination);
+		ensureExists(newFolder);
+		assertTextFileContent(textFile, "Foo");
+	}
+
+	@ParameterizedTest
+	@MethodSource("org.eclipse.core.tests.filesystem.zip.ZipFileSystemTestUtil#zipFileNames")
 	public void testCopyFileIntoZipFile(String zipFileName) throws Exception {
 		IFile textFile = ZipFileSystemTestSetup.firstProject.getFile("NewFile.txt");
 		ensureDoesNotExist(textFile);
@@ -85,6 +109,100 @@ public class CopyTest {
 		ensureExists(textFile);
 		IFile copyDestination = ZipFileSystemTestSetup.firstProject
 				.getFile(zipFileName + "/" + "NewFile.txt");
+		textFile.copy(copyDestination.getFullPath(), true, getMonitor());
+		ensureExists(copyDestination);
+		ensureExists(textFile);
+		assertTextFileContent(textFile, "Foo");
+	}
+
+	@ParameterizedTest
+	@MethodSource("org.eclipse.core.tests.filesystem.zip.ZipFileSystemTestUtil#zipFileNames")
+	public void testCopyFolderIntoZipFile(String zipFileName) throws Exception {
+		IFile textFile = ZipFileSystemTestSetup.firstProject.getFile("NewFile.txt");
+		ensureDoesNotExist(textFile);
+		String text = "Foo";
+		InputStream stream = new ByteArrayInputStream(text.getBytes());
+		textFile.create(stream, true, getMonitor());
+		stream.close();
+		ensureExists(textFile);
+		IFile copyDestination = ZipFileSystemTestSetup.firstProject.getFile(zipFileName + "/" + "NewFile.txt");
+		textFile.copy(copyDestination.getFullPath(), true, getMonitor());
+		ensureExists(copyDestination);
+		ensureExists(textFile);
+		assertTextFileContent(textFile, "Foo");
+	}
+
+	@ParameterizedTest
+	@MethodSource("org.eclipse.core.tests.filesystem.zip.ZipFileSystemTestUtil#zipFileNames")
+	public void testCopyFileFromOutsideOfZipFIleIntoFolderInZipFile(String zipFileName) throws Exception {
+		IFolder openedZipFile = ZipFileSystemTestSetup.firstProject.getFolder(zipFileName);
+		IFolder newFolder = openedZipFile.getFolder("NewFolder");
+		ensureDoesNotExist(newFolder);
+		newFolder.create(false, true, getMonitor());
+		ensureExists(newFolder);
+		IFile textFile = ZipFileSystemTestSetup.firstProject.getFile("NewFile.txt");
+		ensureDoesNotExist(textFile);
+		String text = "Foo";
+		InputStream stream = new ByteArrayInputStream(text.getBytes());
+		textFile.create(stream, true, getMonitor());
+		stream.close();
+		ensureExists(textFile);
+		IFile copyDestination = newFolder.getFile("NewFile.txt");
+		ensureDoesNotExist(copyDestination);
+		textFile.copy(copyDestination.getFullPath(), true, getMonitor());
+		ensureExists(copyDestination);
+		ensureExists(textFile);
+		assertTextFileContent(textFile, "Foo");
+	}
+
+	@ParameterizedTest
+	@MethodSource("org.eclipse.core.tests.filesystem.zip.ZipFileSystemTestUtil#zipFileNames")
+	public void testCopyFolderIntoFolderInZipFile(String zipFileName) throws Exception {
+		IFolder openedZipFile = ZipFileSystemTestSetup.firstProject.getFolder(zipFileName);
+		IFolder firstNewFolder = openedZipFile.getFolder("FirstNewFolder");
+		ensureDoesNotExist(firstNewFolder);
+		firstNewFolder.create(false, true, getMonitor());
+		ensureExists(firstNewFolder);
+		IFolder secondNewFolder = openedZipFile.getFolder("SecondNewFolder");
+		ensureDoesNotExist(secondNewFolder);
+		secondNewFolder.create(false, true, getMonitor());
+		ensureExists(secondNewFolder);
+		IFile textFile = firstNewFolder.getFile("NewFile.txt");
+		ensureDoesNotExist(textFile);
+		String text = "Foo";
+		try (InputStream stream = new ByteArrayInputStream(text.getBytes())) {
+			textFile.create(stream, true, getMonitor());
+		}
+		ensureExists(textFile);
+		IFolder copyDestination = secondNewFolder.getFolder("FirstNewFolder");
+		ensureDoesNotExist(copyDestination);
+		firstNewFolder.copy(copyDestination.getFullPath(), true, getMonitor());
+		ensureExists(copyDestination);
+		ensureExists(firstNewFolder);
+		assertTextFileContent(textFile, "Foo");
+	}
+
+	@ParameterizedTest
+	@MethodSource("org.eclipse.core.tests.filesystem.zip.ZipFileSystemTestUtil#zipFileNames")
+	public void testCopyFileFromOneFolderToOtherFolderInsideofZipFile(String zipFileName) throws Exception {
+		IFolder openedZipFile = ZipFileSystemTestSetup.firstProject.getFolder(zipFileName);
+		IFolder firstNewFolder = openedZipFile.getFolder("FirstNewFolder");
+		ensureDoesNotExist(firstNewFolder);
+		firstNewFolder.create(false, true, getMonitor());
+		ensureExists(firstNewFolder);
+		IFolder secondNewFolder = openedZipFile.getFolder("SecondNewFolder");
+		ensureDoesNotExist(secondNewFolder);
+		secondNewFolder.create(false, true, getMonitor());
+		ensureExists(secondNewFolder);
+		IFile textFile = firstNewFolder.getFile("NewFile.txt");
+		ensureDoesNotExist(textFile);
+		String text = "Foo";
+		try (InputStream stream = new ByteArrayInputStream(text.getBytes())) {
+			textFile.create(stream, true, getMonitor());
+		}
+		ensureExists(textFile);
+		IFile copyDestination = secondNewFolder.getFile("NewFile.txt");
+		ensureDoesNotExist(copyDestination);
 		textFile.copy(copyDestination.getFullPath(), true, getMonitor());
 		ensureExists(copyDestination);
 		ensureExists(textFile);

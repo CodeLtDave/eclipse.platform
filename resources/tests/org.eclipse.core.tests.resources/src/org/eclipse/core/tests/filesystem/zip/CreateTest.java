@@ -61,4 +61,32 @@ public class CreateTest {
 		newFolder.create(false, true, getMonitor());
 		ensureExists(newFolder);
 	}
+
+	@ParameterizedTest
+	@MethodSource("org.eclipse.core.tests.filesystem.zip.ZipFileSystemTestUtil#zipFileNames")
+	public void testCreateFileInsideOfNestedZipFile(String zipFileName) throws Exception {
+		ZipFileSystemTestSetup.copyAndOpenNestedZipFileIntoProject();
+		IFolder openedNestedZipFileParent = ZipFileSystemTestSetup.firstProject
+				.getFolder(ZipFileSystemTestSetup.NESTED_ZIP_FILE_PARENT_NAME);
+		IFolder newFolder = openedNestedZipFileParent.getFolder("NewFolder");
+		ensureDoesNotExist(newFolder);
+		newFolder.create(false, true, getMonitor());
+		ensureExists(newFolder);
+	}
+
+	@ParameterizedTest
+	@MethodSource("org.eclipse.core.tests.filesystem.zip.ZipFileSystemTestUtil#zipFileNames")
+	public void testCreateFolderInsideOfNestedZipFile(String zipFileName) throws Exception {
+		ZipFileSystemTestSetup.copyAndOpenNestedZipFileIntoProject();
+		IFolder openedNestedZipFileParent = ZipFileSystemTestSetup.firstProject
+				.getFolder(ZipFileSystemTestSetup.NESTED_ZIP_FILE_PARENT_NAME);
+		IFile textFile = openedNestedZipFileParent.getFile("NewFile.txt");
+		ensureDoesNotExist(textFile);
+		String text = "Foo";
+		InputStream stream = new ByteArrayInputStream(text.getBytes());
+		textFile.create(stream, true, getMonitor());
+		stream.close();
+		ensureExists(textFile);
+		assertTextFileContent(textFile, text);
+	}
 }
