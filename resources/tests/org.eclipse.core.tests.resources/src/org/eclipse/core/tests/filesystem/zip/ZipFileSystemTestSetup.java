@@ -24,7 +24,6 @@ import java.nio.file.StandardCopyOption;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -32,20 +31,9 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.jdt.core.IAccessRule;
-import org.eclipse.jdt.core.IClasspathAttribute;
-import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.launching.JavaRuntime;
 
 public class ZipFileSystemTestSetup {
-
-	private ZipFileSystemTestSetup() {
-	}
 
 	static final String FIRST_PROJECT_NAME = "TestProject";
 	static final String SECOND_PROJECT_NAME = "SecondProject";
@@ -64,7 +52,6 @@ public class ZipFileSystemTestSetup {
 	static final String FAKE_ZIP_FILE_NAME = "Fake.zip";
 	static IProject firstProject;
 	static IProject secondProject;
-	static IJavaProject javaProject;
 	static IProgressMonitor progressMonitor = new NullProgressMonitor();
 
 	static void defaultSetup() throws Exception {
@@ -74,7 +61,6 @@ public class ZipFileSystemTestSetup {
 
 	static void setup(String[] zipFileNames) throws Exception {
 		firstProject = createProject(FIRST_PROJECT_NAME);
-		createJavaProject(firstProject);
 		refreshProject(firstProject);
 		for (String zipFileName : zipFileNames) {
 			copyZipFileIntoJavaProject(firstProject, zipFileName);
@@ -86,7 +72,6 @@ public class ZipFileSystemTestSetup {
 	static void setupWithTwoProjects() throws Exception {
 		defaultSetup();
 		secondProject = createProject(SECOND_PROJECT_NAME);
-		createJavaProject(secondProject);
 		refreshProject(secondProject);
 		refreshEntireWorkspace();
 	}
@@ -122,38 +107,6 @@ public class ZipFileSystemTestSetup {
 		}
 		project.open(progressMonitor);
 		return project;
-	}
-
-	private static void createJavaProject(IProject project) throws CoreException, JavaModelException {
-		IProjectDescription description = project.getDescription();
-		description.setNatureIds(new String[] { JavaCore.NATURE_ID });
-		project.setDescription(description, progressMonitor);
-
-		javaProject = JavaCore.create(project);
-
-		IFolder srcFolder = project.getFolder("src");
-		if (!srcFolder.exists()) {
-			srcFolder.create(false, true, progressMonitor);
-		}
-
-		IFolder binFolder = project.getFolder("bin");
-		if (!binFolder.exists()) {
-			binFolder.create(false, true, progressMonitor);
-		}
-		javaProject.setOutputLocation(binFolder.getFullPath(), progressMonitor);
-
-		// Set Java compliance level and JRE container
-		javaProject.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_8);
-		javaProject.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_8);
-		javaProject.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_8);
-
-		// Add the JRE container to the classpath
-		IClasspathEntry jreContainerEntry = JavaCore.newContainerEntry(new Path(JavaRuntime.JRE_CONTAINER),
-				new IAccessRule[0],
-				new IClasspathAttribute[] { JavaCore.newClasspathAttribute("owner.project.facets", "java") }, false);
-		IClasspathEntry srcEntry = JavaCore.newSourceEntry(srcFolder.getFullPath());
-
-		javaProject.setRawClasspath(new IClasspathEntry[] { jreContainerEntry, srcEntry }, null);
 	}
 
 	private static void refreshProject(IProject project) {
