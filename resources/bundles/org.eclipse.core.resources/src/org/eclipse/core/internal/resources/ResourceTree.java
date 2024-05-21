@@ -1058,8 +1058,8 @@ class ResourceTree implements IResourceTree {
 
 			boolean isDeep = (flags & IResource.SHALLOW) == 0;
 			if (!isDeep && (source.isLinked() || source.isVirtual())) {
-					movedFolderSubtree(source, destination);
-					return;
+				movedFolderSubtree(source, destination);
+				return;
 			}
 
 			// Move the resources in the file system. Only the FORCE flag is valid here so don't
