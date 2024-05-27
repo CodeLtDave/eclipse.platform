@@ -191,6 +191,39 @@ public class MoveTest {
 		ensureExists(folderDestination);
 	}
 
+	@ParameterizedTest
+	@MethodSource("org.eclipse.core.tests.filesystem.zip.ZipFileSystemTestUtil#zipFileNames")
+	public void testMoveFolderWithContentFromZipFileIntoOtherZipFile(String zipFileName) throws Exception {
+		IFolder firstZipFile = ZipFileSystemTestSetup.firstProject.getFolder(zipFileName);
+		// create and open second ZipFile
+		String secondZipFileName = zipFileName.replace(".", "New.");
+		IFile secondZipFile = ZipFileSystemTestSetup.firstProject.getFile(secondZipFileName);
+		ensureDoesNotExist(secondZipFile);
+		ZipFileSystemTestSetup.copyZipFileIntoProject(ZipFileSystemTestSetup.firstProject, secondZipFileName);
+		ensureExists(secondZipFile);
+		ZipFileSystemTestUtil.openZipFile(secondZipFile);
+		IFolder openedSecondZipFile = ZipFileSystemTestSetup.firstProject.getFolder(secondZipFileName);
+		ensureExists(openedSecondZipFile);
+
+		IFolder newFolder = firstZipFile.getFolder("NewFolder");
+		ensureDoesNotExist(newFolder);
+		newFolder.create(false, true, getMonitor());
+		ensureExists(newFolder);
+		IFile textFile = newFolder.getFile("NewFile.txt");
+		ensureDoesNotExist(textFile);
+		String text = "Foo";
+		InputStream stream = new ByteArrayInputStream(text.getBytes());
+		textFile.create(stream, false, getMonitor());
+		stream.close();
+		ensureExists(textFile);
+		IFolder movedFolderDestination = openedSecondZipFile.getFolder("NewFolder");
+		newFolder.move(movedFolderDestination.getFullPath(), false, getMonitor());
+		ensureDoesNotExist(newFolder);
+		ensureExists(movedFolderDestination);
+		IFile movedTextFile = movedFolderDestination.getFile("NewFile.txt");
+		ensureExists(movedTextFile);
+	}
+
 
 	@ParameterizedTest
 	@MethodSource("org.eclipse.core.tests.filesystem.zip.ZipFileSystemTestUtil#zipFileNames")
@@ -215,7 +248,7 @@ public class MoveTest {
 	@MethodSource("org.eclipse.core.tests.filesystem.zip.ZipFileSystemTestUtil#zipFileNames")
 	public void testMoveZipFileIntoZipFile(String zipFileName) throws Exception {
 		IFolder openedZipFile = ZipFileSystemTestSetup.firstProject.getFolder(zipFileName);
-		// create and expand second ZipFile
+		// create and open second ZipFile
 		String newZipFileName = zipFileName.replace(".", "New.");
 		IFile newZipFile = ZipFileSystemTestSetup.firstProject.getFile(newZipFileName);
 		ensureDoesNotExist(newZipFile);
