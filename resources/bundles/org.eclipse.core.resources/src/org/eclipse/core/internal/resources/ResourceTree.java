@@ -368,7 +368,7 @@ class ResourceTree implements IResourceTree {
 			return true;
 
 		IFileStore fileStore = localManager.getStore(folder);
-		if (ZipFileUtil.isInsideOpenZipFile(fileStore)) {
+		if (ZipFileUtil.isOpenZipFile(fileStore)) {
 			try {
 				// folder is opened zip file
 				deletedFolder(folder);
@@ -1043,7 +1043,7 @@ class ResourceTree implements IResourceTree {
 			}
 			monitor.worked(20);
 
-			if (ZipFileUtil.isInsideOpenZipFile(source.getLocationURI())) {
+			if (ZipFileUtil.isOpenZipFile(source.getLocationURI())) {
 				try {
 					ZipFileTransformer.closeZipFile(source);
 					IFile newSource = source.getParent().getFile(IPath.fromOSString(source.getName()));

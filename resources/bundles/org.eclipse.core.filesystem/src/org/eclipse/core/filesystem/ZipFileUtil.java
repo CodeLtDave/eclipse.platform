@@ -62,6 +62,15 @@ public class ZipFileUtil {
 		return isInsideOpenZipFile(store);
 	}
 
+	//TODO Implement this method
+	public static boolean isOpenZipFile(IFileStore store) {
+		return true;
+	}
+
+	public static boolean isOpenZipFile(URI locationURI) {
+		return true;
+	}
+
 	/**
 	 * Checks if the provided {@link InputStream} represents a ZIP archive
 	 * by reading its first four bytes and comparing them against known ZIP file signatures.

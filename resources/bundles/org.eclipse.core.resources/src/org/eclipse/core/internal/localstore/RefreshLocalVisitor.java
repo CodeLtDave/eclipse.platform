@@ -251,7 +251,7 @@ public class RefreshLocalVisitor implements IUnifiedTreeVisitor, ILocalStoreCons
 			// if the target is an open zip file (linked folder), gender should not be
 			// synchronized because the folder state is needed to access the zip file
 			// content.
-			if (!node.isFolder() && !ZipFileUtil.isInsideOpenZipFile(target.getStore())) {
+			if (!node.isFolder() && !ZipFileUtil.isOpenZipFile(target.getStore())) {
 				folderToFile(node, target);
 				resourceChanged = true;
 				return false;
