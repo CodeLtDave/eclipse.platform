@@ -50,6 +50,7 @@ class ZipFileSystemTestSetup {
 	static final String TEXT_FILE_NAME = "Text.txt";
 	static final String DEEP_NESTED_ZIP_FILE_NAME = "DeepNested.zip";
 	static final String FAKE_ZIP_FILE_NAME = "Fake.zip";
+	static final String PASSWORD_PROTECTED_ZIP_FILE_NAME = "PasswordProtected.zip";
 	static IProject firstProject;
 	static IProject secondProject;
 	static IProgressMonitor progressMonitor = new NullProgressMonitor();
