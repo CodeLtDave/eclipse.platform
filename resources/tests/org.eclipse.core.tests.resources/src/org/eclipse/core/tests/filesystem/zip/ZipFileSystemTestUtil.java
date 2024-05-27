@@ -33,7 +33,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.tests.harness.FussyProgressMonitor;
 import org.junit.Assert;
 
-final class ZipFileSystemTestUtil {
+class ZipFileSystemTestUtil {
 
 	public static Stream<String> zipFileNames() {
 		return Stream.of(ZipFileSystemTestSetup.ZIP_FILE_VIRTUAL_FOLDER_NAME,

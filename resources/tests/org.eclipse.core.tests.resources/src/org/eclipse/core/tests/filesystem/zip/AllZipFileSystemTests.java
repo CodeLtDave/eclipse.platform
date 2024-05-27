@@ -16,7 +16,7 @@ import org.junit.platform.suite.api.SelectClasses;
 import org.junit.platform.suite.api.Suite;
 
 /**
- * Class for collecting all test classes that deal with the file system API.
+ * Class for collecting all test classes that deal with the zip file system API.
  */
 @Suite
 @SelectClasses({ CloseTest.class, CopyTest.class, CreateTest.class, DeleteTest.class, MoveTest.class,

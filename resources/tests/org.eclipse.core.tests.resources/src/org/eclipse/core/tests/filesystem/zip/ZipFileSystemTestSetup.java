@@ -33,7 +33,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
 
-public class ZipFileSystemTestSetup {
+class ZipFileSystemTestSetup {
 
 	static final String FIRST_PROJECT_NAME = "TestProject";
 	static final String SECOND_PROJECT_NAME = "SecondProject";
