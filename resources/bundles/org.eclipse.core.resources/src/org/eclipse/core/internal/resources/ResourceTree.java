@@ -1031,18 +1031,6 @@ class ResourceTree implements IResourceTree {
 			if (!source.exists() || destination.exists() || !destination.getParent().isAccessible())
 				throw new IllegalArgumentException();
 
-			// Check to see if we are synchronized with the local file system. If we are in sync then we can
-			// short circuit this method and do a file system only move. Otherwise we have to recursively
-			// try and move all resources, doing it in a best-effort manner.
-			boolean force = (flags & IResource.FORCE) != 0;
-			if (!force && !isSynchronized(source, IResource.DEPTH_INFINITE)) {
-				message = NLS.bind(Messages.localstore_resourceIsOutOfSync, source.getFullPath());
-				IStatus status = new ResourceStatus(IStatus.ERROR, source.getFullPath(), message);
-				failed(status);
-				return;
-			}
-			monitor.worked(20);
-
 			if (ZipFileUtil.isOpenZipFile(source.getLocationURI())) {
 				try {
 					ZipFileTransformer.closeZipFile(source);
@@ -1057,6 +1045,20 @@ class ResourceTree implements IResourceTree {
 					e.printStackTrace();
 				}
 			}
+
+			// Check to see if we are synchronized with the local file system. If we are in
+			// sync then we can
+			// short circuit this method and do a file system only move. Otherwise we have
+			// to recursively
+			// try and move all resources, doing it in a best-effort manner.
+			boolean force = (flags & IResource.FORCE) != 0;
+			if (!force && !isSynchronized(source, IResource.DEPTH_INFINITE)) {
+				message = NLS.bind(Messages.localstore_resourceIsOutOfSync, source.getFullPath());
+				IStatus status = new ResourceStatus(IStatus.ERROR, source.getFullPath(), message);
+				failed(status);
+				return;
+			}
+			monitor.worked(20);
 
 			boolean isDeep = (flags & IResource.SHALLOW) == 0;
 			if (!isDeep && (source.isLinked() || source.isVirtual())) {

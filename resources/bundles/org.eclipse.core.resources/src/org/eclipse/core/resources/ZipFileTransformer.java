@@ -104,6 +104,7 @@ public class ZipFileTransformer {
 
 		try {
 			link.createLink(zipURI, flags, subMonitor.split(19));
+			link.refreshLocal(0, subMonitor);
 		} catch (CoreException e) {
 			throw new CoreException(
 					new Status(IStatus.ERROR, ResourcesPlugin.PI_RESOURCES, "Zip File could not be opened")); //$NON-NLS-1$

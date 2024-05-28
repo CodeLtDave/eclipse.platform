@@ -14,7 +14,6 @@
  *******************************************************************************/
 package org.eclipse.core.internal.localstore;
 
-import org.eclipse.core.filesystem.ZipFileUtil;
 import org.eclipse.core.internal.resources.Container;
 import org.eclipse.core.internal.resources.File;
 import org.eclipse.core.internal.resources.Folder;
@@ -248,10 +247,7 @@ public class RefreshLocalVisitor implements IUnifiedTreeVisitor, ILocalStoreCons
 				return false;
 			}
 		} else {
-			// if the target is an open zip file (linked folder), gender should not be
-			// synchronized because the folder state is needed to access the zip file
-			// content.
-			if (!node.isFolder() && !ZipFileUtil.isOpenZipFile(target.getStore())) {
+			if (!node.isFolder()) {
 				folderToFile(node, target);
 				resourceChanged = true;
 				return false;
@@ -298,12 +294,7 @@ public class RefreshLocalVisitor implements IUnifiedTreeVisitor, ILocalStoreCons
 						return true;
 				}
 			} else {
-				// if opened zip files contain directories with content, the local name of the
-				// node contains "/" characters which are needed to properly present the
-				// contents in the workspace. So this check should not be done when handling zip
-				// files.
-				if (node.existsInFileSystem() && !IPath.EMPTY.isValidSegment(node.getLocalName())
-						&& !ZipFileUtil.isInsideOpenZipFile(target.getStore())) {
+				if (node.existsInFileSystem() && !IPath.EMPTY.isValidSegment(node.getLocalName())) {
 					String message = NLS.bind(Messages.resources_invalidResourceName, node.getLocalName());
 					errors.merge(new ResourceStatus(IResourceStatus.INVALID_RESOURCE_NAME, message));
 					return false;

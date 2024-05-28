@@ -20,6 +20,7 @@ import java.net.URISyntaxException;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystemAlreadyExistsException;
 import java.nio.file.FileSystems;
+import java.nio.file.FileVisitOption;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -30,6 +31,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -78,7 +80,7 @@ public class ZipFileStore extends FileStore {
 
 		try (FileSystem zipFs = openZipFileSystem()) {
 			Path zipRoot = zipFs.getPath(myName);
-			Files.walkFileTree(zipRoot, new SimpleFileVisitor<Path>() {
+			Files.walkFileTree(zipRoot, EnumSet.noneOf(FileVisitOption.class), 1, new SimpleFileVisitor<Path>() {
 				@Override
 				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
 					String entryName = zipRoot.relativize(file).toString();
@@ -141,11 +143,18 @@ public class ZipFileStore extends FileStore {
 	 */
 	private String computeName(ZipEntry entry) {
 		String name = entry.getName();
-		int end = name.length() - 1;
-		if (name.charAt(end) == '/') {
-			end--;
+		// removes "/" at the end
+		if (name.endsWith("/")) { //$NON-NLS-1$
+			name = name.substring(0, name.length() - 1);
 		}
-		return name.substring(0, end + 1);
+		// creates last segment after last /
+		int lastIndex = name.lastIndexOf('/');
+
+		if (lastIndex != -1) {
+			return name.substring(lastIndex + 1);
+		}
+
+		return name; // Falls kein '/' gefunden wurde
 	}
 
 	private IFileInfo convertToIFileInfo(Path zipEntryPath, BasicFileAttributes attrs) {
@@ -423,8 +432,6 @@ public class ZipFileStore extends FileStore {
 			}
 		});
 	}
-
-
 
 	@Override
 	public InputStream openInputStream(int options, IProgressMonitor monitor) throws CoreException {
