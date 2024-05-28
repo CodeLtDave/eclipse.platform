@@ -1049,7 +1049,9 @@ class ResourceTree implements IResourceTree {
 					IFile newSource = source.getParent().getFile(IPath.fromOSString(source.getName()));
 					IFile newDestination = destination.getParent().getFile(IPath.fromOSString(destination.getName()));
 					newSource.move(newDestination.getFullPath(), false, null);
-					ZipFileTransformer.openZipFile(newDestination, monitor.slice(4), false);
+					if (!ZipFileUtil.isNested(destination.getLocationURI())) {
+						ZipFileTransformer.openZipFile(newDestination, monitor.slice(4), false);
+					}
 					return;
 				} catch (Exception e) {
 					e.printStackTrace();

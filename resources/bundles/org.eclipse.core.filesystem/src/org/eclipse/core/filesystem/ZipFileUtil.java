@@ -81,6 +81,13 @@ public class ZipFileUtil {
 		return isOpenZipFile(store);
 	}
 
+	public static boolean isNested(URI fileURI) {
+		if (fileURI.getScheme().contains("zip")) { //$NON-NLS-1$
+			return true;
+		}
+		return false;
+	}
+
 	/**
 	 * Checks if the provided {@link InputStream} represents a ZIP archive
 	 * by reading its first four bytes and comparing them against known ZIP file signatures.

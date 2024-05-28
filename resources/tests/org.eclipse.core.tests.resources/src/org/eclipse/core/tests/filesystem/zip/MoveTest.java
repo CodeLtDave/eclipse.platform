@@ -258,7 +258,7 @@ public class MoveTest {
 		IFolder newOpenedZipFile = ZipFileSystemTestSetup.firstProject.getFolder(newZipFileName);
 		ensureExists(newOpenedZipFile);
 		// move second ZipFile into first ZipFile
-		IFolder newOpenedZipFileDestination = openedZipFile.getFolder(newZipFileName);
+		IFile newOpenedZipFileDestination = openedZipFile.getFile(newZipFileName);
 		newOpenedZipFile.move(newOpenedZipFileDestination.getFullPath(), false, getMonitor());
 		ensureExists(newOpenedZipFileDestination);
 		ensureDoesNotExist(newOpenedZipFile);

@@ -90,6 +90,13 @@ public class ZipFileTransformer {
 			throw new CoreException(new Status(IStatus.ERROR, ResourcesPlugin.PI_RESOURCES,
 					"The file " + file.getName() + " is a linked resource and thus can not be opened")); //$NON-NLS-1$ //$NON-NLS-2$
 		}
+
+		if (ZipFileUtil.isNested(file.getLocationURI())) {
+			throw new CoreException(new Status(IStatus.ERROR, ResourcesPlugin.PI_RESOURCES,
+					"Nested ZIP files are not allowed to be opened: " + file.getName())); //$NON-NLS-1$
+		}
+
+
 		URI zipURI = new URI("zip", null, "/", file.getLocationURI().toString(), null); //$NON-NLS-1$ //$NON-NLS-2$
 		IFolder link = file.getParent().getFolder(IPath.fromOSString(file.getName()));
 		subMonitor.split(1);

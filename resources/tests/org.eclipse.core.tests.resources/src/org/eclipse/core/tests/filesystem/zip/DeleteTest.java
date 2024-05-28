@@ -18,7 +18,6 @@ import static org.eclipse.core.tests.filesystem.zip.ZipFileSystemTestUtil.getMon
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.runtime.CoreException;
@@ -89,35 +88,5 @@ public class DeleteTest {
 		folder.delete(true, getMonitor());
 		ensureDoesNotExist(folder);
 		ensureDoesNotExist(textFile);
-	}
-
-
-	@ParameterizedTest
-	@MethodSource("org.eclipse.core.tests.filesystem.zip.ZipFileSystemTestUtil#zipFileNames")
-	public void testDeleteNestedZipFileParent(String zipFileName)
-			throws CoreException, IOException, URISyntaxException {
-		ZipFileSystemTestSetup.copyAndOpenNestedZipFileIntoProject();
-		IFile nestedZipFileParent = ZipFileSystemTestSetup.firstProject
-				.getFile(ZipFileSystemTestSetup.NESTED_ZIP_FILE_PARENT_NAME);
-		IFolder openedNestedZipFileParent = ZipFileSystemTestSetup.firstProject
-				.getFolder(ZipFileSystemTestSetup.NESTED_ZIP_FILE_PARENT_NAME);
-		openedNestedZipFileParent.delete(true, getMonitor());
-		ensureDoesNotExist(openedNestedZipFileParent);
-		ensureDoesNotExist(nestedZipFileParent);
-	}
-
-	@ParameterizedTest
-	@MethodSource("org.eclipse.core.tests.filesystem.zip.ZipFileSystemTestUtil#zipFileNames")
-	public void testDeleteNestedZipFileChild(String zipFileName) throws CoreException, IOException, URISyntaxException {
-		ZipFileSystemTestSetup.copyAndOpenNestedZipFileIntoProject();
-		IFolder openedNestedZipFileParent = ZipFileSystemTestSetup.firstProject
-				.getFolder(ZipFileSystemTestSetup.NESTED_ZIP_FILE_PARENT_NAME);
-		IFile nestedZipFileChild = openedNestedZipFileParent.getFile(ZipFileSystemTestSetup.NESTED_ZIP_FILE_CHILD_NAME);
-		IFolder openedNestedZipFileChild = openedNestedZipFileParent
-				.getFolder(ZipFileSystemTestSetup.NESTED_ZIP_FILE_CHILD_NAME);
-		openedNestedZipFileChild.delete(true, getMonitor());
-		ensureDoesNotExist(openedNestedZipFileChild);
-		ensureDoesNotExist(nestedZipFileChild);
-		ensureExists(openedNestedZipFileParent);
 	}
 }
