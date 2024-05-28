@@ -80,7 +80,7 @@ public class ZipFileStore extends FileStore {
 			Path zipRoot = zipFs.getPath(myName);
 			Files.walkFileTree(zipRoot, new SimpleFileVisitor<Path>() {
 				@Override
-				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
 					String entryName = zipRoot.relativize(file).toString();
 					if (!Files.isDirectory(file)) {
 						// For files, read attributes and create ZipEntry
@@ -249,10 +249,10 @@ public class ZipFileStore extends FileStore {
 		}
 	}
 
-	private void deleteRecursive(Path path) throws IOException {
-		if (Files.isDirectory(path)) {
+	private void deleteRecursive(Path pathToDelete) throws IOException {
+		if (Files.isDirectory(pathToDelete)) {
 			// Use try-with-resources to close the directory stream automatically
-			try (Stream<Path> entries = Files.walk(path)) {
+			try (Stream<Path> entries = Files.walk(pathToDelete)) {
 				// We need to sort it in reverse order so directories come after their contents
 				List<Path> sortedPaths = entries.sorted(Comparator.reverseOrder()).collect(Collectors.toList());
 				for (Path entry : sortedPaths) {
@@ -260,7 +260,7 @@ public class ZipFileStore extends FileStore {
 				}
 			}
 		} else {
-			Files.delete(path);
+			Files.delete(pathToDelete);
 		}
 	}
 
@@ -415,9 +415,9 @@ public class ZipFileStore extends FileStore {
 		});
 
 		// Delete the source directory after moving its contents
-		Files.walk(srcPath).sorted(Comparator.reverseOrder()).forEach(path -> {
+		Files.walk(srcPath).sorted(Comparator.reverseOrder()).forEach(pathToMove -> {
 			try {
-				Files.delete(path);
+				Files.delete(pathToMove);
 			} catch (IOException e) {
 				throw new RuntimeException("Failed to delete original files after move", e); //$NON-NLS-1$
 			}
@@ -478,13 +478,9 @@ public class ZipFileStore extends FileStore {
 
 		if (isNested()) {
 			ZipFileStore outerZipFileStore = (ZipFileStore) this.rootStore;
-			try {
-				FileSystem outerFs = outerZipFileStore.openZipFileSystem();
-				innerArchivePath = outerFs.getPath(outerZipFileStore.path.toString());
-				nioURI = innerArchivePath.toUri();
-			} catch (Exception e) {
-				// TODO: handle exception
-			}
+			FileSystem outerFs = outerZipFileStore.openZipFileSystem();
+			innerArchivePath = outerFs.getPath(outerZipFileStore.path.toString());
+			nioURI = innerArchivePath.toUri();
 		}
 
 		try {
@@ -546,12 +542,10 @@ public class ZipFileStore extends FileStore {
 
 	private URI toNioURI() throws URISyntaxException {
 		String nioScheme = "jar:"; //$NON-NLS-1$
-		String path = rootStore.toURI().toString();
-		URI rootURI = rootStore.toURI();
-		rootURI = rootURI;
+		String rootPath = rootStore.toURI().toString();
 
 		String suffix = "!/"; //$NON-NLS-1$
-		String ret = nioScheme + path + suffix;
+		String ret = nioScheme + rootPath + suffix;
 		return new URI(ret);
 	}
 
