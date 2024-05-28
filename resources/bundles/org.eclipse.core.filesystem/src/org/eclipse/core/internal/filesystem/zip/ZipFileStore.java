@@ -321,6 +321,10 @@ public class ZipFileStore extends FileStore {
 		return FrameworkUtil.getBundle(this.getClass()).getSymbolicName();
 	}
 
+	public IPath getPath() {
+		return path;
+	}
+
 	private boolean isNested() {
 		return this.rootStore instanceof ZipFileStore;
 	}

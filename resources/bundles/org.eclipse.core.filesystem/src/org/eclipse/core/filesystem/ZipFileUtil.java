@@ -64,11 +64,21 @@ public class ZipFileUtil {
 
 	//TODO Implement this method
 	public static boolean isOpenZipFile(IFileStore store) {
-		return true;
+		if (isInsideOpenZipFile(store)) {
+			ZipFileStore zipStore = (ZipFileStore) store;
+			return zipStore.getPath().isEmpty(); //if path is empty its the root
+		}
+		return false;
 	}
 
 	public static boolean isOpenZipFile(URI locationURI) {
-		return true;
+		IFileStore store;
+		try {
+			store = EFS.getStore(locationURI);
+		} catch (CoreException e) {
+			return false;
+		}
+		return isOpenZipFile(store);
 	}
 
 	/**
