@@ -114,8 +114,6 @@ public class ZipFileStore extends FileStore {
 		return entryList.toArray(new ZipEntry[0]);
 	}
 
-
-
 	@Override
 	public IFileInfo[] childInfos(int options, IProgressMonitor monitor) throws CoreException {
 		ZipEntry[] entries = childEntries(monitor);
@@ -154,11 +152,11 @@ public class ZipFileStore extends FileStore {
 		Path namePath = zipEntryPath.getFileName();
 		String name = namePath != null ? namePath.toString() : ""; //$NON-NLS-1$
 		FileInfo info = new FileInfo(name);
-	    info.setExists(true);
-	    info.setDirectory(attrs.isDirectory());
-	    info.setLastModified(attrs.lastModifiedTime().toMillis());
-	    info.setLength(attrs.size());
-	    return info;
+		info.setExists(true);
+		info.setDirectory(attrs.isDirectory());
+		info.setLastModified(attrs.lastModifiedTime().toMillis());
+		info.setLength(attrs.size());
+		return info;
 	}
 
 	/**
@@ -179,6 +177,63 @@ public class ZipFileStore extends FileStore {
 		info.setDirectory(entry.isDirectory());
 		info.setLength(entry.getSize());
 		return info;
+	}
+
+	@Override
+	protected void copyDirectory(IFileInfo sourceInfo, IFileStore destination, int options, IProgressMonitor monitor) throws CoreException {
+		if (!(destination instanceof ZipFileStore)) {
+			super.copyDirectory(sourceInfo, destination, options, monitor);
+			return;
+		}
+
+		if (!sourceInfo.isDirectory()) {
+			throw new CoreException(new Status(IStatus.ERROR, getPluginId(), "Source is not a directory")); //$NON-NLS-1$
+		}
+
+		try (FileSystem zipFs = openZipFileSystem()) {
+			Path sourceDir = zipFs.getPath(this.path.toString());
+			FileSystem destFs = ((ZipFileStore) destination).openZipFileSystem();
+			Path destDir = destFs.getPath(((ZipFileStore) destination).path.toString());
+
+			// Use Files.walk to iterate over each entry in the directory
+			Files.walk(sourceDir).forEach(sourcePath -> {
+				try {
+					Path destPath = destDir.resolve(sourceDir.relativize(sourcePath));
+					if (Files.isDirectory(sourcePath)) {
+						Files.createDirectories(destPath);
+					} else {
+						Files.copy(sourcePath, destPath, StandardCopyOption.REPLACE_EXISTING);
+					}
+				} catch (IOException e) {
+					throw new RuntimeException("Error copying directory contents", e); //$NON-NLS-1$
+				}
+			});
+		} catch (IOException | URISyntaxException e) {
+			throw new CoreException(new Status(IStatus.ERROR, getPluginId(), "Error copying directory within ZIP", e)); //$NON-NLS-1$
+		}
+	}
+
+	@Override
+	protected void copyFile(IFileInfo sourceInfo, IFileStore destination, int options, IProgressMonitor monitor) throws CoreException {
+		if (!(destination instanceof ZipFileStore)) {
+			super.copyFile(sourceInfo, destination, options, monitor);
+			return;
+		}
+
+		if (sourceInfo.isDirectory()) {
+			throw new CoreException(new Status(IStatus.ERROR, getPluginId(), "Source is a directory, not a file")); //$NON-NLS-1$
+		}
+
+		try (FileSystem zipFs = openZipFileSystem()) {
+			Path sourcePath = zipFs.getPath(this.path.toString());
+			FileSystem destFs = ((ZipFileStore) destination).openZipFileSystem();
+			Path destPath = destFs.getPath(((ZipFileStore) destination).path.toString());
+
+			// Copy the file with REPLACE_EXISTING option to overwrite if it already exists
+			Files.copy(sourcePath, destPath, StandardCopyOption.REPLACE_EXISTING);
+		} catch (IOException | URISyntaxException e) {
+			throw new CoreException(new Status(IStatus.ERROR, getPluginId(), "Error copying file within ZIP", e)); //$NON-NLS-1$
+		}
 	}
 
 	@Override
@@ -309,7 +364,6 @@ public class ZipFileStore extends FileStore {
 
 	@Override
 	public void move(IFileStore destination, int options, IProgressMonitor monitor) throws CoreException {
-		//if destination is no archive
 		if (!(destination instanceof ZipFileStore)) {
 			super.move(destination, options, monitor);
 			return;
@@ -317,22 +371,55 @@ public class ZipFileStore extends FileStore {
 		ZipFileStore destZipFileStore = (ZipFileStore) destination;
 
 		try (FileSystem srcFs = openZipFileSystem(); FileSystem destFs = destZipFileStore.openZipFileSystem()) {
-
 			Path srcPath = srcFs.getPath(this.path.toString());
 			Path destPath = destFs.getPath(destZipFileStore.path.toString());
 
-			// Ensure the parent directories of the destination path exist.
 			if (destPath.getParent() != null) {
 				Files.createDirectories(destPath.getParent());
 			}
 
-			// Attempt to move the file or directory.
-			// Note: This conceptual code does not account for the actual limitations of ZIP FileSystem.
-			Files.move(srcPath, destPath, StandardCopyOption.REPLACE_EXISTING);
+			if (Files.isDirectory(srcPath)) {
+				moveDirectory(srcPath, destPath, srcFs, destFs);
+			} else {
+				Files.move(srcPath, destPath, StandardCopyOption.REPLACE_EXISTING);
+			}
 		} catch (IOException | URISyntaxException e) {
 			throw new CoreException(new Status(IStatus.ERROR, "org.eclipse.core.filesystem.zip", "Error moving entry within ZIP", e)); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	}
+
+	private void moveDirectory(Path srcPath, Path destPath, FileSystem srcFs, FileSystem destFs) throws IOException {
+		// Ensure the destination directory structure is ready
+		if (destPath.getParent() != null) {
+			Files.createDirectories(destPath.getParent());
+		}
+
+		// Recursively move the contents
+		Files.walk(srcPath).forEach(source -> {
+			try {
+				Path destination = destPath.resolve(srcPath.relativize(source));
+				if (Files.isDirectory(source)) {
+					if (!Files.exists(destination)) {
+						Files.createDirectories(destination);
+					}
+				} else {
+					Files.move(source, destination, StandardCopyOption.REPLACE_EXISTING);
+				}
+			} catch (IOException e) {
+				throw new RuntimeException("Failed to move files", e); //$NON-NLS-1$
+			}
+		});
+
+		// Delete the source directory after moving its contents
+		Files.walk(srcPath).sorted(Comparator.reverseOrder()).forEach(path -> {
+			try {
+				Files.delete(path);
+			} catch (IOException e) {
+				throw new RuntimeException("Failed to delete original files after move", e); //$NON-NLS-1$
+			}
+		});
+	}
+
 
 
 	@Override
@@ -406,9 +493,6 @@ public class ZipFileStore extends FileStore {
 		}
 	}
 
-
-
-
 	@Override
 	public void putInfo(IFileInfo info, int options, IProgressMonitor monitor) throws CoreException {
 		if (monitor != null) {
@@ -455,7 +539,6 @@ public class ZipFileStore extends FileStore {
 			throw new RuntimeException(e);
 		}
 	}
-
 
 	private URI toNioURI() throws URISyntaxException {
 		String nioScheme = "jar:"; //$NON-NLS-1$
