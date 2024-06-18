@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -35,6 +36,7 @@ import org.eclipse.core.filesystem.IFileInfo;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.filesystem.IFileTree;
 import org.eclipse.core.filesystem.URIUtil;
+import org.eclipse.core.filesystem.ZipFileUtil;
 import org.eclipse.core.internal.refresh.RefreshManager;
 import org.eclipse.core.internal.resources.File;
 import org.eclipse.core.internal.resources.Folder;
@@ -65,6 +67,7 @@ import org.eclipse.core.resources.IResourceStatus;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourceAttributes;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.resources.ZipFileTransformer;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -376,6 +379,32 @@ public class FileSystemResourceManager implements ICoreConstants, IManager {
 			String message = NLS.bind(Messages.localstore_resourceExists, destination.getFullPath());
 			throw new ResourceException(IResourceStatus.FAILED_WRITE_LOCAL, destination.getFullPath(), message, null);
 		}
+
+		if (ZipFileUtil.isOpenZipFile(target.getLocationURI())) {
+			try {
+				ZipFileTransformer.closeZipFile((IFolder) target);
+				IFile newTarget = target.getParent().getFile(IPath.fromOSString(target.getName()));
+				IFile newDestination = destination.getParent().getFile(IPath.fromOSString(destination.getName()));
+
+				getHistoryStore().copyHistory(newTarget, newDestination, false);
+				CopyVisitor visitor = new CopyVisitor(newTarget, newDestination, updateFlags, subMonitor.split(100));
+				UnifiedTree tree = new UnifiedTree(newTarget);
+				tree.accept(visitor, IResource.DEPTH_INFINITE);
+				IStatus status = visitor.getStatus();
+				if (!status.isOK()) {
+					throw new ResourceException(status);
+				}
+
+				if (!ZipFileUtil.isNested(destination.getLocationURI())) {
+					ZipFileTransformer.openZipFile(newDestination, false);
+					ZipFileTransformer.openZipFile(newTarget, false);
+				}
+				return;
+			} catch (URISyntaxException e) {
+				e.printStackTrace();
+			}
+		}
+
 		getHistoryStore().copyHistory(target, destination, false);
 		CopyVisitor visitor = new CopyVisitor(target, destination, updateFlags, subMonitor.split(100));
 		UnifiedTree tree = new UnifiedTree(target);

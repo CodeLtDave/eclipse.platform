@@ -48,8 +48,7 @@ public class CopyTest {
 		IFolder destinationFolder = ZipFileSystemTestSetup.firstProject.getFolder("Folder");
 		destinationFolder.create(true, true, getMonitor());
 		ensureExists(destinationFolder);
-		IFolder copyDestination = ZipFileSystemTestSetup.firstProject
-				.getFolder("Folder" + "/" + ZipFileSystemTestSetup.ZIP_FILE_VIRTUAL_FOLDER_NAME);
+		IFolder copyDestination = destinationFolder.getFolder(ZipFileSystemTestSetup.ZIP_FILE_VIRTUAL_FOLDER_NAME);
 		openedZipFile.copy(copyDestination.getFullPath(), true, getMonitor());
 		ensureExists(copyDestination);
 		ensureExists(openedZipFile);
