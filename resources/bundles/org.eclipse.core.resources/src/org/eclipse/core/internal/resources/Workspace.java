@@ -53,6 +53,7 @@ import org.eclipse.core.internal.events.LifecycleEvent;
 import org.eclipse.core.internal.events.NotificationManager;
 import org.eclipse.core.internal.events.ResourceChangeEvent;
 import org.eclipse.core.internal.events.ResourceComparator;
+import org.eclipse.core.internal.events.ZipMovePreparationListener;
 import org.eclipse.core.internal.localstore.FileSystemResourceManager;
 import org.eclipse.core.internal.preferences.PreferencesService;
 import org.eclipse.core.internal.properties.IPropertyManager;
@@ -178,6 +179,7 @@ public class Workspace extends PlatformObject implements IWorkspace, ICoreConsta
 	protected JobGroup buildJobGroup;
 	protected CharsetManager charsetManager;
 	protected ContentDescriptionManager contentDescriptionManager;
+	protected ZipMovePreparationListener zipMovePreparationListener;
 	/** indicates if the workspace crashed in a previous session */
 	protected boolean crashed = false;
 	protected final IWorkspaceRoot defaultRoot = new WorkspaceRoot(IPath.ROOT, this);
@@ -2623,6 +2625,8 @@ public class Workspace extends PlatformObject implements IWorkspace, ICoreConsta
 			charsetManager.startup(null);
 			contentDescriptionManager = new ContentDescriptionManager(this);
 			contentDescriptionManager.startup(null);
+			zipMovePreparationListener = new ZipMovePreparationListener();
+			zipMovePreparationListener.startup(this);
 			//must start after save manager, because (read) access to tree is needed
 			//must start after other managers to avoid potential cyclic dependency on uninitialized managers (see bug 316182)
 			//must start before alias manager (see bug 94829)

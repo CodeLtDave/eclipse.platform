@@ -30,6 +30,7 @@ public class ZipFileSystem extends FileSystem {
 	 */
 	public static final String SCHEME_ZIP = "zip"; //$NON-NLS-1$
 
+
 	@Override
 	public IFileStore getStore(URI uri) {
 		if (SCHEME_ZIP.equals(uri.getScheme())) {
