@@ -49,7 +49,7 @@ public class ZipFileTransformer {
 		URI childURI = parentStore.getChild(folder.getName()).toURI();
 		if (URIUtil.equals(zipURI, childURI)) {
 			folder.delete(IResource.CLOSE_ZIP_FILE, null);
-			folder.getProject().refreshLocal(IResource.DEPTH_INFINITE, null);
+			folder.getParent().refreshLocal(IResource.DEPTH_INFINITE, null);
 		} else {
 			throw new CoreException(new Status(IStatus.ERROR, ResourcesPlugin.PI_RESOURCES,
 					"Closing of Zip File " + folder.getName() //$NON-NLS-1$

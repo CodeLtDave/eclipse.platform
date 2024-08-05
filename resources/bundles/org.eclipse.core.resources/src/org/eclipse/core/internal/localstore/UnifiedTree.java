@@ -22,14 +22,27 @@ package org.eclipse.core.internal.localstore;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.regex.Pattern;
-import org.eclipse.core.filesystem.*;
+import org.eclipse.core.filesystem.EFS;
+import org.eclipse.core.filesystem.IFileInfo;
+import org.eclipse.core.filesystem.IFileStore;
+import org.eclipse.core.filesystem.IFileTree;
 import org.eclipse.core.internal.refresh.RefreshJob;
-import org.eclipse.core.internal.resources.*;
+import org.eclipse.core.internal.resources.ICoreConstants;
+import org.eclipse.core.internal.resources.Resource;
+import org.eclipse.core.internal.resources.ResourceInfo;
+import org.eclipse.core.internal.resources.Workspace;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.Assert;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.jobs.Job;
 
 /**
@@ -172,12 +185,26 @@ public class UnifiedTree {
 				int comp = localInfo != null ? name.compareTo(localInfo.getName()) : -1;
 				//special handling for linked resources
 				if (target.isLinked()) {
-					//child will be null if location is undefined
-					child = createChildForLinkedResource(target);
-					workspaceIndex++;
-					//if there is a matching local file, skip it - it will be blocked by the linked resource
-					if (comp == 0)
+					if (comp > 0) {
+						// resource exists only in file system
+						// don't create a node for symbolic links that create a cycle
+						if (localInfo.getAttribute(EFS.ATTRIBUTE_SYMLINK) && localInfo.isDirectory()
+								&& isRecursiveLink(node.getStore(), localInfo))
+							child = null;
+						else
+							child = createChildNodeFromFileSystem(node, localInfo);
 						localIndex++;
+					} else {
+						// resource exists at least in the workspace
+						child = createChildForLinkedResource(target);
+						workspaceIndex++;
+					}
+
+					if (comp == 0) {
+						// there is a matching local file, skip it - it will be blocked by the linked
+						// resource
+						localIndex++;
+					}
 				} else if (comp == 0) {
 					// resource exists in workspace and file system --> localInfo is non-null
 					//create workspace-only node for symbolic link that creates a cycle
