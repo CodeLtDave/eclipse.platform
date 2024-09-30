@@ -63,40 +63,64 @@ public final class FileStoreUtil {
 	}
 
 	public static int comparePathSegments(String p1, String p2) {
+		if (p1 == null && p2 == null) {
+			return 0; // Both are null, considered equal
+		} else if (p1 == null) {
+			return -1; // Null is considered "less than" non-null
+		} else if (p2 == null) {
+			return 1; // Non-null is considered "greater than" null
+		}
+
 		int compare;
 		compare = compareSlashFirst(p1, p2);
-		if (compare != 0)
+		if (compare != 0) {
 			return compare;
+		}
+
 		// all segments are equal, so compare based on number of segments
 		int segmentCount1 = countCharButNotAtEnd(p1, '/');
 		int segmentCount2 = countCharButNotAtEnd(p2, '/');
-		compare = segmentCount1 - segmentCount2;
-		return compare;
+		return segmentCount1 - segmentCount2;
 	}
 
 	static int compareSlashFirst(String value, String other) {
+		if (value == null && other == null) {
+			return 0; // Both are null, considered equal
+		} else if (value == null) {
+			return -1; // Null is considered "less than" non-null
+		} else if (other == null) {
+			return 1; // Non-null is considered "greater than" null
+		}
+
 		int len1 = value.length();
 		int len2 = other.length();
 		int lim = Math.min(len1, len2);
+
 		for (int k = 0; k < lim; k++) {
 			char c1 = value.charAt(k);
 			char c2 = other.charAt(k);
 			if (c1 != c2) {
 				// '/' first
-				if (c1 == '/')
+				if (c1 == '/') {
 					return -1;
-				if (c2 == '/')
+				}
+				if (c2 == '/') {
 					return 1;
+				}
 				return c1 - c2;
 			}
 		}
-		// ignore "/" at the end
-		if (value.endsWith("/")) //$NON-NLS-1$
+
+		// Ignore "/" at the end
+		if (value.endsWith("/")) { //$NON-NLS-1$
 			len1 -= 1;
-		if (other.endsWith("/")) //$NON-NLS-1$
+		}
+		if (other.endsWith("/")) { //$NON-NLS-1$
 			len2 -= 1;
+		}
 		return len1 - len2;
 	}
+
 
 	static int countCharButNotAtEnd(String str, char c) {
 		int count = 0;

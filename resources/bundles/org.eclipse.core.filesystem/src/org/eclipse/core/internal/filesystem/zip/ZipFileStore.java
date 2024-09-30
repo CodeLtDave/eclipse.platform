@@ -135,7 +135,7 @@ public class ZipFileStore extends FileStore {
 
 	private IFileInfo convertToIFileInfo(Path zipEntryPath, BasicFileAttributes attrs) {
 		Path namePath = zipEntryPath.getFileName();
-		String name = namePath != null ? namePath.toString() : ""; //$NON-NLS-1$
+		String name = namePath != null ? namePath.toString() : "a"; //$NON-NLS-1$
 		FileInfo info = new FileInfo(name);
 		info.setExists(true);
 		info.setDirectory(attrs.isDirectory());
@@ -493,17 +493,21 @@ public class ZipFileStore extends FileStore {
 	@Override
 	public URI toURI() {
 		String scheme = ZipFileSystem.SCHEME_ZIP;
+		// Get the path inside the zip, making sure it's absolute
 		String pathString = path.makeAbsolute().toString();
+		// Get the URI of the root store (the zip file itself)
 		URI rootStoreURI = rootStore.toURI();
-		String rootStoreScheme = rootStoreURI.getScheme();
-		String rootStorePath = rootStoreURI.getPath();
-		String rootStoreQuery = rootStoreScheme + ":" + rootStorePath; //$NON-NLS-1$
+		// Use the scheme-specific part in the format: rootStoreURI!pathString
+		String schemeSpecificPart = rootStoreURI.toString() + "!" + pathString; //$NON-NLS-1$
+
 		try {
-			return new URI(scheme, null, pathString, rootStoreQuery, null);
+			// Return a new URI with the zip scheme and the constructed schemeSpecificPart
+			return new URI(scheme, schemeSpecificPart, null);
 		} catch (URISyntaxException e) {
 			throw new RuntimeException(e);
 		}
 	}
+
 
 	private URI toNioURI() throws URISyntaxException {
 		String nioScheme = "jar:"; //$NON-NLS-1$

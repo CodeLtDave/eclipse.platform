@@ -48,19 +48,33 @@ public class ZipFileTransformer {
 	 */
 	public static void closeZipFile(IFolder folder) throws URISyntaxException, CoreException {
 		IProject project = folder.getProject();
-		URI zipURI = new URI(folder.getLocationURI().getQuery());
+
+		// Extract the zip file URI from the folder's Location URI (schemeSpecificPart
+		// part before the '!')
+		URI folderLocationURI = folder.getLocationURI();
+		String schemeSpecificPart = folderLocationURI.getSchemeSpecificPart();
+
+		// The zip file URI is the part before the '!' (base zip file URI)
+		String zipFileUriString = schemeSpecificPart.split("!")[0]; //$NON-NLS-1$
+		URI zipURI = new URI(zipFileUriString);
+
+		// Get the IFileStore for the parent folder
 		IFileStore parentStore = EFS.getStore(folder.getParent().getLocationURI());
+		// Construct the child URI (for the folder being closed)
 		URI childURI = parentStore.getChild(folder.getName()).toURI();
 
+		// Check if the zipURI and childURI are the same
 		if (URIUtil.equals(zipURI, childURI)) {
+			// Delete the folder and refresh the project
 			folder.delete(IResource.CLOSE_ZIP_FILE, null);
 			project.refreshLocal(IResource.DEPTH_INFINITE, null);
 		} else {
-			throw new CoreException(new Status(IStatus.ERROR, ResourcesPlugin.PI_RESOURCES,
-					"Closing of Zip File " + folder.getName() //$NON-NLS-1$
+			throw new CoreException(
+					new Status(IStatus.ERROR, ResourcesPlugin.PI_RESOURCES, "Closing of Zip File " + folder.getName() //$NON-NLS-1$
 							+ " failed because the Zip File is not local.")); //$NON-NLS-1$
 		}
 	}
+
 
 	/**
 	 * Opens a zip file represented by a file into a linked folder. The zip file
@@ -99,7 +113,12 @@ public class ZipFileTransformer {
 		IWorkspaceRunnable runnable = monitor -> {
 			try (InputStream fis = file.getContents()) {
 				ZipFileUtil.canZipFileBeOpened(fis);
+				URI locationURI = file.getLocationURI();
+				String ssp = locationURI.getSchemeSpecificPart();
+				ssp = ssp;
 				URI zipURI = new URI("zip", null, "/", file.getLocationURI().toString(), null); //$NON-NLS-1$ //$NON-NLS-2$
+				zipURI = new URI("zip:file", file.getLocationURI().getSchemeSpecificPart(), null); //$NON-NLS-1$
+
 				IFolder link = file.getParent().getFolder(IPath.fromOSString(file.getName()));
 				((Resource) file).deleteResource(false, null);
 				workspace.broadcastPostChange();

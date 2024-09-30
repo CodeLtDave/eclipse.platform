@@ -33,14 +33,36 @@ public class ZipFileSystem extends FileSystem {
 	@Override
 	public IFileStore getStore(URI uri) {
 		if (SCHEME_ZIP.equals(uri.getScheme())) {
-			IPath path = IPath.fromOSString(uri.getPath());
-			try {
-				return new ZipFileStore(EFS.getStore(new URI(uri.getQuery())), path);
-			} catch (URISyntaxException e) {
-				//ignore and fall through below
-			} catch (CoreException e) {
-				//ignore and fall through below
+			if (uri.getPath() == null) {
+				// The entire file path is in the schemeSpecificPart
+				String schemeSpecificPart = uri.getSchemeSpecificPart();
+				// Extract the zip file URI part (before the !)
+				String zipFileUriString = schemeSpecificPart.split("!")[0]; // everything before the ! //$NON-NLS-1$
+
+				// Extract the path inside the zip (after the !)
+				String pathInZip = schemeSpecificPart.contains("!") ? schemeSpecificPart.split("!")[1] : ""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+
+				try {
+					// Use the extracted zipFileUriString as the base URI
+					URI zipFileUri = new URI(zipFileUriString);
+					IPath path = IPath.fromOSString(pathInZip);
+					return new ZipFileStore(EFS.getStore(zipFileUri), path);
+				} catch (URISyntaxException e) {
+					//ignore and fall through below
+				} catch (CoreException e) {
+					//ignore and fall through below
+				}
+			} else {
+				IPath path = IPath.fromOSString(uri.getPath());
+				try {
+					return new ZipFileStore(EFS.getStore(new URI(uri.getQuery())), path);
+				} catch (URISyntaxException e) {
+					//ignore and fall through below
+				} catch (CoreException e) {
+					//ignore and fall through below
+				}
 			}
+
 		}
 		return EFS.getNullFileSystem().getStore(uri);
 	}
